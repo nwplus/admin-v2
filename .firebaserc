@@ -1,0 +1,22 @@
+{
+  "projects": {
+    "default": "nwplus-ubc-dev",
+    "production": "nwplus-ubc"
+  },
+  "targets": {
+    "nwplus-ubc": {
+      "hosting": {
+        "nwplus-ubc": [
+          "nwplus-ubc"
+        ]
+      }
+    },
+    "nwplus-ubc-dev": {
+      "hosting": {
+        "nwplus-ubc-dev": [
+          "dev-nwplus-admin"
+        ]
+      }
+    }
+  }
+}

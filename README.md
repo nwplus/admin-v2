@@ -37,8 +37,11 @@ This project uses [Biome](https://biomejs.dev/) for linting and formatting. The 
 
 
 ```bash
-pnpm lint
 pnpm format
+pnpm format:imports # formats imports only
+pnpm lint
+pnpm lint:write # makes safe changes
+pnpm lint:write:unsafe # makes unsafe changes
 pnpm check
 ```
 
@@ -63,10 +66,3 @@ This project uses [TanStack Router](https://tanstack.com/router). The initial se
 ## Data Fetching
 
 There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-
-### React-Query
-
-You can use `useQuery` to fetch your data.
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
