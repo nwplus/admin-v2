@@ -11,152 +11,249 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
-import { Route as DemoTableImport } from './routes/demo.table'
-import { Route as DemoFormSimpleImport } from './routes/demo.form.simple'
-import { Route as DemoFormAddressImport } from './routes/demo.form.address'
+import { Route as SigninImport } from './routes/signin'
+import { Route as AuthRouteImport } from './routes/_auth/route'
+import { Route as AuthIndexImport } from './routes/_auth/index'
+import { Route as AuthFaqImport } from './routes/_auth/faq'
+import { Route as AuthFactotumImport } from './routes/_auth/factotum'
+import { Route as AuthEvaluatorImport } from './routes/_auth/evaluator'
+import { Route as AuthLivesitesSiteIdImport } from './routes/_auth/livesites/$siteId'
+import { Route as AuthHackathonsHackathonIdImport } from './routes/_auth/hackathons/$hackathonId'
+import { Route as AuthApplicationsDocumentIdImport } from './routes/_auth/applications/$documentId'
 
 // Create/Update Routes
 
-const IndexRoute = IndexImport.update({
+const SigninRoute = SigninImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthRouteRoute = AuthRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthIndexRoute = AuthIndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const DemoTanstackQueryRoute = DemoTanstackQueryImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRoute,
+const AuthFaqRoute = AuthFaqImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const DemoTableRoute = DemoTableImport.update({
-  id: '/demo/table',
-  path: '/demo/table',
-  getParentRoute: () => rootRoute,
+const AuthFactotumRoute = AuthFactotumImport.update({
+  id: '/factotum',
+  path: '/factotum',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const DemoFormSimpleRoute = DemoFormSimpleImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
-  getParentRoute: () => rootRoute,
+const AuthEvaluatorRoute = AuthEvaluatorImport.update({
+  id: '/evaluator',
+  path: '/evaluator',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const DemoFormAddressRoute = DemoFormAddressImport.update({
-  id: '/demo/form/address',
-  path: '/demo/form/address',
-  getParentRoute: () => rootRoute,
+const AuthLivesitesSiteIdRoute = AuthLivesitesSiteIdImport.update({
+  id: '/livesites/$siteId',
+  path: '/livesites/$siteId',
+  getParentRoute: () => AuthRouteRoute,
 } as any)
+
+const AuthHackathonsHackathonIdRoute = AuthHackathonsHackathonIdImport.update({
+  id: '/hackathons/$hackathonId',
+  path: '/hackathons/$hackathonId',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthApplicationsDocumentIdRoute = AuthApplicationsDocumentIdImport.update(
+  {
+    id: '/applications/$documentId',
+    path: '/applications/$documentId',
+    getParentRoute: () => AuthRouteRoute,
+  } as any,
+)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRoute
+    }
+    '/signin': {
+      id: '/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof SigninImport
+      parentRoute: typeof rootRoute
+    }
+    '/_auth/evaluator': {
+      id: '/_auth/evaluator'
+      path: '/evaluator'
+      fullPath: '/evaluator'
+      preLoaderRoute: typeof AuthEvaluatorImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/_auth/factotum': {
+      id: '/_auth/factotum'
+      path: '/factotum'
+      fullPath: '/factotum'
+      preLoaderRoute: typeof AuthFactotumImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/_auth/faq': {
+      id: '/_auth/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof AuthFaqImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/_auth/': {
+      id: '/_auth/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthIndexImport
+      parentRoute: typeof AuthRouteImport
     }
-    '/demo/table': {
-      id: '/demo/table'
-      path: '/demo/table'
-      fullPath: '/demo/table'
-      preLoaderRoute: typeof DemoTableImport
-      parentRoute: typeof rootRoute
+    '/_auth/applications/$documentId': {
+      id: '/_auth/applications/$documentId'
+      path: '/applications/$documentId'
+      fullPath: '/applications/$documentId'
+      preLoaderRoute: typeof AuthApplicationsDocumentIdImport
+      parentRoute: typeof AuthRouteImport
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryImport
-      parentRoute: typeof rootRoute
+    '/_auth/hackathons/$hackathonId': {
+      id: '/_auth/hackathons/$hackathonId'
+      path: '/hackathons/$hackathonId'
+      fullPath: '/hackathons/$hackathonId'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdImport
+      parentRoute: typeof AuthRouteImport
     }
-    '/demo/form/address': {
-      id: '/demo/form/address'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleImport
-      parentRoute: typeof rootRoute
+    '/_auth/livesites/$siteId': {
+      id: '/_auth/livesites/$siteId'
+      path: '/livesites/$siteId'
+      fullPath: '/livesites/$siteId'
+      preLoaderRoute: typeof AuthLivesitesSiteIdImport
+      parentRoute: typeof AuthRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthRouteRouteChildren {
+  AuthEvaluatorRoute: typeof AuthEvaluatorRoute
+  AuthFactotumRoute: typeof AuthFactotumRoute
+  AuthFaqRoute: typeof AuthFaqRoute
+  AuthIndexRoute: typeof AuthIndexRoute
+  AuthApplicationsDocumentIdRoute: typeof AuthApplicationsDocumentIdRoute
+  AuthHackathonsHackathonIdRoute: typeof AuthHackathonsHackathonIdRoute
+  AuthLivesitesSiteIdRoute: typeof AuthLivesitesSiteIdRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthEvaluatorRoute: AuthEvaluatorRoute,
+  AuthFactotumRoute: AuthFactotumRoute,
+  AuthFaqRoute: AuthFaqRoute,
+  AuthIndexRoute: AuthIndexRoute,
+  AuthApplicationsDocumentIdRoute: AuthApplicationsDocumentIdRoute,
+  AuthHackathonsHackathonIdRoute: AuthHackathonsHackathonIdRoute,
+  AuthLivesitesSiteIdRoute: AuthLivesitesSiteIdRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '': typeof AuthRouteRouteWithChildren
+  '/signin': typeof SigninRoute
+  '/evaluator': typeof AuthEvaluatorRoute
+  '/factotum': typeof AuthFactotumRoute
+  '/faq': typeof AuthFaqRoute
+  '/': typeof AuthIndexRoute
+  '/applications/$documentId': typeof AuthApplicationsDocumentIdRoute
+  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRoute
+  '/livesites/$siteId': typeof AuthLivesitesSiteIdRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/signin': typeof SigninRoute
+  '/evaluator': typeof AuthEvaluatorRoute
+  '/factotum': typeof AuthFactotumRoute
+  '/faq': typeof AuthFaqRoute
+  '/': typeof AuthIndexRoute
+  '/applications/$documentId': typeof AuthApplicationsDocumentIdRoute
+  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRoute
+  '/livesites/$siteId': typeof AuthLivesitesSiteIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/demo/table': typeof DemoTableRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/_auth': typeof AuthRouteRouteWithChildren
+  '/signin': typeof SigninRoute
+  '/_auth/evaluator': typeof AuthEvaluatorRoute
+  '/_auth/factotum': typeof AuthFactotumRoute
+  '/_auth/faq': typeof AuthFaqRoute
+  '/_auth/': typeof AuthIndexRoute
+  '/_auth/applications/$documentId': typeof AuthApplicationsDocumentIdRoute
+  '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRoute
+  '/_auth/livesites/$siteId': typeof AuthLivesitesSiteIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | ''
+    | '/signin'
+    | '/evaluator'
+    | '/factotum'
+    | '/faq'
     | '/'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/applications/$documentId'
+    | '/hackathons/$hackathonId'
+    | '/livesites/$siteId'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/signin'
+    | '/evaluator'
+    | '/factotum'
+    | '/faq'
     | '/'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/applications/$documentId'
+    | '/hackathons/$hackathonId'
+    | '/livesites/$siteId'
   id:
     | '__root__'
-    | '/'
-    | '/demo/table'
-    | '/demo/tanstack-query'
-    | '/demo/form/address'
-    | '/demo/form/simple'
+    | '/_auth'
+    | '/signin'
+    | '/_auth/evaluator'
+    | '/_auth/factotum'
+    | '/_auth/faq'
+    | '/_auth/'
+    | '/_auth/applications/$documentId'
+    | '/_auth/hackathons/$hackathonId'
+    | '/_auth/livesites/$siteId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DemoTableRoute: typeof DemoTableRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  DemoFormAddressRoute: typeof DemoFormAddressRoute
-  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  SigninRoute: typeof SigninRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DemoTableRoute: DemoTableRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  DemoFormAddressRoute: DemoFormAddressRoute,
-  DemoFormSimpleRoute: DemoFormSimpleRoute,
+  AuthRouteRoute: AuthRouteRouteWithChildren,
+  SigninRoute: SigninRoute,
 }
 
 export const routeTree = rootRoute
@@ -169,27 +266,52 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/",
-        "/demo/table",
-        "/demo/tanstack-query",
-        "/demo/form/address",
-        "/demo/form/simple"
+        "/_auth",
+        "/signin"
       ]
     },
-    "/": {
-      "filePath": "index.tsx"
+    "/_auth": {
+      "filePath": "_auth/route.tsx",
+      "children": [
+        "/_auth/evaluator",
+        "/_auth/factotum",
+        "/_auth/faq",
+        "/_auth/",
+        "/_auth/applications/$documentId",
+        "/_auth/hackathons/$hackathonId",
+        "/_auth/livesites/$siteId"
+      ]
     },
-    "/demo/table": {
-      "filePath": "demo.table.tsx"
+    "/signin": {
+      "filePath": "signin.tsx"
     },
-    "/demo/tanstack-query": {
-      "filePath": "demo.tanstack-query.tsx"
+    "/_auth/evaluator": {
+      "filePath": "_auth/evaluator.tsx",
+      "parent": "/_auth"
     },
-    "/demo/form/address": {
-      "filePath": "demo.form.address.tsx"
+    "/_auth/factotum": {
+      "filePath": "_auth/factotum.tsx",
+      "parent": "/_auth"
     },
-    "/demo/form/simple": {
-      "filePath": "demo.form.simple.tsx"
+    "/_auth/faq": {
+      "filePath": "_auth/faq.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/": {
+      "filePath": "_auth/index.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/applications/$documentId": {
+      "filePath": "_auth/applications/$documentId.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/hackathons/$hackathonId": {
+      "filePath": "_auth/hackathons/$hackathonId.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/livesites/$siteId": {
+      "filePath": "_auth/livesites/$siteId.tsx",
+      "parent": "/_auth"
     }
   }
 }
