@@ -1,4 +1,4 @@
-import { SignInButton } from "@/components/sign-in-button";
+import { SignInButton } from "@/components/features/auth/sign-in-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createFileRoute } from "@tanstack/react-router";
 

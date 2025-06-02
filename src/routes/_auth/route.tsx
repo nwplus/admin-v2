@@ -1,5 +1,5 @@
-import { Navigation } from "@/components/layout/Navigation";
-import { SignOutButton } from "@/components/sign-out-button";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { type AuthContextType, useAuth } from "@/providers/auth-provider";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
@@ -14,22 +14,17 @@ export const Route = createFileRoute("/_auth")({
       });
     }
   },
-  component: AuthLayout,
+  component: AuthorizedLayout,
 });
 
-function AuthLayout() {
-  const auth = useAuth();
-
+function AuthorizedLayout() {
   return (
-    <div className="flex gap-2">
-      <div className="h-full">
-        <p>Hi {auth?.user?.displayName ?? ""}!</p>
-
-        <Navigation />
-
-        <SignOutButton />
-      </div>
-      <Outlet />
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="flex w-full flex-col gap-2 px-4 pb-4">
+        <SidebarTrigger className="mt-2 cursor-pointer" />
+        <Outlet />
+      </main>
+    </SidebarProvider>
   );
 }

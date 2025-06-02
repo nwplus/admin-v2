@@ -2,7 +2,7 @@ import { auth } from "@/lib/firebase/client";
 import { useRouter } from "@tanstack/react-router";
 import { signOut } from "firebase/auth";
 import { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../../ui/button";
 
 export function SignOutButton() {
   const router = useRouter();
