@@ -56,6 +56,9 @@ code {
 
   --theme: oklch(0.22 0.05 285); /* nw dark purple */
   --theme-light: oklch(0.28 0.08 285); /* lighter purple) */
+  --theme-green: oklch(0.8997 0.16 165.32); /* green - #5BFFC4 */
+  --theme-green-gradient-light: oklch(0.8851 0.1925 161.09); /* green gradient light - #20ffaf */
+  --theme-green-gradient-dark: oklch(0.7997 0.1398 186.62); /* green gradient dark - #01dacc */
 }
 
 .dark {
@@ -135,10 +138,12 @@ code {
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Custom */
   --color-background-theme: var(--background-theme);
   --color-theme: var(--theme);
   --color-theme-light: var(--theme-light);
+  --color-theme-green: var(--theme-green);
+  --color-theme-green-gradient-light: var(--theme-green-gradient-light);
+  --color-theme-green-gradient-dark: var(--theme-green-gradient-dark);
 }
 
 @layer base {
