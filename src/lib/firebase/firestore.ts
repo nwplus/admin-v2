@@ -4,12 +4,13 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   onSnapshot,
   query,
   setDoc,
 } from "firebase/firestore";
 import { auth, db } from "./client";
-import type { FAQ, Hackathon } from "./types";
+import type { Applicant, FAQ, Hackathon, InternalWebsitesCMS } from "./types";
 
 /**
  * Utility function that returns FAQ collection realtime data
@@ -75,9 +76,9 @@ export const deleteFAQ = async (id: string) => {
 };
 
 /**
- * Utility function that returns Hackathons collection relatime data
+ * Utility function that returns Hackathons collection realtime data
  * @param callback - The function used to ingest the data
- * @returns a function to be called on dismount
+ * @returns a listener function to be called on dismount
  */
 export const subscribeToHackathons = (callback: (docs: Hackathon[]) => void) =>
   onSnapshot(query(collection(db, "Hackathons")), (querySnapshot) => {
@@ -90,3 +91,54 @@ export const subscribeToHackathons = (callback: (docs: Hackathon[]) => void) =>
     }
     callback(hackathons);
   });
+
+/**
+ * Utility function that returns Applicants collection group realtime data
+ * @param hackathon - The hackathon collection of the applicants to query
+ * @param callback - The function used to ingest the data
+ * @returns a listener function to be called on dismount
+ */
+export const subscribeToApplicants = (hackathon: string, callback: (docs: Applicant[]) => void) =>
+  onSnapshot(query(collection(db, "Hackathons", hackathon, "Applicants")), (querySnapshot) => {
+    const applicants = [];
+    for (const doc of querySnapshot.docs) {
+      applicants.push({
+        ...(doc.data() as unknown as Applicant),
+        _id: doc.id,
+      });
+    }
+    callback(applicants);
+  });
+
+/**
+ * Utility function that returns the admin/CMS document
+ * @returns CMS document in Firestore
+ */
+export const getAdminFlags = async () => {
+  try {
+    const adminSnap = await getDoc(doc(db, "InternalWebsites", "CMS"));
+    if (!adminSnap.exists()) throw new Error("CMS in InternalWebsites doesn't exist");
+    return adminSnap.data() as unknown as InternalWebsitesCMS;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+/**
+ * Utility function to handle applicant updates
+ * @param hackathon - of the applicant
+ * @param applicantId - of the applicant
+ * @param update - changes to patch
+ * @returns void
+ */
+type Object<T = string | number | Timestamp | undefined> = {
+  [key: string]: T | Object<T>;
+};
+export const updateApplicant = async (hackathon: string, applicantId: string, update: Object) => {
+  try {
+    const applicantRef = await doc(db, "Hackathons", hackathon, "Applicants", applicantId);
+    await setDoc(applicantRef, update, { merge: true });
+  } catch (err) {
+    console.error("Error updating applicant: ", err);
+  }
+};

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ConfirmDelete } from "@/components/ui/confirm-delete";
+import { Confirm } from "@/components/ui/confirm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Form,
@@ -23,6 +23,7 @@ import type { FAQ, Hackathon } from "@/lib/firebase/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -63,6 +64,7 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
       category: "",
       hackathonIDs: [],
     });
+    toast(`FAQ successfully ${activeFaq?._id ? "edited" : "created"}`);
     setLoading(false);
     onClose();
   };
@@ -78,6 +80,7 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
       category: "",
       hackathonIDs: [],
     });
+    toast("FAQ successfully deleted.");
     setLoading(false);
     onClose();
   };
@@ -131,7 +134,7 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="General">General</SelectItem>
-                      <SelectItem value="Logs">Logs</SelectItem>
+                      <SelectItem value="Logistics">Logistics</SelectItem>
                       <SelectItem value="Teams & Projects">Teams & Projects</SelectItem>
                       <SelectItem value="Miscellaneous">Miscellaneous</SelectItem>
                     </SelectContent>
@@ -169,11 +172,15 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <Button type="submit">{mode === "edit" ? "Save changes" : "Create FAQ"}</Button>
-                {mode === "edit" && <ConfirmDelete onConfirm={onDelete}>Delete</ConfirmDelete>}
+                {mode === "edit" && (
+                  <Confirm variant="destructive" onConfirm={onDelete}>
+                    Delete
+                  </Confirm>
+                )}
               </div>
               {mode === "edit" && (
                 <div className="text-neutral-500 text-sm">
-                  Last edited at {activeFaq?.lastModified?.toDate()?.toLocaleDateString()} by{" "}
+                  Last edited at {activeFaq?.lastModified?.toDate()?.toLocaleString()} by{" "}
                   {activeFaq?.lastModifiedBy}
                 </div>
               )}

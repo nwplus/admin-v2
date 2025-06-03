@@ -1,5 +1,6 @@
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/providers/auth-provider";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { SignOutButton } from "../features/auth/sign-out-button";
 import {
   Sidebar,
@@ -90,6 +91,7 @@ const NAVIGATION = [
 
 export function AppSidebar() {
   const auth = useAuth();
+  const router = useRouterState();
 
   return (
     <Sidebar variant="sidebar">
@@ -106,7 +108,17 @@ export function AppSidebar() {
                 {group?.content?.map((content) => (
                   <SidebarMenuItem key={content.href}>
                     <SidebarMenuButton asChild>
-                      <Link to={content.href}>{content.label}</Link>
+                      <Link
+                        to={content.href}
+                        className={cn(
+                          "font-[500] transition-all",
+                          router.location.pathname === content.href
+                            ? "bg-theme text-white hover:bg-theme/90 hover:text-white active:bg-theme active:text-white"
+                            : "hover:bg-theme/10 active:bg-theme/20",
+                        )}
+                      >
+                        {content.label}
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

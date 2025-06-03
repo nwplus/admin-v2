@@ -47,7 +47,7 @@ export function QuestionsTable({
       header: "Modified",
       cell: (info) => {
         const timestamp = info.getValue();
-        return timestamp?.toDate().toLocaleDateString();
+        return timestamp?.toDate().toLocaleString();
       },
     }),
     columnHelper.accessor("lastModifiedBy", {

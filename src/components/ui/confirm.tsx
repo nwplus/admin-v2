@@ -13,21 +13,27 @@ import {
 } from "./alert-dialog";
 import { buttonVariants } from "./button";
 
-export function ConfirmDelete({
+export function Confirm({
   header,
+  variant,
   description,
   children,
+  className,
+  sideEffect,
   onConfirm,
 }: {
   header?: string;
+  variant?: "destructive" | "default";
   description?: string;
+  className?: string;
   children?: ReactNode;
+  sideEffect?: () => void;
   onConfirm: () => void;
 }) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
-        <div className={cn(buttonVariants({ variant: "destructive" }))}>{children}</div>
+      <AlertDialogTrigger className={className} onClick={sideEffect}>
+        <div className={cn(buttonVariants({ variant }), "w-full")}>{children}</div>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -38,7 +44,7 @@ export function ConfirmDelete({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>Confirm</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

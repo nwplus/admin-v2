@@ -16,7 +16,6 @@ function FAQPage() {
   const [questions, setQuestions] = useState<FAQ[]>([]);
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
 
-  // Creating a new FAQ
   const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -45,7 +44,6 @@ function FAQPage() {
         </div>
         <QuestionsTable questions={questions ?? []} hackathons={hackathons} />
       </div>
-
       <FAQDialog open={open} onClose={() => setOpen(false)} hackathons={hackathons} />
     </>
   );

@@ -107,12 +107,13 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
               {selected.length > 0 && (
                 <Button
                   variant="ghost"
+                  size="icon"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleClear();
                   }}
-                  className="h-4 text-muted-foreground hover:text-foreground"
+                  className="h-4 w-4 text-muted-foreground hover:bg-transparent"
                 >
                   <X className="h-2 w-2" />
                 </Button>
@@ -147,7 +148,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                             : "opacity-50 [&_svg]:invisible",
                         )}
                       >
-                        <Check className="h-4 w-4" />
+                        <Check className="h-2 w-2 text-white" />
                       </div>
                       {option.icon && (
                         <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />

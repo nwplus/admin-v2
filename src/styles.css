@@ -53,6 +53,9 @@ code {
 
   --background-theme: oklch(0.22 0.05 285); /* nw dark purple */
   --foreground-theme: oklch(0.985 0 0); /* White text */
+
+  --theme: oklch(0.22 0.05 285); /* nw dark purple */
+  --theme-light: oklch(0.28 0.08 285); /* lighter purple) */
 }
 
 .dark {
@@ -132,7 +135,10 @@ code {
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  /* Custom */
   --color-background-theme: var(--background-theme);
+  --color-theme: var(--theme);
+  --color-theme-light: var(--theme-light);
 }
 
 @layer base {

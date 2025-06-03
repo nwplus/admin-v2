@@ -1,3 +1,5 @@
-export function PageHeader({ ...props }: React.ComponentProps<"h1">) {
-  return <h1 className="font-bold text-3xl" {...props} />;
+import { cn } from "@/lib/utils";
+
+export function PageHeader({ className, ...props }: React.ComponentProps<"h1">) {
+  return <h1 className={cn("font-bold text-3xl", className)} {...props} />;
 }
