@@ -12,6 +12,7 @@ function Signin() {
     <div className="relative h-full w-full bg-background-theme">
       <img
         src="/noise.svg"
+        alt="White noise for texturing background"
         className="absolute top-0 left-0 z-0 h-full w-full select-none object-cover"
         draggable={false}
       />

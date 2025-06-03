@@ -13,14 +13,7 @@ interface ApplicantEntryProps {
   onSelect: () => void;
 }
 
-export function ApplicantEntry({
-  id,
-  index,
-  score,
-  status,
-  isActive,
-  onSelect,
-}: ApplicantEntryProps) {
+export function ApplicantEntry({ index, score, status, isActive, onSelect }: ApplicantEntryProps) {
   const normalizedScore = useMemo(() => {
     if (!score?.scores) return 0;
     let total = 0;
