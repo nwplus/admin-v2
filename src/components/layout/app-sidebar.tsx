@@ -14,7 +14,6 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { SignOutButton } from "../features/auth/sign-out-button";
 import { CmdFIcon, type CustomIconComponent, HackCampIcon, NwHacksIcon } from "../graphy/icono";
 import {
   Sidebar,
@@ -27,9 +26,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "../ui/sidebar";
+import { NavHackathons } from "./nav-hackathons";
+import { NavRoot } from "./nav-root";
+import { SidebarUser } from "./sidebar-user";
 
-type NavigationGroup = {
+export type NavigationGroup = {
   label?: string;
   href?: string;
   icon?: LucideIcon | CustomIconComponent;
@@ -132,45 +137,30 @@ export function AppSidebar() {
     hackathons?.length > 0 ? [...NAVIGATION, generateHackathonNavigation(hackathons)] : NAVIGATION;
 
   return (
-    <Sidebar variant="sidebar">
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
-        <div className="pt-4 pl-2 font-bold text-xl">nwPlus Admin</div>
-        <div className="pl-2 text-neutral-500 text-sm">{auth?.user?.displayName ?? ""}</div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-theme p-[9px] text-[#5BFFC4]">
+                <NwHacksIcon />
+              </div>
+              <div className="flex-1 truncate text-nowrap pl-1 font-semibold text-lg">
+                nwPlus Admin
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        {dynamicNavigation?.map((group) => (
-          <SidebarGroup key={group?.label ?? "_"}>
-            {group?.label && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {group?.content?.map((content) => {
-                  const Icon = content.icon;
-                  return (
-                    <SidebarMenuItem key={content.href}>
-                      <SidebarMenuButton asChild>
-                        <Link
-                          to={content.href}
-                          className={cn(
-                            "font-[500] transition-all",
-                            router.location.pathname === content.href
-                              ? "bg-theme text-white hover:bg-theme/90 hover:text-white active:bg-theme active:text-white"
-                              : "hover:bg-theme/10 active:bg-theme/20",
-                          )}
-                        >
-                          {Icon && <Icon className="mr-1 h-4 w-4" />}
-                          {content.label}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ))}
+      <SidebarContent className="overflow-x-hidden">
+        <NavRoot pathname={router.location.pathname} group={dynamicNavigation[0]} />
+        <NavHackathons pathname={router.location.pathname} group={dynamicNavigation[1]} />
       </SidebarContent>
       <SidebarFooter>
-        <SignOutButton />
+        <SidebarUser />
       </SidebarFooter>
     </Sidebar>
   );

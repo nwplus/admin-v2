@@ -4,12 +4,12 @@ import { createFileRoute, useParams } from "@tanstack/react-router";
 /**
  * Corresponds to Firestore Hackathons/[doc id]
  */
-export const Route = createFileRoute("/_auth/hackathons/$hackathonId")({
+export const Route = createFileRoute("/_auth/hackathons/$hackathonId/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { hackathonId } = useParams({ from: "/_auth/hackathons/$hackathonId" });
+  const { hackathonId } = useParams({ from: "/_auth/hackathons/$hackathonId/" });
 
   return (
     <div className="flex w-full flex-col gap-3">
