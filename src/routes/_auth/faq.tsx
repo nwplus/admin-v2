@@ -1,6 +1,6 @@
 import { FAQDialog } from "@/components/features/faq/faq-dialog";
 import { QuestionsTable } from "@/components/features/faq/questions-table";
-import { PageHeader } from "@/components/typography";
+import { PageHeader } from "@/components/graphy/typo";
 import { Button } from "@/components/ui/button";
 import { subscribeToFAQ, subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { FAQ, Hackathon } from "@/lib/firebase/types";

@@ -14,12 +14,11 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SigninImport } from './routes/signin'
 import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexImport } from './routes/_auth/index'
+import { Route as AuthQueryImport } from './routes/_auth/query'
 import { Route as AuthFaqImport } from './routes/_auth/faq'
 import { Route as AuthFactotumImport } from './routes/_auth/factotum'
 import { Route as AuthEvaluatorImport } from './routes/_auth/evaluator'
-import { Route as AuthLivesitesSiteIdImport } from './routes/_auth/livesites/$siteId'
 import { Route as AuthHackathonsHackathonIdImport } from './routes/_auth/hackathons/$hackathonId'
-import { Route as AuthApplicationsHackathonIdImport } from './routes/_auth/applications/$hackathonId'
 
 // Create/Update Routes
 
@@ -37,6 +36,12 @@ const AuthRouteRoute = AuthRouteImport.update({
 const AuthIndexRoute = AuthIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthQueryRoute = AuthQueryImport.update({
+  id: '/query',
+  path: '/query',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -58,24 +63,11 @@ const AuthEvaluatorRoute = AuthEvaluatorImport.update({
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const AuthLivesitesSiteIdRoute = AuthLivesitesSiteIdImport.update({
-  id: '/livesites/$siteId',
-  path: '/livesites/$siteId',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
 const AuthHackathonsHackathonIdRoute = AuthHackathonsHackathonIdImport.update({
   id: '/hackathons/$hackathonId',
   path: '/hackathons/$hackathonId',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthApplicationsHackathonIdRoute =
-  AuthApplicationsHackathonIdImport.update({
-    id: '/applications/$hackathonId',
-    path: '/applications/$hackathonId',
-    getParentRoute: () => AuthRouteRoute,
-  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -116,6 +108,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthFaqImport
       parentRoute: typeof AuthRouteImport
     }
+    '/_auth/query': {
+      id: '/_auth/query'
+      path: '/query'
+      fullPath: '/query'
+      preLoaderRoute: typeof AuthQueryImport
+      parentRoute: typeof AuthRouteImport
+    }
     '/_auth/': {
       id: '/_auth/'
       path: '/'
@@ -123,25 +122,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexImport
       parentRoute: typeof AuthRouteImport
     }
-    '/_auth/applications/$hackathonId': {
-      id: '/_auth/applications/$hackathonId'
-      path: '/applications/$hackathonId'
-      fullPath: '/applications/$hackathonId'
-      preLoaderRoute: typeof AuthApplicationsHackathonIdImport
-      parentRoute: typeof AuthRouteImport
-    }
     '/_auth/hackathons/$hackathonId': {
       id: '/_auth/hackathons/$hackathonId'
       path: '/hackathons/$hackathonId'
       fullPath: '/hackathons/$hackathonId'
       preLoaderRoute: typeof AuthHackathonsHackathonIdImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/_auth/livesites/$siteId': {
-      id: '/_auth/livesites/$siteId'
-      path: '/livesites/$siteId'
-      fullPath: '/livesites/$siteId'
-      preLoaderRoute: typeof AuthLivesitesSiteIdImport
       parentRoute: typeof AuthRouteImport
     }
   }
@@ -153,20 +138,18 @@ interface AuthRouteRouteChildren {
   AuthEvaluatorRoute: typeof AuthEvaluatorRoute
   AuthFactotumRoute: typeof AuthFactotumRoute
   AuthFaqRoute: typeof AuthFaqRoute
+  AuthQueryRoute: typeof AuthQueryRoute
   AuthIndexRoute: typeof AuthIndexRoute
-  AuthApplicationsHackathonIdRoute: typeof AuthApplicationsHackathonIdRoute
   AuthHackathonsHackathonIdRoute: typeof AuthHackathonsHackathonIdRoute
-  AuthLivesitesSiteIdRoute: typeof AuthLivesitesSiteIdRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthEvaluatorRoute: AuthEvaluatorRoute,
   AuthFactotumRoute: AuthFactotumRoute,
   AuthFaqRoute: AuthFaqRoute,
+  AuthQueryRoute: AuthQueryRoute,
   AuthIndexRoute: AuthIndexRoute,
-  AuthApplicationsHackathonIdRoute: AuthApplicationsHackathonIdRoute,
   AuthHackathonsHackathonIdRoute: AuthHackathonsHackathonIdRoute,
-  AuthLivesitesSiteIdRoute: AuthLivesitesSiteIdRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
@@ -179,10 +162,9 @@ export interface FileRoutesByFullPath {
   '/evaluator': typeof AuthEvaluatorRoute
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
+  '/query': typeof AuthQueryRoute
   '/': typeof AuthIndexRoute
-  '/applications/$hackathonId': typeof AuthApplicationsHackathonIdRoute
   '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRoute
-  '/livesites/$siteId': typeof AuthLivesitesSiteIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -190,10 +172,9 @@ export interface FileRoutesByTo {
   '/evaluator': typeof AuthEvaluatorRoute
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
+  '/query': typeof AuthQueryRoute
   '/': typeof AuthIndexRoute
-  '/applications/$hackathonId': typeof AuthApplicationsHackathonIdRoute
   '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRoute
-  '/livesites/$siteId': typeof AuthLivesitesSiteIdRoute
 }
 
 export interface FileRoutesById {
@@ -203,10 +184,9 @@ export interface FileRoutesById {
   '/_auth/evaluator': typeof AuthEvaluatorRoute
   '/_auth/factotum': typeof AuthFactotumRoute
   '/_auth/faq': typeof AuthFaqRoute
+  '/_auth/query': typeof AuthQueryRoute
   '/_auth/': typeof AuthIndexRoute
-  '/_auth/applications/$hackathonId': typeof AuthApplicationsHackathonIdRoute
   '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRoute
-  '/_auth/livesites/$siteId': typeof AuthLivesitesSiteIdRoute
 }
 
 export interface FileRouteTypes {
@@ -217,20 +197,18 @@ export interface FileRouteTypes {
     | '/evaluator'
     | '/factotum'
     | '/faq'
+    | '/query'
     | '/'
-    | '/applications/$hackathonId'
     | '/hackathons/$hackathonId'
-    | '/livesites/$siteId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/signin'
     | '/evaluator'
     | '/factotum'
     | '/faq'
+    | '/query'
     | '/'
-    | '/applications/$hackathonId'
     | '/hackathons/$hackathonId'
-    | '/livesites/$siteId'
   id:
     | '__root__'
     | '/_auth'
@@ -238,10 +216,9 @@ export interface FileRouteTypes {
     | '/_auth/evaluator'
     | '/_auth/factotum'
     | '/_auth/faq'
+    | '/_auth/query'
     | '/_auth/'
-    | '/_auth/applications/$hackathonId'
     | '/_auth/hackathons/$hackathonId'
-    | '/_auth/livesites/$siteId'
   fileRoutesById: FileRoutesById
 }
 
@@ -275,10 +252,9 @@ export const routeTree = rootRoute
         "/_auth/evaluator",
         "/_auth/factotum",
         "/_auth/faq",
+        "/_auth/query",
         "/_auth/",
-        "/_auth/applications/$hackathonId",
-        "/_auth/hackathons/$hackathonId",
-        "/_auth/livesites/$siteId"
+        "/_auth/hackathons/$hackathonId"
       ]
     },
     "/signin": {
@@ -296,20 +272,16 @@ export const routeTree = rootRoute
       "filePath": "_auth/faq.tsx",
       "parent": "/_auth"
     },
+    "/_auth/query": {
+      "filePath": "_auth/query.tsx",
+      "parent": "/_auth"
+    },
     "/_auth/": {
       "filePath": "_auth/index.tsx",
       "parent": "/_auth"
     },
-    "/_auth/applications/$hackathonId": {
-      "filePath": "_auth/applications/$hackathonId.tsx",
-      "parent": "/_auth"
-    },
     "/_auth/hackathons/$hackathonId": {
       "filePath": "_auth/hackathons/$hackathonId.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/livesites/$siteId": {
-      "filePath": "_auth/livesites/$siteId.tsx",
       "parent": "/_auth"
     }
   }

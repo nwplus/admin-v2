@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { type AuthContextType, useAuth } from "@/providers/auth-provider";
+import type { AuthContextType } from "@/providers/auth-provider";
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth")({

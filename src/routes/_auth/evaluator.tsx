@@ -1,7 +1,7 @@
 import { ApplicantList } from "@/components/features/evaluator/applicant-list";
 import { ApplicantResponse } from "@/components/features/evaluator/applicant-response";
 import { ApplicantScoring } from "@/components/features/evaluator/applicant-scoring";
-import { PageHeader } from "@/components/typography";
+import { PageHeader } from "@/components/graphy/typo";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import EvaluatorProvider, { useEvaluator } from "@/providers/evaluator-provider";
