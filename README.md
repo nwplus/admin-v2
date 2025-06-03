@@ -10,7 +10,7 @@ pnpm dev
 
 ## Styling, Formatting, & Linting
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+This project uses [Tailwind CSS](https://tailwindcss.com/) v4 for styling.
 
 This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
 
@@ -27,15 +27,15 @@ pnpm check
 **Notes**
 - Install the Biome Toolchain extension to VSCode for auto-formatting
 - Format on save after adding imports to a file may bug out; just undo and re-save
-- To address TailwindCSS class ordering lint errors, run `pnpm lint:write:unsafe`
+- To address TailwindCSS class sorting lint errors, run `pnpm lint:write:unsafe`
 
 
 ## Routing & Directory Structure
 This project uses [TanStack Router](https://tanstack.com/router) using file-based routing. The routes are managed as files in `src/routes`. Quick refresher:
 - Routes are files: `src/routes/nugget.tsx` will be accessible at the `/nugget` URL 
-- `$` at the beginning of a file or folder means it's a URL parameter (see: `$hackathonId`)
+- `$` prepending a file or folder means it's a URL parameter (see: `$hackathonId`)
+- `_` prepended a folder means it's a routing group, and won't appear in the URL (see: `_auth/`)
 - `/[folder]/index.tsx` appears as `/[folder]` in the URL (e.x. `_auth/index.tsx` appears as `/` URL)
-- `_` appended means it's a routing group, and won't appear in the URL (see: `_auth/`)
 
 ```
 src/
@@ -99,8 +99,7 @@ git add .
 # or to pick hunks
 git add -p
 
-git commit -m "Descriptive commit"
-
+git commit -m "(feat) Descriptive commit"
 git push -u origin name/feature
 ```
 
