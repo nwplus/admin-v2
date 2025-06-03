@@ -1,10 +1,16 @@
 import { auth } from "@/lib/firebase/client";
+import { cn } from "@/lib/utils";
 import { useRouter } from "@tanstack/react-router";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useState } from "react";
 import { Button } from "../../ui/button";
 
-export function SignInButton() {
+export function SignInButton({
+  className,
+  ...props
+}: React.ComponentProps<"button"> & {
+  className?: string;
+}) {
   const router = useRouter();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,8 +35,9 @@ export function SignInButton() {
     <Button
       onClick={handleGoogleSignIn}
       disabled={loading}
-      className="flex w-full cursor-pointer items-center justify-center bg-white"
+      className={cn("flex w-full cursor-pointer items-center justify-center bg-white", className)}
       variant="outline"
+      {...props}
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24">
         <title>Google SVG</title>

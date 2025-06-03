@@ -1,8 +1,6 @@
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { Hackathon } from "@/lib/firebase/types";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/providers/auth-provider";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import {
   Bot,
   Calendar,
@@ -19,16 +17,10 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
 } from "../ui/sidebar";
 import { NavHackathons } from "./nav-hackathons";
 import { NavRoot } from "./nav-root";
@@ -121,7 +113,6 @@ export const generateHackathonNavigation = (hackathons: Hackathon[]) => {
 };
 
 export function AppSidebar() {
-  const auth = useAuth();
   const router = useRouterState();
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
 
