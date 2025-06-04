@@ -20,6 +20,9 @@ export function SignInButton({
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        hd: "nwplus.io",
+      });
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Error signing in with Google:", error);
