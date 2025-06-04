@@ -12,7 +12,15 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "./client";
 import { deleteSponsorImage, uploadSponsorImage } from "./storage";
-import type { Applicant, FAQ, Hackathon, HackathonSponsors, InternalWebsitesCMS } from "./types";
+import type {
+  Applicant,
+  FAQ,
+  Hackathon,
+  HackathonSponsors,
+  HackerApplicationQuestion,
+  HackerApplicationSections,
+  InternalWebsitesCMS,
+} from "./types";
 
 /**
  * Utility function that returns FAQ collection realtime data
@@ -52,8 +60,51 @@ export const subscribeToSponsors = (
   });
 
 /**
+ * Utility function that returns all questions for each section
+ * @param hackathonName - the hackathon to query
+ * @param callback - the function to ingest the data
+ * @returns a function to be called on dismount
+ */
+export const subscribeToHackerAppQuestions = (
+  hackathonName: string,
+  callback: (data: Record<HackerApplicationSections, HackerApplicationQuestion[]>) => void,
+) => {
+  const sections = ["BasicInfo", "Questionnaire", "Skills", "Welcome"] as const;
+  const data: Record<HackerApplicationSections, HackerApplicationQuestion[]> = {
+    BasicInfo: [],
+    Questionnaire: [],
+    Skills: [],
+    Welcome: [],
+  };
+  const unsubscribers: (() => void)[] = [];
+
+  for (const section of sections) {
+    const unsubscribe = onSnapshot(
+      query(collection(db, "HackerAppQuestions", hackathonName, section)),
+      (snapshot) => {
+        data[section] = snapshot.docs.map((doc) => ({
+          _id: doc.id,
+          ...doc.data(),
+        }));
+
+        if (Object.keys(data).length === sections.length) {
+          callback(data);
+        }
+      },
+    );
+    unsubscribers.push(unsubscribe);
+  }
+
+  return () => {
+    for (const unsubscriber of unsubscribers) {
+      unsubscriber();
+    }
+  };
+};
+
+/**
  * Utility function that updates or adds a document,
- *  depending on the presence of its _id field
+ *  depending on if an id argument is passed
  * @param hackathon - the hackathon for this sponsor
  * @param sponsor - the sponsor to update or insert
  * @param imageFile - optional image to upsert
