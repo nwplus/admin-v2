@@ -16,6 +16,7 @@ import type {
 } from "@/lib/firebase/types";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { Editor } from "../editor";
 
 const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "Long Answer",
@@ -69,7 +70,6 @@ interface HackerAppQuestionProps {
 export function HackerAppQuestion({ isContent, question }: HackerAppQuestionProps) {
   return !isContent ? (
     <div className="flex flex-col gap-5 rounded-tl-xs rounded-tr-xl rounded-br-xl rounded-bl-xs border-theme/70 border-l-4 bg-theme/1 px-3 py-3">
-      {/* static */}
       <div className="flex flex-row items-center justify-between">
         <div className={cn("font-bold text-xl", !question?.title ? "italic opacity-40" : "")}>
           {question?.title ?? "Untitled question"}
@@ -81,16 +81,20 @@ export function HackerAppQuestion({ isContent, question }: HackerAppQuestionProp
       </div>
       <Field>
         <Label>Question</Label>
-        <Input value={question.title} />
+        <Input value={question.title} className="bg-background" />
       </Field>
       <Field>
         <Label>Description (optional)</Label>
-        <Textarea value={question.description} placeholder="Description" />
+        <Textarea
+          value={question.description}
+          placeholder="Description"
+          className="bg-background"
+        />
       </Field>
       <Field>
         <Label>Question type</Label>
         <Select onValueChange={() => {}} defaultValue={question.type}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-full bg-background">
             <SelectValue placeholder="Select a type" />
           </SelectTrigger>
           <SelectContent>
@@ -106,11 +110,12 @@ export function HackerAppQuestion({ isContent, question }: HackerAppQuestionProp
       {/* type-dependant */}
       {question?.type && (
         <>
+          {/* any generic types */}
           {SHOW_FORM_INPUT.includes(question.type) && (
             <Field>
               <Label>Form input field</Label>
               <Select onValueChange={() => {}} defaultValue={question.formInput}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-background">
                   <SelectValue placeholder="Select a type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,7 +136,7 @@ export function HackerAppQuestion({ isContent, question }: HackerAppQuestionProp
               <div className="flex flex-col gap-2 rounded-tl-xs rounded-tr-xl rounded-br-xl rounded-bl-xs border-theme/70 border-l-4 bg-theme/2 px-3 py-3">
                 {question.options?.map((o, i) => (
                   <div key={`${o}_${i + 1}`}>
-                    <Input value={o} placeholder="Option" />
+                    <Input value={o} placeholder="Option" className="bg-background" />
                   </div>
                 ))}
                 <Field className="flex-row">
@@ -146,19 +151,26 @@ export function HackerAppQuestion({ isContent, question }: HackerAppQuestionProp
           {SHOW_MAX_CHAR?.includes(question.type) && (
             <Field>
               <Label>Maximum words</Label>
-              <Input value={question.maxWords} />
+              <Input value={question.maxWords} className="bg-background" />
             </Field>
           )}
         </>
       )}
     </div>
   ) : (
-    <div>
+    <div className="flex flex-col gap-4">
       <Field>
         <Label>Header</Label>
         <Input value={question.title} />
       </Field>
-      Markdown editor
+      <Field>
+        <Label>Message</Label>
+        <Editor
+          padding={12}
+          onChange={(value) => console.log(value)}
+          className="rounded-md border-1 border-input shadow-xs"
+        />
+      </Field>
     </div>
   );
 }

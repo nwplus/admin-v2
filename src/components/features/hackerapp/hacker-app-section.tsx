@@ -13,6 +13,7 @@ import type {
   HackerApplicationQuestion,
   HackerApplicationSections,
 } from "@/lib/firebase/types";
+import { useMemo, useState } from "react";
 import { HackerAppQuestion } from "./hacker-app-question";
 
 interface HackerAppSectionProps {
@@ -27,11 +28,26 @@ export function HackerAppSection({
   title,
   description,
   section,
-  data,
+  data: initialData,
   metadata,
   ...props
 }: HackerAppSectionProps) {
   // Saving occurs on this level, so keep a local copy of `data`
+  const [data, setData] = useState<HackerApplicationQuestion[]>(initialData ?? []);
+
+  const isSectionUpdated = useMemo(() => {
+    return JSON.stringify(data) !== JSON.stringify(initialData); // rough
+  }, [initialData, data]);
+
+  const handleChangeField = (
+    index: number,
+    field: keyof HackerApplicationQuestion,
+    value: string,
+  ) => {
+    const updatedData = [...data];
+    updatedData[index] = { ...updatedData[index], [field]: value };
+    setData(updatedData);
+  };
 
   return (
     <div id={section} className="pt-3" {...props}>
@@ -40,7 +56,7 @@ export function HackerAppSection({
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
           <CardAction>
-            <Button>Save</Button>
+            <Button disabled={!isSectionUpdated}>Save</Button>
           </CardAction>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">

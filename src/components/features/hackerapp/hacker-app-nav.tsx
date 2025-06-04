@@ -103,7 +103,7 @@ export function HackerAppNav({
                     Save all
                   </Button>
                 </SidebarMenuButton>
-                <div className="p-1 text-neutral-500 text-xs">Last saved</div>
+                <div className="p-2 text-neutral-500 text-xs">Last saved</div>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>

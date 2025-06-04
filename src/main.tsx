@@ -6,6 +6,7 @@ import ReactDOM from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
+import "./components/features/editor/editor-global.css";
 import { Toaster } from "./components/ui/sonner.tsx";
 import AuthProvider, { useAuth, type AuthContextType } from "./providers/auth-provider.tsx";
 
