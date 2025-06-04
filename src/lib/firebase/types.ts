@@ -59,12 +59,83 @@ export interface Hackathon {
   sponsorPrizes?: string[];
 }
 
-export interface ApplicantScoreItem {
-  lastUpdated?: Timestamp;
-  lastUpdatedBy?: string; // email
-  normalizedScore?: number;
-  score?: number;
+/**
+ *  Sub-collection: /Hackathons/[hackathon]/DayOf
+ *
+ *  Hackathon schedule
+ */
+export type HackathonDayOfTypes = "main" | "workshops" | "minievents";
+export interface HackathonDayOf {
+  eventID?: string; // the doc's ID (analogous to _id)
+  key?: string; // ... also the doc's ID
+  name?: string;
+  location?: string;
+  type?: HackathonDayOfTypes;
+  description?: string;
+  startTime?: Timestamp;
+  endTime?: Timestamp;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
 }
+
+/**
+ *  Sub-collection: /Hackathon/[hackathon]/Projects
+ *
+ *  Hackathon (HackCamp) peer-judging project submissions
+ */
+export interface HackathonProjects {
+  title?: string;
+  charityChoice?: string;
+  countAssigned?: string; // but is a number
+  description?: string;
+  draftStatus?: string; // 'draft' or ..
+  links?: {
+    sourceode?: string;
+  };
+  mentorNomination?: string;
+  sponsorPrizes?: string[];
+  teamMembers?: {
+    email?: string;
+    id?: string; // of the user
+    name?: string;
+  }[];
+}
+
+/**
+ *  Sub-collection: /Hackathon/[hackathon]/Rewards
+ *
+ *  Hackathon rewards
+ */
+export interface HackathonRewards {
+  blurb?: string;
+  from?: string;
+  imgName?: string;
+  imgURL?: string;
+  key?: string; // the doc id
+  lastmod?: Timestamp; // should be `lastModified`
+  lastmodBy?: string; // ...
+  prizesAvailable?: string; // holds a number
+  requiredPoints?: string; // holds a number
+}
+
+export interface HackathonSponsors {
+  blurb?: string;
+  imgName?: string;
+  imgURL?: string;
+  lastmod?: Timestamp;
+  lastmodBy?: string;
+  link?: string;
+  name?: string;
+  tier?: HackathonSponsorTiers;
+}
+export type HackathonSponsorTiers =
+  | "inkind"
+  | "bronze"
+  | "silver"
+  | "gold"
+  | "platinum"
+  | "title"
+  | "startup";
 
 /**
  *  Sub-collection: /Hackathons/[Hackathon]/Applicants
@@ -132,6 +203,13 @@ export interface Applicant {
     shareWithSponsors?: boolean;
     shareWithnwPlus?: boolean;
   };
+}
+
+export interface ApplicantScoreItem {
+  lastUpdated?: Timestamp;
+  lastUpdatedBy?: string; // email
+  normalizedScore?: number;
+  score?: number;
 }
 
 export interface InternalWebsitesCMS {
