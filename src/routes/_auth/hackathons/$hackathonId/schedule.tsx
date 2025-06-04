@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/graphy/typo";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/hackathons/$hackathonId/schedule")({
@@ -5,5 +6,11 @@ export const Route = createFileRoute("/_auth/hackathons/$hackathonId/schedule")(
 });
 
 function ScheduleComponent() {
-  return <div>Hello "/_auth/hackathons/$hackathonId/schedule"!</div>;
+  return (
+    <div className="flex h-full w-full flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <PageHeader className="flex items-center gap-3">Schedule</PageHeader>
+      </div>
+    </div>
+  );
 }
