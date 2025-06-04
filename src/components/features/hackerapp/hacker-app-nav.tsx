@@ -20,6 +20,33 @@ const ICONS_MAP = {
   HackCamp: HackCampIcon,
 };
 
+const SECTION_NAV = [
+  {
+    id: "Welcome",
+    label: "Welcome",
+    icon: Text,
+    href: "#Welcome",
+  },
+  {
+    id: "BasicInfo",
+    label: "Basics",
+    icon: Clipboard,
+    href: "#BasicInfo",
+  },
+  {
+    id: "Skills",
+    label: "Skills",
+    icon: FileUser,
+    href: "#Skills",
+  },
+  {
+    id: "Questionnaire",
+    label: "Questionaire",
+    icon: NotepadText,
+    href: "#Questionnaire",
+  },
+];
+
 export function HackerAppNav({
   hackathonData: [hackathon, year],
 }: {
@@ -47,29 +74,19 @@ export function HackerAppNav({
           <SidebarGroupLabel>Sections</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="font-[500]">
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Text />
-                  Welcome
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <Clipboard />
-                  Basics
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <FileUser /> Skills
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton>
-                  <NotepadText />
-                  Questionaire
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {SECTION_NAV.map((item) => {
+                const IconComponent = item.icon;
+                return (
+                  <SidebarMenuItem key={item.id}>
+                    <SidebarMenuButton asChild>
+                      <a href={item.href}>
+                        <IconComponent />
+                        {item.label}
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -80,7 +97,7 @@ export function HackerAppNav({
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Button className="transition-all hover:bg-theme/90 hover:text-white active:bg-theme/80 active:text-white">
-                    Save
+                    Save all
                   </Button>
                 </SidebarMenuButton>
                 <div className="p-1 text-neutral-500 text-xs">Last saved</div>

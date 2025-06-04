@@ -247,10 +247,11 @@ export interface HackerApplicationQuestion {
   required?: boolean;
   type?: HackerApplicationQuestionType;
 }
+export type HackerApplicationMetadataInfo = {
+  lastEditedAt: Timestamp;
+  lastEditedBy: string;
+};
 export type HackerApplicationMetadata = Record<
   HackerApplicationSections,
-  {
-    lastEditedAt: Timestamp;
-    lastEditedBy: string;
-  }
+  HackerApplicationMetadataInfo
 >;

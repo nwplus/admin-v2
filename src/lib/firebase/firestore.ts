@@ -17,6 +17,7 @@ import type {
   FAQ,
   Hackathon,
   HackathonSponsors,
+  HackerApplicationMetadata,
   HackerApplicationQuestion,
   HackerApplicationSections,
   InternalWebsitesCMS,
@@ -57,6 +58,23 @@ export const subscribeToSponsors = (
       });
     }
     callback(sponsors);
+  });
+
+/**
+ * Utility function that returns HackerAppQuestions doc data
+ * @param hackathonName - the hackathon to query
+ * @param callback - The function used to ingest the data
+ * @returns a function to be called on dismount
+ */
+export const subscribeToHackerAppDoc = (
+  hackathonName: string,
+  callback: (doc: HackerApplicationMetadata) => void,
+) =>
+  onSnapshot(doc(db, "HackerAppQuestions", hackathonName), (queryDoc) => {
+    if (!queryDoc.exists) {
+      return null;
+    }
+    callback(queryDoc.data() as unknown as HackerApplicationMetadata);
   });
 
 /**

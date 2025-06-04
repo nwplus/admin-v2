@@ -1,4 +1,4 @@
-import { subscribeToHackerAppQuestions } from "@/lib/firebase/firestore";
+import { subscribeToHackerAppDoc, subscribeToHackerAppQuestions } from "@/lib/firebase/firestore";
 import type { HackerApplicationMetadata, HackerApplicationQuestion } from "@/lib/firebase/types";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
@@ -35,8 +35,14 @@ const HackerApplicationProvider = ({
       setWelcome(data.Welcome);
       setIsLoading(false);
     });
+    const unsubDoc = subscribeToHackerAppDoc(activeHackathonName, (data) => {
+      setMetadata(data);
+    });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      unsubDoc();
+    };
   }, [activeHackathonName]);
 
   const value = {
