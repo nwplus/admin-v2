@@ -236,16 +236,36 @@ export type HackerApplicationQuestionType =
   | "School"
   | "Major"
   | "Country";
+export type HackerApplicationQuestionFormInputField =
+  | "academicYear"
+  | "ageByHackathon"
+  | "canadianStatus"
+  | "culturalBackground"
+  | "dietaryRestriction"
+  | "disability"
+  | "educationLevel"
+  | "email"
+  | "gender"
+  | "graduation"
+  | "haveTransExperience"
+  | "identifyAsUnderrepresented"
+  | "indigenousIdentification"
+  | "phoneNumber"
+  | "preferredName"
+  | "pronouns"
+  | "race"
+  | "jobPosition";
 export interface HackerApplicationQuestion {
   _id?: string; // internal
   title?: string;
   content?: string; // only for welcome message
   description?: string; // q description
-  formInput?: string; // name of input's value
+  formInput?: HackerApplicationQuestionFormInputField; // name of input's value
   options?: string[]; // for select and multiselect
-  other?: string; // for 'other' responses
+  other?: boolean; // for 'other' responses
   required?: boolean;
   type?: HackerApplicationQuestionType;
+  maxWords?: string; // b/c portal uses it
 }
 export type HackerApplicationMetadataInfo = {
   lastEditedAt: Timestamp;

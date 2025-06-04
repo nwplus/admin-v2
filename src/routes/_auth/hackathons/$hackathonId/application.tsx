@@ -21,7 +21,7 @@ function ApplicationComponent() {
 
   return (
     <HackerApplicationProvider activeHackathonName={hackathonData[0]}>
-      <div className="relative mx-auto grid h-full max-w-7xl grid-cols-[1fr_3fr] gap-3">
+      <div className="relative mx-auto flex h-full max-w-7xl gap-6">
         <HackerAppNav hackathonData={hackathonData} />
         <HackerAppMain />
       </div>

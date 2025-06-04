@@ -29,9 +29,12 @@ export function HackerAppSection({
   section,
   data,
   metadata,
+  ...props
 }: HackerAppSectionProps) {
+  // Saving occurs on this level, so keep a local copy of `data`
+
   return (
-    <div id={section} className="pt-3">
+    <div id={section} className="pt-3" {...props}>
       <Card className="rounded-xl shadow-none">
         <CardHeader>
           <CardTitle>{title}</CardTitle>
@@ -40,9 +43,13 @@ export function HackerAppSection({
             <Button>Save</Button>
           </CardAction>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-6">
           {data?.map((q) => (
-            <HackerAppQuestion key={`${q._id}_${title}`} question={q} />
+            <HackerAppQuestion
+              key={`${q._id}_${title}`}
+              isContent={section === "Welcome"}
+              question={q}
+            />
           ))}
         </CardContent>
         <CardFooter>

@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useRouterState } from "@tanstack/react-router";
 import { Clipboard, FileUser, NotepadText, Text } from "lucide-react";
 
 const ICONS_MAP = {
@@ -25,25 +26,21 @@ const SECTION_NAV = [
     id: "Welcome",
     label: "Welcome",
     icon: Text,
-    href: "#Welcome",
   },
   {
     id: "BasicInfo",
     label: "Basics",
     icon: Clipboard,
-    href: "#BasicInfo",
   },
   {
     id: "Skills",
     label: "Skills",
     icon: FileUser,
-    href: "#Skills",
   },
   {
     id: "Questionnaire",
     label: "Questionaire",
     icon: NotepadText,
-    href: "#Questionnaire",
   },
 ];
 
@@ -54,8 +51,10 @@ export function HackerAppNav({
 }) {
   const HackathonIcon = ICONS_MAP[hackathon as keyof typeof ICONS_MAP] || NwHacksIcon;
 
+  const router = useRouterState();
+
   return (
-    <Sidebar collapsible="none" className="sticky top-4 max-h-[80vh] min-h-[400px]">
+    <Sidebar collapsible="none" className="sticky top-4 max-h-[80vh] min-h-[400px] shrink-0 ">
       <SidebarHeader>
         <PageHeader className="flex items-center gap-3">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-card/80 p-[8px] text-background-theme shadow-md backdrop-blur-md">
@@ -78,8 +77,12 @@ export function HackerAppNav({
                 const IconComponent = item.icon;
                 return (
                   <SidebarMenuItem key={item.id}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={router.location.hash === item.id}
+                      className="transition-all"
+                    >
+                      <a href={`#${item.id}`}>
                         <IconComponent />
                         {item.label}
                       </a>
