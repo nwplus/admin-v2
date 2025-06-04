@@ -1,16 +1,18 @@
 import {
+  type DocumentReference,
   Timestamp,
-  addDoc,
   collection,
   deleteDoc,
   doc,
   getDoc,
   onSnapshot,
   query,
+  runTransaction,
   setDoc,
 } from "firebase/firestore";
 import { auth, db } from "./client";
-import type { Applicant, FAQ, Hackathon, InternalWebsitesCMS } from "./types";
+import { deleteSponsorImage, uploadSponsorImage } from "./storage";
+import type { Applicant, FAQ, Hackathon, HackathonSponsors, InternalWebsitesCMS } from "./types";
 
 /**
  * Utility function that returns FAQ collection realtime data
@@ -30,6 +32,78 @@ export const subscribeToFAQ = (callback: (docs: FAQ[]) => void) =>
   });
 
 /**
+ * Utility function that returns Sponsors subcollection realtime data
+ * @param callback - The function used to ingest the data
+ * @returns a function to be called on dismount
+ */
+export const subscribeToSponsors = (
+  hackathon: string,
+  callback: (docs: HackathonSponsors[]) => void,
+) =>
+  onSnapshot(query(collection(db, "Hackathons", hackathon, "Sponsors")), (querySnapshot) => {
+    const sponsors = [];
+    for (const doc of querySnapshot.docs) {
+      sponsors.push({
+        ...(doc.data() as unknown as HackathonSponsors),
+        _id: doc.id,
+      });
+    }
+    callback(sponsors);
+  });
+
+/**
+ * Utility function that updates or adds a document,
+ *  depending on the presence of its _id field
+ * @param hackathon - the hackathon for this sponsor
+ * @param sponsor - the sponsor to update or insert
+ * @param imageFile - optional image to upsert
+ * @returns the upsert sponsor document ref
+ */
+export const upsertHackathonSponsorWithImage = async (
+  hackathon: string,
+  sponsor: HackathonSponsors,
+  imageFile?: File | null,
+  id?: string,
+): Promise<DocumentReference | null> => {
+  try {
+    const sponsorId = id ?? doc(collection(db, "Hackathons", hackathon, "Sponsors")).id;
+    const sponsorRef = doc(db, "Hackathons", hackathon, "Sponsors", sponsorId);
+
+    const record = {
+      lastmod: Timestamp.now(),
+      lastmodBy: auth.currentUser?.email ?? "",
+    };
+
+    await runTransaction(db, async (txn) => {
+      if (!id) txn.set(sponsorRef, {});
+      txn.update(sponsorRef, { ...sponsor, ...record });
+
+      if (imageFile) {
+        const imageUrl = await uploadSponsorImage(hackathon, sponsorId, imageFile);
+        txn.update(sponsorRef, {
+          imgURL: imageUrl,
+        });
+      }
+    });
+
+    return sponsorRef;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export const deleteHackathonSponsorWithImage = async (hackathon: string, sponsorId: string) => {
+  try {
+    await deleteSponsorImage(hackathon, sponsorId);
+    await deleteDoc(doc(db, "Hackathons", hackathon, "Sponsors", sponsorId));
+  } catch (error) {
+    console.error("Error deleting sponsor:", error);
+    throw error;
+  }
+};
+
+/**
  * Utility function that updates or adds a document,
  *  depending on the presence of its _id field
  * @param faq - the FAQ to update or insert
@@ -41,23 +115,11 @@ export const upsertFAQ = async (faq: FAQ, id?: string) => {
       lastModifiedBy: auth.currentUser?.email ?? "",
     };
 
-    if (id) {
-      await setDoc(
-        doc(db, "FAQ", id),
-        {
-          ...faq,
-          ...record,
-        },
-        { merge: true },
-      );
-    } else {
-      await addDoc(collection(db, "FAQ"), {
-        ...faq,
-        ...record,
-      });
-    }
+    const faqId = id || doc(collection(db, "FAQ")).id;
+    await setDoc(doc(db, "FAQ", faqId), { ...faq, ...record }, { merge: true });
   } catch (error) {
     console.error(error);
+    throw error;
   }
 };
 

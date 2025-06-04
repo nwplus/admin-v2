@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/graphy/typo";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 
 /**
@@ -12,9 +11,20 @@ function RouteComponent() {
   const { hackathonId } = useParams({ from: "/_auth/hackathons/$hackathonId/" });
 
   return (
-    <div className="flex w-full flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <PageHeader>{addSpace(hackathonId ?? "")}</PageHeader>
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl bg-linear-to-br from-theme to-theme-light">
+      <img
+        src="/noise.svg"
+        alt="White noise for texturing background"
+        className="absolute top-0 left-0 z-0 h-full w-full select-none object-cover"
+        draggable={false}
+      />
+      <div className="relative z-10 flex select-none flex-col items-center gap-3">
+        <div className="slide-in-from-bottom-4 fade-in animate-in font-semibold text-4xl text-foreground-theme/90 duration-700">
+          {addSpace(hackathonId ?? "")}
+        </div>
+        <div className="slide-in-from-bottom-4 fade-in animate-in font-semibold text-foreground-theme/90 text-lg duration-1000">
+          nwPlus Admin
+        </div>
       </div>
     </div>
   );
