@@ -23,13 +23,13 @@ export function CalculateDialog() {
 
     try {
       await calculateNormalizedScores(hackathon);
+      toast("Z-scores successfully calculated.");
+      setOpen(false);
     } catch (error) {
       console.error(error);
       toast("An error occured while running normalization.");
     } finally {
       setLoading(false);
-      toast("Z-scores successfully calculated.");
-      setOpen(false);
     }
   };
 

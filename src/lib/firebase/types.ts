@@ -119,6 +119,7 @@ export interface HackathonRewards {
 }
 
 export interface HackathonSponsors {
+  _id?: string;
   blurb?: string;
   imgName?: string;
   imgURL?: string;

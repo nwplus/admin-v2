@@ -27,8 +27,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  question: z.string().min(2).max(250),
-  answer: z.string().min(2).max(250),
+  question: z.string().min(2).max(500),
+  answer: z.string().min(2).max(500),
   category: z.string(),
   hackathonIDs: z.array(z.string()),
 });
@@ -87,7 +87,7 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>FAQ</DialogTitle>
         </DialogHeader>
@@ -171,7 +171,9 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
             />
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
-                <Button type="submit">{mode === "edit" ? "Save changes" : "Create FAQ"}</Button>
+                <Button disabled={loading} type="submit">
+                  {mode === "edit" ? "Save changes" : "Create FAQ"}
+                </Button>
                 {mode === "edit" && (
                   <Confirm variant="destructive" onConfirm={onDelete}>
                     Delete
