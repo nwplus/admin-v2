@@ -5,12 +5,12 @@
 }
 
 .editor-placeholder {
-  /* color: hsl(var(--ui-80)); */
   overflow: hidden;
   position: absolute;
   top: 0px;
   left: 0px;
   font-size: 1rem;
+  color: var(--color-neutral-500);
   user-select: none;
   pointer-events: none;
   font-size: var(--text-sm);

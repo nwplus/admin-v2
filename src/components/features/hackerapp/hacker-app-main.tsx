@@ -21,7 +21,7 @@ export function HackerAppMain() {
   };
 
   return (
-    <div ref={containerRef} className="flex w-full flex-col gap-3 overflow-auto">
+    <div ref={containerRef} className="flex w-full flex-col gap-3 ">
       {sections.map(({ id, title, description }) => (
         <HackerAppSection
           key={id}

@@ -16,6 +16,7 @@ import { buttonVariants } from "./button";
 export function Confirm({
   header,
   variant,
+  size = null,
   description,
   children,
   className,
@@ -23,7 +24,8 @@ export function Confirm({
   onConfirm,
 }: {
   header?: string;
-  variant?: "destructive" | "default";
+  variant?: "destructive" | "default" | "outline";
+  size: "sm" | "default" | "lg" | "icon" | null;
   description?: string;
   className?: string;
   children?: ReactNode;
@@ -33,7 +35,7 @@ export function Confirm({
   return (
     <AlertDialog>
       <AlertDialogTrigger className={className} onClick={sideEffect}>
-        <div className={cn(buttonVariants({ variant }), "w-full")}>{children}</div>
+        <div className={cn(buttonVariants({ variant, size }), "w-full")}>{children}</div>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

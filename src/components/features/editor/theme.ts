@@ -1,6 +1,6 @@
 /**
  *
- * Themeing is actually done in `editor-global.css` which is imported at the root `layout.tsx`
+ * Themeing is actually done in `editor-global.css` which is imported in `/src/main.tsx`
  */
 export const theme = {
   ltr: "ltr",

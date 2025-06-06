@@ -26,14 +26,16 @@ export function Editor({
   readOnly = false,
   initialContent,
   padding = 0,
-  onChange,
+  placeholder = "Enter some text...",
+  onContentChange,
   ...props
 }: {
   className?: string;
   padding?: number;
   initialContent?: string;
   readOnly?: boolean;
-  onChange?: (arg0: string) => void;
+  placeholder?: string;
+  onContentChange?: (arg0: string) => void;
 } & React.ComponentProps<"div">) {
   const initialConfig = {
     namespace: "InitialEditor",
@@ -55,7 +57,7 @@ export function Editor({
                 padding,
               }}
               className="content-editable"
-              aria-placeholder={"Enter some text..."}
+              aria-placeholder={placeholder}
               placeholder={
                 <div
                   className="editor-placeholder"
@@ -63,7 +65,7 @@ export function Editor({
                     padding,
                   }}
                 >
-                  {readOnly ? "" : "Enter some text..."}
+                  {readOnly ? "" : placeholder}
                 </div>
               }
             />
@@ -77,7 +79,7 @@ export function Editor({
         {!readOnly && <FloatingMenuPlugin />}
 
         {/* Editing */}
-        {onChange && !readOnly && <OnChangePlugin onChange={onChange} />}
+        {onContentChange && !readOnly && <OnChangePlugin onChange={onContentChange} />}
       </LexicalComposer>
     </div>
   );

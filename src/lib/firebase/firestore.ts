@@ -5,10 +5,12 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   query,
   runTransaction,
   setDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "./client";
 import { deleteSponsorImage, uploadSponsorImage } from "./storage";
@@ -118,6 +120,40 @@ export const subscribeToHackerAppQuestions = (
       unsubscriber();
     }
   };
+};
+
+export const updateHackerAppQuestions = async (
+  hackathonName: string,
+  section: HackerApplicationSections,
+  questions: HackerApplicationQuestion[],
+) => {
+  if (questions?.length > 999) return;
+  const batch = writeBatch(db);
+
+  const existingDocs = await getDocs(collection(db, "HackerAppQuestions", hackathonName, section));
+  for (const existingSnapshot of existingDocs.docs) {
+    batch.delete(existingSnapshot.ref);
+  }
+  questions.forEach((question, index) => {
+    const newDocRef = doc(
+      db,
+      "HackerAppQuestions",
+      hackathonName,
+      section,
+      index.toString().padStart(3, "0"),
+    );
+    batch.set(newDocRef, question);
+  });
+  await batch.commit();
+
+  // todo; stick with a single naming convention
+  const record = {
+    lastEditedAt: Timestamp.now(),
+    lastEditedBy: auth.currentUser?.email ?? "",
+  };
+
+  const sectionRef = doc(db, "HackerAppQuestions", hackathonName);
+  await setDoc(sectionRef, { [section]: record }, { merge: true });
 };
 
 /**
