@@ -16,7 +16,7 @@ import { buttonVariants } from "./button";
 export function Confirm({
   header,
   variant,
-  size = null,
+  size = "default",
   description,
   children,
   className,
@@ -25,7 +25,7 @@ export function Confirm({
 }: {
   header?: string;
   variant?: "destructive" | "default" | "outline";
-  size: "sm" | "default" | "lg" | "icon" | null;
+  size?: "sm" | "default" | "lg" | "icon" | null;
   description?: string;
   className?: string;
   children?: ReactNode;

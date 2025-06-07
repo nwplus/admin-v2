@@ -19,12 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { HackathonSponsorTiers, HackathonSponsors } from "@/lib/firebase/types";
+import { useHackathon } from "@/providers/hackathon-provider";
 import {
   deleteHackathonSponsorWithImage,
   upsertHackathonSponsorWithImage,
-} from "@/lib/firebase/firestore";
-import type { HackathonSponsorTiers, HackathonSponsors } from "@/lib/firebase/types";
-import { useHackathon } from "@/providers/hackathon-provider";
+} from "@/services/sponsors";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageIcon, Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";

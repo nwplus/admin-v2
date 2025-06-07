@@ -1,5 +1,8 @@
-import { subscribeToHackerAppDoc, subscribeToHackerAppQuestions } from "@/lib/firebase/firestore";
 import type { HackerApplicationMetadata, HackerApplicationQuestion } from "@/lib/firebase/types";
+import {
+  subscribeToHackerAppDoc,
+  subscribeToHackerAppQuestions,
+} from "@/services/hacker-application";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
 export interface HackerApplicationContextType {

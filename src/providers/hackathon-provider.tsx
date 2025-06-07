@@ -1,7 +1,7 @@
 import { type ReactNode, createContext, useContext } from "react";
 
 export interface HackathonContextType {
-  activeHackathon: string;
+  activeHackathon: string; // hackathon document ID
 }
 
 export const HackathonContext = createContext<HackathonContextType | null>(null);

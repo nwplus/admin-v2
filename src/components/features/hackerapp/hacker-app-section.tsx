@@ -9,13 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { updateHackerAppQuestions } from "@/lib/firebase/firestore";
 import type {
   HackerApplicationMetadataInfo,
   HackerApplicationQuestion,
   HackerApplicationSections,
 } from "@/lib/firebase/types";
 import { useHackerApplication } from "@/providers/hacker-application-provider";
+import { updateHackerAppQuestions } from "@/services/hacker-application";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { HackerAppQuestion, SHOW_FORM_INPUT } from "./hacker-app-question";

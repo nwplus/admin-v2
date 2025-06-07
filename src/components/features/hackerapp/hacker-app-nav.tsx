@@ -1,6 +1,5 @@
 import { CmdFIcon, HackCampIcon, NwHacksIcon } from "@/components/graphy/icono";
 import { PageHeader } from "@/components/graphy/typo";
-import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
