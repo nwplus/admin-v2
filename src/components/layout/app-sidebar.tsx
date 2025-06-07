@@ -1,6 +1,6 @@
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { Hackathon } from "@/lib/firebase/types";
-import { useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Bot,
   Calendar,
@@ -135,13 +135,19 @@ export function AppSidebar() {
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              asChild
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-theme p-[9px] text-[#5BFFC4]">
-                <NwHacksIcon />
-              </div>
-              <div className="flex-1 truncate text-nowrap pl-1 font-semibold text-lg">
-                nwPlus Admin
-              </div>
+              <Link to="/">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-theme p-[9px] text-[#5BFFC4]">
+                  <NwHacksIcon />
+                </div>
+                <div className="pl-1">
+                  <div className="flex-1 truncate text-nowrap font-semibold text-lg leading-5">
+                    nwPlus
+                  </div>
+                  <div className="text-xs">Admin</div>
+                </div>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

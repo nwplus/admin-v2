@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebouncedSave } from "@/hooks/use-debounce-save";
-import { updateApplicant } from "@/lib/firebase/firestore";
 import type { ApplicantScoreItem } from "@/lib/firebase/types";
 import { useAuth } from "@/providers/auth-provider";
 import { useEvaluator } from "@/providers/evaluator-provider";
+import { updateApplicant } from "@/services/evaluator";
 import { Timestamp } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 import { SCORING_CRITERIA, type ScoringCriteria } from "./constants";
@@ -113,7 +113,7 @@ export function ApplicantScoring() {
   }
 
   return (
-    <Card className="sticky top-[2vh] max-h-[96vh]" key={focusedApplicant?._id}>
+    <Card className="sticky top-[2vh] max-h-[96vh] rounded-xl" key={focusedApplicant?._id}>
       <CardHeader>
         <CardTitle>Scoring</CardTitle>
       </CardHeader>
