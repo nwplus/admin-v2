@@ -150,7 +150,7 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
             <Confirm
               variant="outline"
               size="icon"
-              className="w-full"
+              className="size-9"
               onConfirm={() => onRemove(index)}
             >
               <Trash className="text-destructive" />

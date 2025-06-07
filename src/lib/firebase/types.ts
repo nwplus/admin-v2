@@ -66,14 +66,17 @@ export interface Hackathon {
  */
 export type HackathonDayOfTypes = "main" | "workshops" | "minievents";
 export interface HackathonDayOf {
+  _id?: string; // will be the internal id
   eventID?: string; // the doc's ID (analogous to _id)
   key?: string; // ... also the doc's ID
   name?: string;
   location?: string;
+  points?: string; // of a number
   type?: HackathonDayOfTypes;
   description?: string;
-  startTime?: Timestamp;
-  endTime?: Timestamp;
+  startTime?: string;
+  endTime?: string;
+  isDelayed?: boolean;
   lastModified?: Timestamp;
   lastModifiedBy?: string;
 }
@@ -118,6 +121,9 @@ export interface HackathonRewards {
   requiredPoints?: string; // holds a number
 }
 
+/**
+ * Sub-collection: /Hackathon/[hackathon]/Sponsors
+ */
 export interface HackathonSponsors {
   _id?: string;
   blurb?: string;

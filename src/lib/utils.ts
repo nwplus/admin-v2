@@ -25,3 +25,21 @@ export const splitHackathon = (hackathonId: string): [string, string | undefined
   }
   return [hackathonId, undefined];
 };
+
+/**
+ * Helper function to check if a string can be convertable to a date
+ * @param value - the string to check if is valid
+ * @returns boolean
+ */
+export const isValidISODateString = (value?: string): value is string => {
+  if (!value || typeof value !== "string") {
+    return false;
+  }
+
+  const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/;
+  if (!isoRegex.test(value)) {
+    return false;
+  }
+  const date = new Date(value);
+  return !Number.isNaN(date.getTime()) && date.toISOString() === value;
+};

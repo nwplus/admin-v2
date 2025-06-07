@@ -18,8 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { deleteFAQ, upsertFAQ } from "@/lib/firebase/firestore";
 import type { FAQ, Hackathon } from "@/lib/firebase/types";
+import { deleteFAQ, upsertFAQ } from "@/services/faq";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";

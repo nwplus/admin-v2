@@ -1,5 +1,5 @@
-import { getAdminFlags, subscribeToApplicants } from "@/lib/firebase/firestore";
 import type { Applicant } from "@/lib/firebase/types";
+import { getAdminFlags, subscribeToApplicants } from "@/services/evaluator";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
 export interface EvaluatorContextType {
