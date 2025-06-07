@@ -17,7 +17,7 @@ export function ApplicantList() {
   }, [applicants, searchTerm]);
 
   return (
-    <Card className="sticky top-[2vh] max-h-[96vh]">
+    <Card className="sticky top-[2vh] max-h-[96vh] rounded-xl">
       <CardHeader>
         <CardTitle className="pb-2">Applicant list</CardTitle>
         <Input

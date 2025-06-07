@@ -9,7 +9,7 @@ export function ApplicantResponse() {
 
   if (!focusedApplicant) {
     return (
-      <Card className="items-center justify-center gap-5">
+      <Card className="items-center justify-center gap-5 rounded-xl">
         <img className="select-none" src="/teapots.svg" draggable={false} />
         <div>Select a hacker application on the left panel.</div>
       </Card>

@@ -92,7 +92,7 @@ export function QuestionsTable({
 
   return (
     <>
-      <Card className="w-full">
+      <Card className="w-full rounded-xl">
         <CardContent>
           <div className="flex gap-3 pb-3">
             <Input

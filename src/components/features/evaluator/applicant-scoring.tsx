@@ -113,7 +113,7 @@ export function ApplicantScoring() {
   }
 
   return (
-    <Card className="sticky top-[2vh] max-h-[96vh]" key={focusedApplicant?._id}>
+    <Card className="sticky top-[2vh] max-h-[96vh] rounded-xl" key={focusedApplicant?._id}>
       <CardHeader>
         <CardTitle>Scoring</CardTitle>
       </CardHeader>

@@ -1,4 +1,4 @@
-export const NwhacksIcon = () => (
+export const NwHacksIcon = () => (
   <svg
     width="105"
     height="131"

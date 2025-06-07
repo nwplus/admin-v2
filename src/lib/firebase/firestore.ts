@@ -5,14 +5,25 @@ import {
   deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   query,
   runTransaction,
   setDoc,
+  writeBatch,
 } from "firebase/firestore";
 import { auth, db } from "./client";
 import { deleteSponsorImage, uploadSponsorImage } from "./storage";
-import type { Applicant, FAQ, Hackathon, HackathonSponsors, InternalWebsitesCMS } from "./types";
+import type {
+  Applicant,
+  FAQ,
+  Hackathon,
+  HackathonSponsors,
+  HackerApplicationMetadata,
+  HackerApplicationQuestion,
+  HackerApplicationSections,
+  InternalWebsitesCMS,
+} from "./types";
 
 /**
  * Utility function that returns FAQ collection realtime data
@@ -52,8 +63,102 @@ export const subscribeToSponsors = (
   });
 
 /**
+ * Utility function that returns HackerAppQuestions doc data
+ * @param hackathonName - the hackathon to query
+ * @param callback - The function used to ingest the data
+ * @returns a function to be called on dismount
+ */
+export const subscribeToHackerAppDoc = (
+  hackathonName: string,
+  callback: (doc: HackerApplicationMetadata) => void,
+) =>
+  onSnapshot(doc(db, "HackerAppQuestions", hackathonName), (queryDoc) => {
+    if (!queryDoc.exists) {
+      return null;
+    }
+    callback(queryDoc.data() as unknown as HackerApplicationMetadata);
+  });
+
+/**
+ * Utility function that returns all questions for each section
+ * @param hackathonName - the hackathon to query
+ * @param callback - the function to ingest the data
+ * @returns a function to be called on dismount
+ */
+export const subscribeToHackerAppQuestions = (
+  hackathonName: string,
+  callback: (data: Record<HackerApplicationSections, HackerApplicationQuestion[]>) => void,
+) => {
+  const sections = ["BasicInfo", "Questionnaire", "Skills", "Welcome"] as const;
+  const data: Record<HackerApplicationSections, HackerApplicationQuestion[]> = {
+    BasicInfo: [],
+    Questionnaire: [],
+    Skills: [],
+    Welcome: [],
+  };
+  const unsubscribers: (() => void)[] = [];
+
+  for (const section of sections) {
+    const unsubscribe = onSnapshot(
+      query(collection(db, "HackerAppQuestions", hackathonName, section)),
+      (snapshot) => {
+        data[section] = snapshot.docs.map((doc) => ({
+          _id: doc.id,
+          ...doc.data(),
+        }));
+
+        if (Object.keys(data).length === sections.length) {
+          callback(data);
+        }
+      },
+    );
+    unsubscribers.push(unsubscribe);
+  }
+
+  return () => {
+    for (const unsubscriber of unsubscribers) {
+      unsubscriber();
+    }
+  };
+};
+
+export const updateHackerAppQuestions = async (
+  hackathonName: string,
+  section: HackerApplicationSections,
+  questions: HackerApplicationQuestion[],
+) => {
+  if (questions?.length > 999) return;
+  const batch = writeBatch(db);
+
+  const existingDocs = await getDocs(collection(db, "HackerAppQuestions", hackathonName, section));
+  for (const existingSnapshot of existingDocs.docs) {
+    batch.delete(existingSnapshot.ref);
+  }
+  questions.forEach((question, index) => {
+    const newDocRef = doc(
+      db,
+      "HackerAppQuestions",
+      hackathonName,
+      section,
+      index.toString().padStart(3, "0"),
+    );
+    batch.set(newDocRef, question);
+  });
+  await batch.commit();
+
+  // todo; stick with a single naming convention
+  const record = {
+    lastEditedAt: Timestamp.now(),
+    lastEditedBy: auth.currentUser?.email ?? "",
+  };
+
+  const sectionRef = doc(db, "HackerAppQuestions", hackathonName);
+  await setDoc(sectionRef, { [section]: record }, { merge: true });
+};
+
+/**
  * Utility function that updates or adds a document,
- *  depending on the presence of its _id field
+ *  depending on if an id argument is passed
  * @param hackathon - the hackathon for this sponsor
  * @param sponsor - the sponsor to update or insert
  * @param imageFile - optional image to upsert
