@@ -43,4 +43,4 @@ jobs:
           firebaseServiceAccount: ${{ env.IS_PRODUCTION == 'true' && secrets.FIREBASE_SERVICE_ACCOUNT_NWPLUS_UBC || secrets.FIREBASE_SERVICE_ACCOUNT_NWPLUS_UBC_DEV }}
           channelId: live
           projectId: ${{ env.IS_PRODUCTION == 'true' && 'nwplus-ubc' || 'nwplus-ubc-dev' }}
-          target: ${{ env.IS_PRODUCTION == 'true' && 'nw-admin-portal' || 'dev-nwplus-admin' }}
+          target: ${{ env.IS_PRODUCTION == 'true' && 'admin-portal' || 'admin-portal-dev' }}

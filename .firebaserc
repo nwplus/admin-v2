@@ -6,14 +6,14 @@
   "targets": {
     "nwplus-ubc": {
       "hosting": {
-        "nwplus-ubc": [
+        "admin-portal": [
           "nw-admin-portal"
         ]
       }
     },
     "nwplus-ubc-dev": {
       "hosting": {
-        "nwplus-ubc-dev": [
+        "admin-portal-dev": [
           "dev-nwplus-admin"
         ]
       }
