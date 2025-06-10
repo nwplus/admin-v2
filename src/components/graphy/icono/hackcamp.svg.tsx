@@ -1,4 +1,4 @@
-export const HackcampIcon = () => (
+export const HackCampIcon = () => (
   <svg width="93" height="59" viewBox="0 0 93 59" fill="none" xmlns="http://www.w3.org/2000/svg">
     <title>HackCamp icon</title>
     <path

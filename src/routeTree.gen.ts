@@ -18,6 +18,7 @@ import { Route as AuthQueryImport } from './routes/_auth/query'
 import { Route as AuthFaqImport } from './routes/_auth/faq'
 import { Route as AuthFactotumImport } from './routes/_auth/factotum'
 import { Route as AuthEvaluatorImport } from './routes/_auth/evaluator'
+import { Route as AuthHackathonsHackathonIdRouteImport } from './routes/_auth/hackathons/$hackathonId/route'
 import { Route as AuthHackathonsHackathonIdIndexImport } from './routes/_auth/hackathons/$hackathonId/index'
 import { Route as AuthHackathonsHackathonIdSponsorsImport } from './routes/_auth/hackathons/$hackathonId/sponsors'
 import { Route as AuthHackathonsHackathonIdScheduleImport } from './routes/_auth/hackathons/$hackathonId/schedule'
@@ -66,32 +67,39 @@ const AuthEvaluatorRoute = AuthEvaluatorImport.update({
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
+const AuthHackathonsHackathonIdRouteRoute =
+  AuthHackathonsHackathonIdRouteImport.update({
+    id: '/hackathons/$hackathonId',
+    path: '/hackathons/$hackathonId',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
+
 const AuthHackathonsHackathonIdIndexRoute =
   AuthHackathonsHackathonIdIndexImport.update({
-    id: '/hackathons/$hackathonId/',
-    path: '/hackathons/$hackathonId/',
-    getParentRoute: () => AuthRouteRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
   } as any)
 
 const AuthHackathonsHackathonIdSponsorsRoute =
   AuthHackathonsHackathonIdSponsorsImport.update({
-    id: '/hackathons/$hackathonId/sponsors',
-    path: '/hackathons/$hackathonId/sponsors',
-    getParentRoute: () => AuthRouteRoute,
+    id: '/sponsors',
+    path: '/sponsors',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
   } as any)
 
 const AuthHackathonsHackathonIdScheduleRoute =
   AuthHackathonsHackathonIdScheduleImport.update({
-    id: '/hackathons/$hackathonId/schedule',
-    path: '/hackathons/$hackathonId/schedule',
-    getParentRoute: () => AuthRouteRoute,
+    id: '/schedule',
+    path: '/schedule',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
   } as any)
 
 const AuthHackathonsHackathonIdApplicationRoute =
   AuthHackathonsHackathonIdApplicationImport.update({
-    id: '/hackathons/$hackathonId/application',
-    path: '/hackathons/$hackathonId/application',
-    getParentRoute: () => AuthRouteRoute,
+    id: '/application',
+    path: '/application',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
   } as any)
 
 // Populate the FileRoutesByPath interface
@@ -147,38 +155,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthIndexImport
       parentRoute: typeof AuthRouteImport
     }
+    '/_auth/hackathons/$hackathonId': {
+      id: '/_auth/hackathons/$hackathonId'
+      path: '/hackathons/$hackathonId'
+      fullPath: '/hackathons/$hackathonId'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdRouteImport
+      parentRoute: typeof AuthRouteImport
+    }
     '/_auth/hackathons/$hackathonId/application': {
       id: '/_auth/hackathons/$hackathonId/application'
-      path: '/hackathons/$hackathonId/application'
+      path: '/application'
       fullPath: '/hackathons/$hackathonId/application'
       preLoaderRoute: typeof AuthHackathonsHackathonIdApplicationImport
-      parentRoute: typeof AuthRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
     }
     '/_auth/hackathons/$hackathonId/schedule': {
       id: '/_auth/hackathons/$hackathonId/schedule'
-      path: '/hackathons/$hackathonId/schedule'
+      path: '/schedule'
       fullPath: '/hackathons/$hackathonId/schedule'
       preLoaderRoute: typeof AuthHackathonsHackathonIdScheduleImport
-      parentRoute: typeof AuthRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
     }
     '/_auth/hackathons/$hackathonId/sponsors': {
       id: '/_auth/hackathons/$hackathonId/sponsors'
-      path: '/hackathons/$hackathonId/sponsors'
+      path: '/sponsors'
       fullPath: '/hackathons/$hackathonId/sponsors'
       preLoaderRoute: typeof AuthHackathonsHackathonIdSponsorsImport
-      parentRoute: typeof AuthRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
     }
     '/_auth/hackathons/$hackathonId/': {
       id: '/_auth/hackathons/$hackathonId/'
-      path: '/hackathons/$hackathonId'
-      fullPath: '/hackathons/$hackathonId'
+      path: '/'
+      fullPath: '/hackathons/$hackathonId/'
       preLoaderRoute: typeof AuthHackathonsHackathonIdIndexImport
-      parentRoute: typeof AuthRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
     }
   }
 }
 
 // Create and export the route tree
+
+interface AuthHackathonsHackathonIdRouteRouteChildren {
+  AuthHackathonsHackathonIdApplicationRoute: typeof AuthHackathonsHackathonIdApplicationRoute
+  AuthHackathonsHackathonIdScheduleRoute: typeof AuthHackathonsHackathonIdScheduleRoute
+  AuthHackathonsHackathonIdSponsorsRoute: typeof AuthHackathonsHackathonIdSponsorsRoute
+  AuthHackathonsHackathonIdIndexRoute: typeof AuthHackathonsHackathonIdIndexRoute
+}
+
+const AuthHackathonsHackathonIdRouteRouteChildren: AuthHackathonsHackathonIdRouteRouteChildren =
+  {
+    AuthHackathonsHackathonIdApplicationRoute:
+      AuthHackathonsHackathonIdApplicationRoute,
+    AuthHackathonsHackathonIdScheduleRoute:
+      AuthHackathonsHackathonIdScheduleRoute,
+    AuthHackathonsHackathonIdSponsorsRoute:
+      AuthHackathonsHackathonIdSponsorsRoute,
+    AuthHackathonsHackathonIdIndexRoute: AuthHackathonsHackathonIdIndexRoute,
+  }
+
+const AuthHackathonsHackathonIdRouteRouteWithChildren =
+  AuthHackathonsHackathonIdRouteRoute._addFileChildren(
+    AuthHackathonsHackathonIdRouteRouteChildren,
+  )
 
 interface AuthRouteRouteChildren {
   AuthEvaluatorRoute: typeof AuthEvaluatorRoute
@@ -186,10 +224,7 @@ interface AuthRouteRouteChildren {
   AuthFaqRoute: typeof AuthFaqRoute
   AuthQueryRoute: typeof AuthQueryRoute
   AuthIndexRoute: typeof AuthIndexRoute
-  AuthHackathonsHackathonIdApplicationRoute: typeof AuthHackathonsHackathonIdApplicationRoute
-  AuthHackathonsHackathonIdScheduleRoute: typeof AuthHackathonsHackathonIdScheduleRoute
-  AuthHackathonsHackathonIdSponsorsRoute: typeof AuthHackathonsHackathonIdSponsorsRoute
-  AuthHackathonsHackathonIdIndexRoute: typeof AuthHackathonsHackathonIdIndexRoute
+  AuthHackathonsHackathonIdRouteRoute: typeof AuthHackathonsHackathonIdRouteRouteWithChildren
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -198,13 +233,8 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthFaqRoute: AuthFaqRoute,
   AuthQueryRoute: AuthQueryRoute,
   AuthIndexRoute: AuthIndexRoute,
-  AuthHackathonsHackathonIdApplicationRoute:
-    AuthHackathonsHackathonIdApplicationRoute,
-  AuthHackathonsHackathonIdScheduleRoute:
-    AuthHackathonsHackathonIdScheduleRoute,
-  AuthHackathonsHackathonIdSponsorsRoute:
-    AuthHackathonsHackathonIdSponsorsRoute,
-  AuthHackathonsHackathonIdIndexRoute: AuthHackathonsHackathonIdIndexRoute,
+  AuthHackathonsHackathonIdRouteRoute:
+    AuthHackathonsHackathonIdRouteRouteWithChildren,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
@@ -219,10 +249,11 @@ export interface FileRoutesByFullPath {
   '/faq': typeof AuthFaqRoute
   '/query': typeof AuthQueryRoute
   '/': typeof AuthIndexRoute
+  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
   '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
   '/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
-  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdIndexRoute
+  '/hackathons/$hackathonId/': typeof AuthHackathonsHackathonIdIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -247,6 +278,7 @@ export interface FileRoutesById {
   '/_auth/faq': typeof AuthFaqRoute
   '/_auth/query': typeof AuthQueryRoute
   '/_auth/': typeof AuthIndexRoute
+  '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
   '/_auth/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
   '/_auth/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
   '/_auth/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
@@ -263,10 +295,11 @@ export interface FileRouteTypes {
     | '/faq'
     | '/query'
     | '/'
+    | '/hackathons/$hackathonId'
     | '/hackathons/$hackathonId/application'
     | '/hackathons/$hackathonId/schedule'
     | '/hackathons/$hackathonId/sponsors'
-    | '/hackathons/$hackathonId'
+    | '/hackathons/$hackathonId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/signin'
@@ -288,6 +321,7 @@ export interface FileRouteTypes {
     | '/_auth/faq'
     | '/_auth/query'
     | '/_auth/'
+    | '/_auth/hackathons/$hackathonId'
     | '/_auth/hackathons/$hackathonId/application'
     | '/_auth/hackathons/$hackathonId/schedule'
     | '/_auth/hackathons/$hackathonId/sponsors'
@@ -327,10 +361,7 @@ export const routeTree = rootRoute
         "/_auth/faq",
         "/_auth/query",
         "/_auth/",
-        "/_auth/hackathons/$hackathonId/application",
-        "/_auth/hackathons/$hackathonId/schedule",
-        "/_auth/hackathons/$hackathonId/sponsors",
-        "/_auth/hackathons/$hackathonId/"
+        "/_auth/hackathons/$hackathonId"
       ]
     },
     "/signin": {
@@ -356,21 +387,31 @@ export const routeTree = rootRoute
       "filePath": "_auth/index.tsx",
       "parent": "/_auth"
     },
+    "/_auth/hackathons/$hackathonId": {
+      "filePath": "_auth/hackathons/$hackathonId/route.tsx",
+      "parent": "/_auth",
+      "children": [
+        "/_auth/hackathons/$hackathonId/application",
+        "/_auth/hackathons/$hackathonId/schedule",
+        "/_auth/hackathons/$hackathonId/sponsors",
+        "/_auth/hackathons/$hackathonId/"
+      ]
+    },
     "/_auth/hackathons/$hackathonId/application": {
       "filePath": "_auth/hackathons/$hackathonId/application.tsx",
-      "parent": "/_auth"
+      "parent": "/_auth/hackathons/$hackathonId"
     },
     "/_auth/hackathons/$hackathonId/schedule": {
       "filePath": "_auth/hackathons/$hackathonId/schedule.tsx",
-      "parent": "/_auth"
+      "parent": "/_auth/hackathons/$hackathonId"
     },
     "/_auth/hackathons/$hackathonId/sponsors": {
       "filePath": "_auth/hackathons/$hackathonId/sponsors.tsx",
-      "parent": "/_auth"
+      "parent": "/_auth/hackathons/$hackathonId"
     },
     "/_auth/hackathons/$hackathonId/": {
       "filePath": "_auth/hackathons/$hackathonId/index.tsx",
-      "parent": "/_auth"
+      "parent": "/_auth/hackathons/$hackathonId"
     }
   }
 }

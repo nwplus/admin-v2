@@ -139,6 +139,7 @@ code {
   --color-sidebar-ring: var(--sidebar-ring);
 
   --color-background-theme: var(--background-theme);
+  --color-foreground-theme: var(--foreground-theme);
   --color-theme: var(--theme);
   --color-theme-light: var(--theme-light);
   --color-theme-green: var(--theme-green);

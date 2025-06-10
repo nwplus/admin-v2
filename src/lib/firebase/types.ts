@@ -59,12 +59,90 @@ export interface Hackathon {
   sponsorPrizes?: string[];
 }
 
-export interface ApplicantScoreItem {
-  lastUpdated?: Timestamp;
-  lastUpdatedBy?: string; // email
-  normalizedScore?: number;
-  score?: number;
+/**
+ *  Sub-collection: /Hackathons/[hackathon]/DayOf
+ *
+ *  Hackathon schedule
+ */
+export type HackathonDayOfTypes = "main" | "workshops" | "minievents";
+export interface HackathonDayOf {
+  _id?: string; // will be the internal id
+  eventID?: string; // the doc's ID (analogous to _id)
+  key?: string; // ... also the doc's ID
+  name?: string;
+  location?: string;
+  points?: string; // of a number
+  type?: HackathonDayOfTypes;
+  description?: string;
+  startTime?: string;
+  endTime?: string;
+  isDelayed?: boolean;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
 }
+
+/**
+ *  Sub-collection: /Hackathon/[hackathon]/Projects
+ *
+ *  Hackathon (HackCamp) peer-judging project submissions
+ */
+export interface HackathonProjects {
+  title?: string;
+  charityChoice?: string;
+  countAssigned?: string; // but is a number
+  description?: string;
+  draftStatus?: string; // 'draft' or ..
+  links?: {
+    sourceode?: string;
+  };
+  mentorNomination?: string;
+  sponsorPrizes?: string[];
+  teamMembers?: {
+    email?: string;
+    id?: string; // of the user
+    name?: string;
+  }[];
+}
+
+/**
+ *  Sub-collection: /Hackathon/[hackathon]/Rewards
+ *
+ *  Hackathon rewards
+ */
+export interface HackathonRewards {
+  blurb?: string;
+  from?: string;
+  imgName?: string;
+  imgURL?: string;
+  key?: string; // the doc id
+  lastmod?: Timestamp; // should be `lastModified`
+  lastmodBy?: string; // ...
+  prizesAvailable?: string; // holds a number
+  requiredPoints?: string; // holds a number
+}
+
+/**
+ * Sub-collection: /Hackathon/[hackathon]/Sponsors
+ */
+export interface HackathonSponsors {
+  _id?: string;
+  blurb?: string;
+  imgName?: string;
+  imgURL?: string;
+  lastmod?: Timestamp;
+  lastmodBy?: string;
+  link?: string;
+  name?: string;
+  tier?: HackathonSponsorTiers;
+}
+export type HackathonSponsorTiers =
+  | "inkind"
+  | "bronze"
+  | "silver"
+  | "gold"
+  | "platinum"
+  | "title"
+  | "startup";
 
 /**
  *  Sub-collection: /Hackathons/[Hackathon]/Applicants
@@ -134,8 +212,72 @@ export interface Applicant {
   };
 }
 
+export interface ApplicantScoreItem {
+  lastUpdated?: Timestamp;
+  lastUpdatedBy?: string; // email
+  normalizedScore?: number;
+  score?: number;
+}
+
 export interface InternalWebsitesCMS {
   activeHackathon?: string;
   offUntilDate?: boolean; // not sure what this is for
   targetSite?: string;
 }
+
+/**
+ *  Collection: /HackerAppQuestions
+ *
+ *  Hacker app
+ */
+export type HackerApplicationSections = "BasicInfo" | "Questionnaire" | "Skills" | "Welcome";
+export type HackerApplicationQuestionType =
+  | "Long Answer"
+  | "Portfolio"
+  | "Select All"
+  | "Multiple Choice" // single
+  | "Full Legal Name"
+  | "Short Answer"
+  | "Dropdown"
+  | "School"
+  | "Major"
+  | "Country";
+export type HackerApplicationQuestionFormInputField =
+  | "academicYear"
+  | "ageByHackathon"
+  | "canadianStatus"
+  | "culturalBackground"
+  | "dietaryRestriction"
+  | "disability"
+  | "educationLevel"
+  | "email"
+  | "gender"
+  | "graduation"
+  | "haveTransExperience"
+  | "identifyAsUnderrepresented"
+  | "indigenousIdentification"
+  | "phoneNumber"
+  | "preferredName"
+  | "pronouns"
+  | "race"
+  | "jobPosition";
+export interface HackerApplicationQuestion {
+  _id?: string; // internal
+  title?: string;
+  content?: string; // only for welcome message
+  description?: string; // q description
+  formInput?: HackerApplicationQuestionFormInputField; // name of input's value
+  options?: string[]; // for select and multiselect
+  other?: boolean; // for 'other' responses
+  required?: boolean;
+  type?: HackerApplicationQuestionType;
+  maxWords?: string; // b/c portal uses it
+}
+export type HackerApplicationMetadataInfo = {
+  lastEditedAt: Timestamp;
+  lastEditedBy: string;
+};
+export type HackerApplicationMetadata = Record<
+  HackerApplicationSections,
+  HackerApplicationMetadataInfo
+>;
