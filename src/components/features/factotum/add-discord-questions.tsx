@@ -42,6 +42,8 @@ export default function AddDiscordQuestions() {
             </div>
 
             <h1 className="font-bold text-2xl line-height-10 mb-5">List of Discord Questions</h1>
+
+            
             <TableDemo />
 
             

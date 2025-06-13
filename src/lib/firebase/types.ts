@@ -281,3 +281,13 @@ export type HackerApplicationMetadata = Record<
   HackerApplicationSections,
   HackerApplicationMetadataInfo
 >;
+
+export interface DiscordQuestion {
+  id: string;
+  sponsor: string;
+  question: string;
+  answer: string;
+  required: boolean;
+  updatedAt: Timestamp;
+  updatedBy: string;
+}

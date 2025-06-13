@@ -17,7 +17,7 @@ export const Route = createFileRoute("/_auth/factotum")({
 
 function RouteComponent() {
   const [copied, setCopied] = useState(false);
-  const [tab, setTab] = useState("Add Discord Questions");
+  const [tab, setTab] = useState("Add Members");
 
   const handleCopy = () => {
     navigator.clipboard.writeText("1234567890");
@@ -32,7 +32,7 @@ function RouteComponent() {
       </div>
 
       {/* Top bar with select and Id */}
-      <div className="flex items-center justify-between my-5 ">
+      <div className="flex items-center justify-between my-5">
         <div className="flex gap-5">
           <div>
             <Label className="text-black text-md mb-2 font-bold">Select your Hackathon</Label>
@@ -57,7 +57,7 @@ function RouteComponent() {
           </div>
         </div>
 
-        <Tabs defaultValue="Add Members" className="mt-8 mr-5">
+        <Tabs defaultValue="Add Members" className="mt-8">
           <TabsList>
             <TabsTrigger value="Add Members" onClick={() => setTab("Add Members")}>Add Members</TabsTrigger>
             <TabsTrigger value="Add Discord Questions" onClick={() => setTab("Add Discord Questions")}>Add Discord Questions</TabsTrigger>
