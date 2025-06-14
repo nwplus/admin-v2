@@ -28,11 +28,13 @@ interface MultiSelectProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  compressed?: boolean; // compresses max height of the selection
+  selectAll?: boolean;  // adds a select all option
 }
 
 const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
   (
-    { options, selected, onChange, placeholder = "Select items...", className, disabled = false },
+    { options, selected, onChange, placeholder = "Select items...", className, disabled = false, compressed = false, selectAll = false },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -49,6 +51,14 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
       }
     };
 
+    const handleSelectAll = () => {
+      if (selected.length === options.length) {
+        onChange([]);
+      } else {
+        onChange(options.map((option) => option.value));
+      }
+    };
+
     const handleClear = () => {
       onChange([]);
     };
@@ -62,7 +72,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
             ref={ref}
             variant="outline"
             aria-expanded={open}
-            className={cn("h-auto min-h-9 w-full justify-between p-1 hover:bg-white", className)}
+            className={cn("h-auto min-h-9 w-full justify-between p-1 hover:bg-white", className, compressed && "max-h-9")}
             disabled={disabled}
           >
             <div className="flex flex-1 flex-wrap items-center gap-1">
@@ -70,7 +80,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                 <span className="pl-2 font-[400] text-muted-foreground">{placeholder}</span>
               ) : (
                 <>
-                  {selectedOptions.slice(0, 2).map((option) => (
+                  {selectedOptions.slice(0, compressed ? 1 : 2).map((option) => (
                     <Badge key={option.value} variant="secondary">
                       {option.icon && <option.icon className="mr-1 h-2 w-2" />}
                       {option.label}
@@ -97,7 +107,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
                       </Button>
                     </Badge>
                   ))}
-                  {selected.length > 2 && (
+                  {!compressed && selected.length > 2 && (
                     <div className="pl-2 font-medium text-xs">+{selected.length - 2} more</div>
                   )}
                 </>
@@ -125,6 +135,15 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
         <PopoverContent className="w-full p-0" align="start">
           <Command>
             <CommandInput placeholder="Search..." />
+            {selectAll && (
+              <div className="sticky top-0 z-10 bg-white border-b px-2 py-1.5">
+                <CommandItem key="select-all" onSelect={handleSelectAll} className="cursor-pointer">
+                  <span className="text-primary">
+                    {selected.length === options.length ? "Deselect All" : "Select All"}
+                  </span>
+                </CommandItem>
+              </div>
+            )}
             <CommandList
               onWheel={(e) => {
                 e.stopPropagation();
@@ -161,6 +180,9 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
             </CommandList>
           </Command>
         </PopoverContent>
+      {compressed && selected.length > 1 && (
+        <div className="pl-2 font-medium text-xs">+{selected.length - 1} more</div>
+      )}
       </Popover>
     );
   },
