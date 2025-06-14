@@ -2,27 +2,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Menu, Filter, ArrowUpDown, Group } from "lucide-react";
 import { GroupBy } from "./popovers/group-by";
+import { FilterRows } from "./popovers/filter-rows";
 
 interface QueryFiltersProps {
-  filters: {
-    filter: string;
-    sort: string;
-  };
-  onFiltersChange: (filters: { filter: string; sort: string }) => void;
   selectedColumns: string[];
   availableColumns: string[];
   onColumnToggle: (column: string) => void;
   tableData: any[];
   onGroupByChange: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string }) => void;
+  onFilterChange: (opts: { filterColumn: string; filterCondition: string; filterValue: string }) => void;
+  onSortChange: (sort: string) => void;
+  sort: string;
 }
 
-const FILTER_OPTIONS = [
-  { value: "all", label: "All" },
-  { value: "accepted", label: "Accepted" },
-  { value: "pending", label: "Pending" },
-  { value: "rejected", label: "Rejected" },
-  { value: "inProgress", label: "In Progress" },
-] as const;
 
 const SORT_OPTIONS = [
   { value: "none", label: "None" },
@@ -31,21 +23,15 @@ const SORT_OPTIONS = [
 ] as const;
 
 export function QueryFilters({
-  filters,
-  onFiltersChange,
   selectedColumns,
   availableColumns,
   onColumnToggle,
   tableData,
   onGroupByChange,
+  onFilterChange,
+  onSortChange,
+  sort,
 }: QueryFiltersProps) {
-  const handleFilterChange = (key: keyof typeof filters, value: string) => {
-    onFiltersChange({
-      ...filters,
-      [key]: value,
-    });
-  };
-
   const handleColumnsChange = (columns: string[]) => {
     const columnsToAdd = columns.filter(col => !selectedColumns.includes(col));
     const columnsToRemove = selectedColumns.filter(col => !columns.includes(col));
@@ -123,21 +109,11 @@ export function QueryFilters({
             <Filter className="w-4 h-4" />
             <span className="text-sm font-medium">Filter</span>
           </div>
-          <Select 
-            value={filters.filter} 
-            onValueChange={(value) => handleFilterChange("filter", value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select filter..." />
-            </SelectTrigger>
-            <SelectContent>
-              {FILTER_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FilterRows
+            columns={columns}
+            columnTypes={columnTypes}
+            onApply={onFilterChange}
+          />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -146,8 +122,8 @@ export function QueryFilters({
             <span className="text-sm font-medium">Sort</span>
           </div>
           <Select 
-            value={filters.sort} 
-            onValueChange={(value) => handleFilterChange("sort", value)}
+            value={sort} 
+            onValueChange={(value) => onSortChange(value)}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select sorting..." />

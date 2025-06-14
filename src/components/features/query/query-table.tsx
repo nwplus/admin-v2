@@ -1,29 +1,24 @@
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
-import { Badge } from "@/components/ui/badge";
 import type { ColumnFiltersState } from "@tanstack/react-table";
 import { useState, useMemo } from "react";
+import type { GroupBySelection, FilterRowsSelection } from "./query-interface";
 
 interface QueryData {
   [key: string]: any;
 }
 
-interface GroupBySelection {
-  groupByColumn: string;
-  aggregationFunction: string;
-  aggregationColumn: string;
-}
-
 interface QueryTableProps {
   data: QueryData[];
   selectedColumns: string[];
-  filters: {
-    filter: string;
-    sort: string;
-  };
   groupBySelection?: GroupBySelection;
+  filterSelection?: FilterRowsSelection;
 }
 
-export function QueryTable({ data, selectedColumns, filters, groupBySelection }: QueryTableProps) {
+/**
+ * Displays table data. Selections, grouping, filtering, and sorting are all applied to the data here.
+ * Interfaces off the data table component.
+ */
+export function QueryTable({ data, selectedColumns, groupBySelection, filterSelection }: QueryTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const formatCellValue = (value: any) => {
@@ -34,37 +29,49 @@ export function QueryTable({ data, selectedColumns, filters, groupBySelection }:
     return String(value);
   };
 
-  // Filter data based on the filters prop
+  /**
+   * Filter data based on the filters prop and filterSelection.
+   */
   const filteredData = useMemo(() => {
     let filtered = [...data];
 
-    // Apply filter logic based on filters.filter
-    if (filters.filter && filters.filter !== "all" && filters.filter !== "") {
+    /**
+     * Apply filterSelection logic.
+     */
+    if (filterSelection && filterSelection.filterColumn && filterSelection.filterCondition && filterSelection.filterValue !== undefined) {
+      const { filterColumn, filterCondition, filterValue } = filterSelection;
       filtered = filtered.filter(row => {
-        // Example filter logic - you can customize this based on your needs
-        if (filters.filter === "accepted") {
-          return row.applicationStatus?.toLowerCase().includes("accepted");
+        const value = row[filterColumn];
+        switch (filterCondition) {
+          case "matches":
+            return String(value).includes(filterValue);
+          case "does_not_match":
+            return !String(value).includes(filterValue);
+          case "equals":
+            return String(value) === filterValue;
+          case "not_equals":
+            return String(value) !== filterValue;
+          case "greater_than":
+            return value > filterValue;
+          case "less_than":
+            return value < filterValue;
+          default:
+            return true;
         }
-        if (filters.filter === "pending") {
-          return row.applicationStatus?.toLowerCase().includes("progress");
-        }
-        if (filters.filter === "rejected") {
-          return row.applicationStatus?.toLowerCase().includes("rejected");
-        }
-        return true;
       });
     }
 
     return filtered;
-  }, [data, filters]);
-
-  // Shorter alias for the table column helper
-  const columnHelper = createTableColumnHelper<QueryData>();
+  }, [data, filterSelection]);
 
   /**
-   * Returns columns based on selected filters.
+   * Returns default column headers and values based on selected filters.
+   * Note that grouping, filtering, and sorting all take priority over selecting columns.
    */
   const columns = useMemo(() => {
+    // Shorter alias for the table column helper
+    const columnHelper = createTableColumnHelper<QueryData>();
+
     if (groupBySelection) {
       return [
         columnHelper.accessor(groupBySelection.groupByColumn, {
