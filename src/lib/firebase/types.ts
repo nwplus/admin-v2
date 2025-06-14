@@ -152,8 +152,10 @@ export interface Applicant {
   basicInfo: {
     educationLevel: ApplicantMajor;
     email: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
+    legalFirstName: string;
+    legalLastName: string;
     gender: string | Record<string, boolean>;
     graduation: number;
     isOfLegalAge: boolean;
