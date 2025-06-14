@@ -9,26 +9,41 @@ import type { Hackathon, Applicant } from "@/lib/firebase/types";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import { subscribeToApplicants, flattenApplicantData, getAvailableColumns } from "@/services/query";
 
-interface QueryFilters {
-  filter: string;
-  sort: string;
-}
-
-interface GroupBySelection {
+/**
+ * Users can group by a column and apply an aggregation function to another column.
+ * This interface represents these three selections. 
+ */
+export interface GroupBySelection {
   groupByColumn: string;
   aggregationFunction: string;
   aggregationColumn: string;
+}
+
+/**
+ * Users can filter the data based on a column and a condition.
+ * This interface represents this selection.
+ * TODO: add support for multiple filters.
+ */
+export interface FilterRowsSelection {
+  filterColumn: string;
+  filterCondition: string;
+  filterValue: string;
+}
+
+/**
+ * Users can sort the data based on a column and a direction.
+ * This interface represents this selection. 
+ * TODO: Not implemented yet.
+ */
+export interface SortSelection {
+  sortColumn: string;
+  sortDirection: "asc" | "desc";
 }
 
 interface QueryInterfaceProps {
   onExport?: (data: any[], hackathon: string) => void;
   onRaffle?: (data: any[], hackathon: string) => void;
 }
-
-const DEFAULT_FILTERS: QueryFilters = {
-  filter: "",
-  sort: "",
-};
 
 const DEFAULT_SELECTED_COLUMNS = [
   "firstName",
@@ -52,8 +67,9 @@ export function QueryInterface({
   
   const availableColumns = useMemo(() => getAvailableColumns(), []);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_SELECTED_COLUMNS);
-  const [filters, setFilters] = useState<QueryFilters>(DEFAULT_FILTERS);
   const [groupBySelection, setGroupBySelection] = useState<GroupBySelection | undefined>(undefined);
+  const [filterSelection, setFilterSelection] = useState<FilterRowsSelection | undefined>(undefined);
+  const [sort, setSort] = useState<string>("");
 
   useEffect(() => {
     const unsubscribe = subscribeToHackathons((hackathonsData) => {
@@ -93,10 +109,6 @@ export function QueryInterface({
         ? prev.filter(col => col !== column)
         : [...prev, column]
     );
-  }, []);
-
-  const handleFiltersChange = useCallback((newFilters: QueryFilters) => {
-    setFilters(newFilters);
   }, []);
 
   const handleExport = useCallback(() => {
@@ -192,13 +204,14 @@ export function QueryInterface({
             {selectedHackathon ? (
               <div className="space-y-4 mt-6">
                 <QueryFilters
-                  filters={filters}
-                  onFiltersChange={handleFiltersChange}
                   selectedColumns={selectedColumns}
                   availableColumns={availableColumns}
                   onColumnToggle={handleColumnToggle}
                   tableData={tableData}
                   onGroupByChange={setGroupBySelection}
+                  onFilterChange={setFilterSelection}
+                  onSortChange={setSort}
+                  sort={sort}
                 />
 
                 {loading ? (
@@ -213,13 +226,14 @@ export function QueryInterface({
                     <QueryTable
                       data={tableData}
                       selectedColumns={selectedColumns}
-                      filters={filters}
                       groupBySelection={groupBySelection}
+                      filterSelection={filterSelection}
                     />
                   </div>
                 )}
               </div>
             ) : (
+              // TODO:Fallback for when no hackathon is selected, should be impossible
               <div className="text-center py-12 text-gray-500 mt-6">
                 <p>Please select a hackathon to view applicant data.</p>
               </div>
