@@ -10,9 +10,14 @@ import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import { subscribeToApplicants, flattenApplicantData, getAvailableColumns } from "@/services/query";
 
 interface QueryFilters {
-  groupBy: string;
   filter: string;
   sort: string;
+}
+
+interface GroupBySelection {
+  groupByColumn: string;
+  aggregationFunction: string;
+  aggregationColumn: string;
 }
 
 interface QueryInterfaceProps {
@@ -21,7 +26,6 @@ interface QueryInterfaceProps {
 }
 
 const DEFAULT_FILTERS: QueryFilters = {
-  groupBy: "",
   filter: "",
   sort: "",
 };
@@ -49,6 +53,7 @@ export function QueryInterface({
   const availableColumns = useMemo(() => getAvailableColumns(), []);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_SELECTED_COLUMNS);
   const [filters, setFilters] = useState<QueryFilters>(DEFAULT_FILTERS);
+  const [groupBySelection, setGroupBySelection] = useState<GroupBySelection | undefined>(undefined);
 
   useEffect(() => {
     const unsubscribe = subscribeToHackathons((hackathonsData) => {
@@ -192,6 +197,8 @@ export function QueryInterface({
                   selectedColumns={selectedColumns}
                   availableColumns={availableColumns}
                   onColumnToggle={handleColumnToggle}
+                  tableData={tableData}
+                  onGroupByChange={setGroupBySelection}
                 />
 
                 {loading ? (
@@ -207,6 +214,7 @@ export function QueryInterface({
                       data={tableData}
                       selectedColumns={selectedColumns}
                       filters={filters}
+                      groupBySelection={groupBySelection}
                     />
                   </div>
                 )}
