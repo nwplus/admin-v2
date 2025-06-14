@@ -45,7 +45,7 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
             : <span className="text-muted-foreground">Select a column to group by...</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[600px]">
+      <PopoverContent className="w-fit">
         <div className="flex gap-2 items-center">
           <Select value={groupByColumn} onValueChange={setGroupByColumn}>
             <SelectTrigger className="min-w-[180px]">
