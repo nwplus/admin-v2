@@ -83,29 +83,30 @@ export function DataTable<T>({
   });
 
   return (
-    <div className="space-y-4">
-      <div className="w-full overflow-auto rounded-md">
+    <div className="space-y-4 w-full">
+      <div className="w-full overflow-x-auto rounded-md border border-gray-200">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="border-neutral-200">
+          <thead className="border-neutral-200 bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <th
                     key={header.id}
                     className={cn(
-                      "select-none px-1.5 py-2 text-left font-medium text-neutral-800 text-sm",
+                      "select-none px-2 sm:px-3 py-2 text-left font-medium text-neutral-800 text-xs sm:text-sm sticky top-0 bg-gray-50",
                       header.column.getIsSorted() ? "bg-neutral-100" : "",
-                      header.column.getCanSort() ? "cursor-pointer" : "",
+                      header.column.getCanSort() ? "cursor-pointer hover:bg-gray-100" : "",
                     )}
                     onClick={header.column.getToggleSortingHandler()}
                     onKeyDown={header.column.getToggleSortingHandler()}
+                    style={{ minWidth: '120px' }}
                   >
                     <div className="flex items-center gap-1">
                       {flexRender(header.column.columnDef.header, header.getContext())}
-                      <div className="text-ui-60">
+                      <div className="text-ui-60 flex-shrink-0">
                         {{
-                          asc: <ChevronUp height={16} width={16} />,
-                          desc: <ChevronDown height={16} width={16} />,
+                          asc: <ChevronUp height={12} width={12} className="sm:h-4 sm:w-4" />,
+                          desc: <ChevronDown height={12} width={12} className="sm:h-4 sm:w-4" />,
                         }[header.column.getIsSorted() as "asc" | "desc"] ?? null}
                       </div>
                     </div>
@@ -114,12 +115,15 @@ export function DataTable<T>({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-neutral-100 bg-white text-sm">
+          <tbody className="divide-y overflow-x-scroll max-w-full divide-neutral-100 bg-white text-xs sm:text-sm">
             {table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
                 <tr
                   key={row.id}
-                  className={onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}
+                  className={cn(
+                    "transition-colors",
+                    onRowClick ? "cursor-pointer hover:bg-gray-50 active:bg-gray-100" : ""
+                  )}
                   onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                   onKeyDown={
                     onRowClick ? (e) => e.key === "Enter" && onRowClick(row.original) : undefined
@@ -128,8 +132,10 @@ export function DataTable<T>({
                   role={onRowClick ? "button" : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="whitespace-nowrap px-1.5 py-2">
+                    <td key={cell.id} className="px-2 sm:px-3 py-2 align-top">
+                      <div className="max-w-[120px] sm:max-w-none">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </div>
                     </td>
                   ))}
                 </tr>
@@ -138,7 +144,7 @@ export function DataTable<T>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-1.5 py-1.5 pt-4 text-center text-gray-500"
+                  className="px-3 py-8 text-center text-gray-500"
                 >
                   {emptyMessage}
                 </td>
@@ -148,36 +154,43 @@ export function DataTable<T>({
         </table>
       </div>
 
-      <div className="flex select-none items-center">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
         <Button
-          size="icon"
-          variant="ghost"
+          size="sm"
+          variant="outline"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          className="flex items-center gap-1"
         >
-          <ArrowLeft />
+          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Previous</span>
         </Button>
         <Button
-          size="icon"
-          variant="ghost"
+          size="sm"
+          variant="outline"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          className="flex items-center gap-1"
         >
-          <ArrowRight />
+          <span className="hidden sm:inline">Next</span>
+          <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
+        </div>
 
-        <span className="flex-grow pl-3 text-neutral-800 text-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-neutral-800">
+          <span className="whitespace-nowrap">
           Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
         </span>
 
         <div className="flex items-center gap-2">
-          <span className="text-gray-500 text-sm">Rows per page:</span>
+            <span className="text-gray-500 whitespace-nowrap">Rows per page:</span>
           <select
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
             }}
-            className="rounded border px-2 py-1 text-sm"
+              className="rounded border px-2 py-1 text-xs sm:text-sm min-w-0"
           >
             {pageSizeOptions.map((pageSize: number) => (
               <option key={pageSize} value={pageSize}>
@@ -185,6 +198,7 @@ export function DataTable<T>({
               </option>
             ))}
           </select>
+          </div>
         </div>
       </div>
     </div>
