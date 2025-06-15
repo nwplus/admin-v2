@@ -1,6 +1,6 @@
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
-import type { ColumnFiltersState } from "@tanstack/react-table";
-import { useState, useMemo } from "react";
+import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
+import { useState, useMemo, useEffect } from "react";
 import type { GroupBySelection, FilterRowsSelection } from "./query-interface";
 
 interface QueryData {
@@ -12,13 +12,15 @@ interface QueryTableProps {
   selectedColumns: string[];
   groupBySelection?: GroupBySelection;
   filterSelection?: FilterRowsSelection;
+  sorting: SortingState;
+  onSortingChange: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
 }
 
 /**
  * Displays table data. Selections, grouping, filtering, and sorting are all applied to the data here.
  * Interfaces off the data table component.
  */
-export function QueryTable({ data, selectedColumns, groupBySelection, filterSelection }: QueryTableProps) {
+export function QueryTable({ data, selectedColumns, groupBySelection, filterSelection, sorting, onSortingChange }: QueryTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const formatCellValue = (value: any) => {
@@ -30,14 +32,12 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
   };
 
   /**
-   * Filter data based on the filters prop and filterSelection.
+   * Filter data based on the filterSelection.
    */
   const filteredData = useMemo(() => {
     let filtered = [...data];
 
-    /**
-     * Apply filterSelection logic.
-     */
+    // Apply filterSelection logic
     if (filterSelection && filterSelection.filterColumn && filterSelection.filterCondition && filterSelection.filterValue !== undefined) {
       const { filterColumn, filterCondition, filterValue } = filterSelection;
       filtered = filtered.filter(row => {
@@ -139,7 +139,6 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
 
   return (
     <div className="space-y-4 w-full overflow-hidden">
-
       <div className="w-full overflow-x-auto">
         <div className="max-w-full">
           <DataTable
@@ -147,6 +146,8 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
             data={groupedData}
             columnFilters={columnFilters}
             setColumnFilters={setColumnFilters}
+            sorting={sorting}
+            onSortingChange={onSortingChange}
             emptyMessage="No data available"
             defaultPageSize={20}
             pageSizeOptions={[10, 20, 50, 100]}
