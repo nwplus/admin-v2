@@ -55,6 +55,7 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
     setFilterColumn("");
     setFilterCondition("");
     setFilterValue("");
+    onApply({ filterColumn: "", filterCondition: "", filterValue: "" });
   };
 
   return (
