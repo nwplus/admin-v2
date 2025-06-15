@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 interface GroupByProps {
   groupableColumns: string[];
   aggregatableColumnsMap: Record<string, string[]>;
-  onApply: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string }) => void;
+  onApply: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string } | undefined) => void;
 }
 
 /**
@@ -34,6 +34,7 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
     setGroupByColumn("");
     setAggregationFunction("COUNT");
     setAggregationColumn("");
+    onApply(undefined);
   };
 
   return (
