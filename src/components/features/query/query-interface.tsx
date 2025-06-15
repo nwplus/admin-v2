@@ -75,9 +75,9 @@ export function QueryInterface({
   useEffect(() => {
     const unsubscribe = subscribeToHackathons((hackathonsData) => {
       setHackathons(hackathonsData);
-      // Auto-select the first hackathon if none selected
+      // Auto-select the latest hackathon if none selected
       if (hackathonsData.length > 0 && !selectedHackathon) {
-        setSelectedHackathon(hackathonsData[0]._id);
+        setSelectedHackathon(hackathonsData[hackathonsData.length - 2]._id);
       }
       setLoading(false);
     });

@@ -10,7 +10,7 @@ interface QueryFiltersProps {
   availableColumns: string[];
   onColumnToggle: (column: string) => void;
   tableData: any[];
-  onGroupByChange: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string }) => void;
+  onGroupByChange: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string } | undefined) => void;
   onFilterChange: (opts: { filterColumn: string; filterCondition: string; filterValue: string }) => void;
   sorting: SortingState;
   setSorting: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
