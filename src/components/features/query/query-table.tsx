@@ -1,6 +1,6 @@
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
 import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import type { GroupBySelection, FilterRowsSelection } from "./query-interface";
 
 interface QueryData {
@@ -23,7 +23,14 @@ interface QueryTableProps {
 export function QueryTable({ data, selectedColumns, groupBySelection, filterSelection, sorting, onSortingChange }: QueryTableProps) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  /**
+   * Format cell values for display. 
+   * The applicant schema has changed over time -- some previously typed string values are now objects, which are handled here.
+   */
   const formatCellValue = (value: any) => {
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      return Object.entries(value).filter(([_, v]) => v).map(([k]) => k).join(", ");
+    }
     if (value === null || value === undefined) return "undefined";
     if (typeof value === "boolean") return value.toString();
     if (typeof value === "string") return value;
