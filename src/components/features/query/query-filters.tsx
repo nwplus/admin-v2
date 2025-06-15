@@ -1,8 +1,9 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Menu, Filter, ArrowUpDown, Group } from "lucide-react";
 import { GroupBy } from "./popovers/group-by";
 import { FilterRows } from "./popovers/filter-rows";
+import { SortBy } from "./popovers/sort-by";
+import type { SortingState } from "@tanstack/react-table";
 
 interface QueryFiltersProps {
   selectedColumns: string[];
@@ -11,16 +12,9 @@ interface QueryFiltersProps {
   tableData: any[];
   onGroupByChange: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string }) => void;
   onFilterChange: (opts: { filterColumn: string; filterCondition: string; filterValue: string }) => void;
-  onSortChange: (sort: string) => void;
-  sort: string;
+  sorting: SortingState;
+  setSorting: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
 }
-
-
-const SORT_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "asc", label: "Ascending" },
-  { value: "desc", label: "Descending" },
-] as const;
 
 export function QueryFilters({
   selectedColumns,
@@ -29,8 +23,8 @@ export function QueryFilters({
   tableData,
   onGroupByChange,
   onFilterChange,
-  onSortChange,
-  sort,
+  sorting,
+  setSorting,
 }: QueryFiltersProps) {
   const handleColumnsChange = (columns: string[]) => {
     const columnsToAdd = columns.filter(col => !selectedColumns.includes(col));
@@ -121,21 +115,11 @@ export function QueryFilters({
             <ArrowUpDown className="w-4 h-4" />
             <span className="text-sm font-medium">Sort</span>
           </div>
-          <Select 
-            value={sort} 
-            onValueChange={(value) => onSortChange(value)}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select sorting..." />
-            </SelectTrigger>
-            <SelectContent>
-              {SORT_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <SortBy
+            columns={selectedColumns}
+            sorting={sorting}
+            setSorting={setSorting}
+          />
         </div>
       </div>
     </div>

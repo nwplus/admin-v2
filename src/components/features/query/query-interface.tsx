@@ -8,6 +8,7 @@ import { Download, FileBarChart } from "lucide-react";
 import type { Hackathon, Applicant } from "@/lib/firebase/types";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import { subscribeToApplicants, flattenApplicantData, getAvailableColumns } from "@/services/query";
+import type { SortingState } from "@tanstack/react-table";
 
 /**
  * Users can group by a column and apply an aggregation function to another column.
@@ -69,7 +70,7 @@ export function QueryInterface({
   const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_SELECTED_COLUMNS);
   const [groupBySelection, setGroupBySelection] = useState<GroupBySelection | undefined>(undefined);
   const [filterSelection, setFilterSelection] = useState<FilterRowsSelection | undefined>(undefined);
-  const [sort, setSort] = useState<string>("");
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   useEffect(() => {
     const unsubscribe = subscribeToHackathons((hackathonsData) => {
@@ -210,8 +211,8 @@ export function QueryInterface({
                   tableData={tableData}
                   onGroupByChange={setGroupBySelection}
                   onFilterChange={setFilterSelection}
-                  onSortChange={setSort}
-                  sort={sort}
+                  sorting={sorting}
+                  setSorting={setSorting}
                 />
 
                 {loading ? (
@@ -228,6 +229,8 @@ export function QueryInterface({
                       selectedColumns={selectedColumns}
                       groupBySelection={groupBySelection}
                       filterSelection={filterSelection}
+                      sorting={sorting}
+                      onSortingChange={setSorting}
                     />
                   </div>
                 )}

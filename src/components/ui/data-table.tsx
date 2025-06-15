@@ -29,6 +29,8 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   pageSizeOptions?: number[];
   defaultPageSize?: number;
+  sorting?: SortingState;
+  onSortingChange?: OnChangeFn<SortingState>;
 }
 
 export function DataTable<T>({
@@ -42,8 +44,10 @@ export function DataTable<T>({
   pageSizeOptions = [10, 15, 20, 30, 40, 50],
   emptyMessage = "No data found",
   defaultPageSize = 15,
+  sorting,
+  onSortingChange,
 }: DataTableProps<T>) {
-  const [sorting, setSorting] = useState([]);
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]);
 
   // biome-ignore lint/suspicious/noExplicitAny: We don't know
   const fuzzyFilter = (row: any, columnId: string, value: any, addMeta: any) => {
@@ -62,11 +66,11 @@ export function DataTable<T>({
     },
     state: {
       globalFilter,
-      sorting,
+      sorting: sorting ?? internalSorting,
       columnFilters,
     },
     onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting as OnChangeFn<SortingState>,
+    onSortingChange: onSortingChange ?? setInternalSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
