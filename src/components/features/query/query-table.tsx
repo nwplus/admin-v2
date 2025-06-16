@@ -1,37 +1,42 @@
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
-import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
+import type { ColumnFiltersState } from "@tanstack/react-table";
 import { useState, useMemo } from "react";
-import type { GroupBySelection, FilterRowsSelection } from "./query-interface";
+import type { FlattenedApplicant } from "@/services/query";
+import { useQuery } from "@/providers/query-provider";
 
-interface QueryData {
-  [key: string]: any;
-}
-
-interface QueryTableProps {
-  data: QueryData[];
-  selectedColumns: string[];
-  groupBySelection?: GroupBySelection;
-  filterSelection?: FilterRowsSelection;
-  sorting: SortingState;
-  onSortingChange: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
-}
+const columnHelper = createTableColumnHelper<FlattenedApplicant>();
 
 /**
  * Displays table data. Selections, grouping, filtering, and sorting are all applied to the data here.
  * Interfaces off the data table component.
  */
-export function QueryTable({ data, selectedColumns, groupBySelection, filterSelection, sorting, onSortingChange }: QueryTableProps) {
+export function QueryTable() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const {
+    tableData,
+    selectedColumns,
+    groupBySelection,
+    filterSelection,
+    sorting,
+    onSortingChange,
+  } = useQuery();
+
+  function isNonNullObject(val: unknown): val is Record<string, boolean> {
+    return typeof val === "object" && val !== null && !Array.isArray(val);
+  }
 
   /**
    * Format cell values for display. 
    * The applicant schema has changed over time -- some previously typed string values are now objects, which are handled here.
    */
-  const formatCellValue = (value: any) => {
-    if (value && typeof value === "object" && !Array.isArray(value)) {
-      return Object.entries(value).filter(([_, v]) => v).map(([k]) => k).join(", ");
-    }
+  const formatCellValue = (value: unknown) => {
     if (value === null || value === undefined) return "undefined";
+    if (isNonNullObject(value)) {
+      return Object.entries(value)
+        .filter(([_, v]) => v)
+        .map(([k]) => k)
+        .join(", ");
+    }
     if (typeof value === "boolean") return value.toString();
     if (typeof value === "string") return value;
     if (typeof value === "number") return value.toString();
@@ -39,13 +44,13 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
   };
 
   /**
-   * Filter data based on the filterSelection.
+   * Applies filter operators to selected columns. 
    */
   const filteredData = useMemo(() => {
-    let filtered = [...data];
+    let filtered = [...tableData];
 
-    // Apply filterSelection logic
-    if (filterSelection && filterSelection.filterColumn && filterSelection.filterCondition && filterSelection.filterValue !== undefined) {
+    // filterSelection logic
+    if (filterSelection?.filterColumn && filterSelection.filterCondition && filterSelection.filterValue !== undefined) {
       const { filterColumn, filterCondition, filterValue } = filterSelection;
       filtered = filtered.filter(row => {
         const value = row[filterColumn];
@@ -59,9 +64,9 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
           case "not_equals":
             return String(value) !== filterValue;
           case "greater_than":
-            return value > filterValue;
+            return value && value > filterValue;
           case "less_than":
-            return value < filterValue;
+            return value && value < filterValue;
           default:
             return true;
         }
@@ -69,16 +74,14 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
     }
 
     return filtered;
-  }, [data, filterSelection]);
+  }, [tableData, filterSelection]);
 
   /**
    * Returns default column headers and values based on selected filters.
    * Note that grouping, filtering, and sorting all take priority over selecting columns.
    */
+  // biome-ignore lint/correctness/useExhaustiveDependencies: formatCellValue is stable and does not need to be in the dependency array
   const columns = useMemo(() => {
-    // Shorter alias for the table column helper
-    const columnHelper = createTableColumnHelper<QueryData>();
-
     if (groupBySelection) {
       return [
         columnHelper.accessor(groupBySelection.groupByColumn, {
@@ -109,30 +112,30 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
    */
   const groupedData = useMemo(() => {
     if (!groupBySelection) return filteredData;
-    const groups: Record<string, any[]> = {};
-    filteredData.forEach(row => {
+    const groups: Record<string, FlattenedApplicant[]> = {};
+    for (const row of filteredData) {
       const key = String(row[groupBySelection.groupByColumn]);
       if (!groups[key]) groups[key] = [];
       groups[key].push(row);
-    });
+    }
     return Object.entries(groups).map(([key, rows]) => {
-      let aggValue;
+      let aggValue: string | number | boolean | Date | null | Record<string, boolean> | undefined;
       const values = rows.map(r => r[groupBySelection.aggregationColumn]).filter(v => v !== undefined && v !== null);
       switch (groupBySelection.aggregationFunction) {
         case "COUNT":
           aggValue = values.length;
           break;
         case "SUM":
-          aggValue = values.reduce((a, b) => a + b, 0);
+          aggValue = (values as number[]).reduce((a, b) => (a as number) + (b as number), 0);
           break;
         case "AVERAGE":
-          aggValue = values.length ? (values.reduce((a, b) => a + b, 0) / values.length) : 0;
+          aggValue = values.length ? ((values as number[]).reduce((a, b) => (a as number) + (b as number), 0) / values.length) : 0;
           break;
         case "MIN":
-          aggValue = Math.min(...values);
+          aggValue = Math.min(...(values as number[]));
           break;
         case "MAX":
-          aggValue = Math.max(...values);
+          aggValue = Math.max(...(values as number[]));
           break;
         default:
           aggValue = values.length;
@@ -140,12 +143,12 @@ export function QueryTable({ data, selectedColumns, groupBySelection, filterSele
       return {
         [groupBySelection.groupByColumn]: key,
         [`${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`]: aggValue,
-      };
+      } as FlattenedApplicant;
     });
   }, [filteredData, groupBySelection]);
 
   return (
-    <div className="space-y-4 w-full overflow-hidden">
+    <div className="w-full space-y-4 overflow-hidden">
       <div className="w-full overflow-x-auto">
         <div className="max-w-full">
           <DataTable

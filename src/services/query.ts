@@ -25,8 +25,8 @@ export const subscribeToApplicants = (hackathon: string, callback: (docs: Applic
  * @param applicant - The applicant object to flatten
  * @returns a flattened object with all properties at the top level
  */
-export const flattenApplicantData = (applicant: Applicant) => {
-  const flattened: Record<string, any> = {
+export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant => {
+  const flattened: FlattenedApplicant = {
     _id: applicant._id,
     // Basic Info
     firstName: applicant.basicInfo?.legalFirstName || applicant.basicInfo?.firstName || "",
@@ -161,3 +161,56 @@ export const getAvailableColumns = () => {
   
   return Object.keys(flattenApplicantData(sampleApplicant));
 };
+
+/**
+ * Represents a flattened applicant object to display as table data in the query page
+ */
+export interface FlattenedApplicant {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  school: string;
+  major: string;
+  educationLevel: string;
+  graduation: string | number;
+  gender: string | Record<string, boolean>;
+  location: string;
+  isOfLegalAge: boolean;
+  applicationStatus: string;
+  attending: boolean;
+  responded: boolean;
+  github: string;
+  linkedin: string;
+  portfolio: string;
+  resume: string;
+  numHackathonsAttended: number;
+  contributionDeveloper: boolean;
+  contributionDesigner: boolean;
+  contributionProductManager: boolean;
+  contributionOther: boolean;
+  engagementSource: string | Record<string, boolean>;
+  friendEmail: string;
+  eventsAttended: string;
+  MLHCodeOfConduct: boolean;
+  nwPlusPrivacyPolicy: boolean;
+  shareWithSponsors: boolean;
+  shareWithnwPlus: boolean;
+  ethnicityAsian: boolean;
+  ethnicityBlack: boolean;
+  ethnicityCaucasian: boolean;
+  ethnicityHispanic: boolean;
+  ethnicityMiddleEastern: boolean;
+  ethnicityNativeHawaiian: boolean;
+  ethnicityNorthAmerica: boolean;
+  ethnicityOther: boolean;
+  ethnicityPreferNot: boolean;
+  totalScore: number;
+  scoreComment: string;
+  scoreLastUpdated: Date | null;
+  scoreLastUpdatedBy: string;
+  submitted: boolean;
+  submissionLastUpdated: Date | null;
+  [key: string]: string | number | boolean | Date | null | Record<string, boolean> | undefined; // extra keys for group-by results
+}

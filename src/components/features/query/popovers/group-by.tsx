@@ -40,14 +40,14 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full font-normal justify-between">
+        <Button variant="outline" className="w-full justify-between font-normal">
           {groupByColumn
             ? `Group by: ${groupByColumn}`
             : <span className="text-muted-foreground">Select a column to group by...</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-fit">
-        <div className="flex gap-2 items-center">
+        <div className="flex items-center gap-2">
           <Select value={groupByColumn} onValueChange={setGroupByColumn}>
             <SelectTrigger className="min-w-[180px]">
               <SelectValue placeholder="Group by column" />
@@ -80,7 +80,7 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
           </Select>
           <div className="flex items-center">
             <Button size="icon" variant="ghost" onClick={handleClear} disabled={!groupByColumn && !aggregationFunction && !aggregationColumn}>
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
           <Button size="icon" variant="ghost" onClick={handleApply} disabled={!(groupByColumn && aggregationFunction && aggregationColumn)}>
               ✓
