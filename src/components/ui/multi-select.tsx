@@ -136,7 +136,7 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
           <Command>
             <CommandInput placeholder="Search..." />
             {selectAll && (
-              <div className="sticky top-0 z-10 bg-white border-b px-2 py-1.5">
+              <div className="sticky top-0 z-10 border-b bg-white px-2 py-1.5">
                 <CommandItem key="select-all" onSelect={handleSelectAll} className="cursor-pointer">
                   <span className="text-primary">
                     {selected.length === options.length ? "Deselect All" : "Select All"}

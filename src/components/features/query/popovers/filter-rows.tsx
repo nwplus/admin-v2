@@ -34,7 +34,6 @@ interface FilterRowsProps {
 
 /**
  * Popover for filtering data based on a selected column and condition.
- * 
  * Provides the onApply callback prop to the parent component to notify a new selection.
  */
 export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
@@ -61,15 +60,15 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full font-normal justify-between">
+        <Button variant="outline" className="w-full justify-between font-normal">
           {filterColumn
             ? `Filter: ${filterColumn} ${filterCondition} ${filterValue}`
             : <span className="text-muted-foreground">Add filter...</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-fit">
-        <div className="flex gap-2 items-center">
-          <span className="text-sm mr-1">Where</span>
+        <div className="flex items-center gap-2">
+          <span className="mr-1 text-sm">Where</span>
           <Select value={filterColumn} onValueChange={col => { setFilterColumn(col); setFilterCondition(""); setFilterValue(""); }}>
             <SelectTrigger className="min-w-[180px]">
               <SelectValue placeholder="Select Column" />
@@ -91,7 +90,7 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
             </SelectContent>
           </Select>
           <input
-            className="border text-sm rounded px-2 py-1 min-w-[120px]"
+            className="min-w-[120px] rounded border px-2 py-1 text-sm"
             placeholder="Enter value…"
             value={filterValue}
             onChange={e => setFilterValue(e.target.value)}
@@ -99,7 +98,7 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
           />
           <div className="flex items-center">
             <Button size="icon" variant="ghost" onClick={handleClear} disabled={!filterColumn && !filterCondition && !filterValue}>
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
             <Button size="icon" variant="ghost" onClick={handleApply} disabled={!(filterColumn && filterCondition && filterValue)}>
               ✓
