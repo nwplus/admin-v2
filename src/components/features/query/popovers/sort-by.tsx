@@ -42,15 +42,15 @@ export function SortBy({ columns, sorting, setSorting }: SortByProps) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="w-full font-normal justify-between">
+        <Button variant="outline" className="w-full justify-between font-normal">
           {sortColumn
             ? `Sort: ${sortColumn} (${sortDirection})`
             : <span className="text-muted-foreground">Sort by...</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-fit">
-        <div className="flex gap-2 items-center">
-          <span className="text-sm mr-1">Sort by</span>
+        <div className="flex items-center gap-2">
+          <span className="mr-1 text-sm">Sort by</span>
           <Select value={sortColumn} onValueChange={setSortColumn}>
             <SelectTrigger className="min-w-[180px]">
               <SelectValue placeholder="Select Column" />
@@ -72,7 +72,7 @@ export function SortBy({ columns, sorting, setSorting }: SortByProps) {
           </Select>
           <div className="flex items-center">
             <Button size="icon" variant="ghost" onClick={handleClear} disabled={!sortColumn}>
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
             <Button size="icon" variant="ghost" onClick={handleApply} disabled={!sortColumn}>
               ✓

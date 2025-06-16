@@ -3,35 +3,33 @@ import { Menu, Filter, ArrowUpDown, Group } from "lucide-react";
 import { GroupBy } from "./popovers/group-by";
 import { FilterRows } from "./popovers/filter-rows";
 import { SortBy } from "./popovers/sort-by";
-import type { SortingState } from "@tanstack/react-table";
+import type { FlattenedApplicant } from "@/services/query";
+import { useQuery } from "@/providers/query-provider";
 
 interface QueryFiltersProps {
-  selectedColumns: string[];
   availableColumns: string[];
-  onColumnToggle: (column: string) => void;
-  tableData: any[];
-  onGroupByChange: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string } | undefined) => void;
-  onFilterChange: (opts: { filterColumn: string; filterCondition: string; filterValue: string }) => void;
-  sorting: SortingState;
-  setSorting: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
+  tableData: FlattenedApplicant[];
 }
 
 export function QueryFilters({
-  selectedColumns,
   availableColumns,
-  onColumnToggle,
   tableData,
-  onGroupByChange,
-  onFilterChange,
-  sorting,
-  setSorting,
 }: QueryFiltersProps) {
+  const {
+    selectedColumns,
+    onColumnToggle,
+    onGroupByChange,
+    onFilterChange,
+    sorting,
+    onSortingChange,
+  } = useQuery();
+
   const handleColumnsChange = (columns: string[]) => {
     const columnsToAdd = columns.filter(col => !selectedColumns.includes(col));
     const columnsToRemove = selectedColumns.filter(col => !columns.includes(col));
-    [...columnsToAdd, ...columnsToRemove].forEach(column => {
+    for (const column of [...columnsToAdd, ...columnsToRemove]) {
       onColumnToggle(column);
-    });
+    }
   };
 
   const columnOptions = availableColumns.map(column => ({
@@ -68,12 +66,12 @@ export function QueryFilters({
   });
 
   return (
-    <div className="space-y-4 p-4 bg-gray-50 rounded-lg overflow-hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-4 overflow-hidden rounded-lg bg-gray-50 p-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <Menu className="w-4 h-4" />
-            <span className="text-sm font-medium">Outline</span>
+            <Menu className="h-4 w-4" />
+            <span className="font-medium text-sm">Outline</span>
           </div>
           <MultiSelect
             compressed
@@ -82,14 +80,14 @@ export function QueryFilters({
             selected={selectedColumns}
             onChange={handleColumnsChange}
             placeholder="Select columns..."
-            className="w-full max-h-9"
+            className="max-h-9 w-full"
           />
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <Group className="w-4 h-4" />
-            <span className="text-sm font-medium">Group By</span>
+            <Group className="h-4 w-4" />
+            <span className="font-medium text-sm">Group By</span>
           </div>
           <GroupBy
             groupableColumns={groupableColumns}
@@ -100,8 +98,8 @@ export function QueryFilters({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            <span className="text-sm font-medium">Filter</span>
+            <Filter className="h-4 w-4" />
+            <span className="font-medium text-sm">Filter</span>
           </div>
           <FilterRows
             columns={columns}
@@ -112,13 +110,13 @@ export function QueryFilters({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-4 h-4" />
-            <span className="text-sm font-medium">Sort</span>
+            <ArrowUpDown className="h-4 w-4" />
+            <span className="font-medium text-sm">Sort</span>
           </div>
           <SortBy
             columns={selectedColumns}
             sorting={sorting}
-            setSorting={setSorting}
+            setSorting={onSortingChange}
           />
         </div>
       </div>
