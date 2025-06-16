@@ -14,7 +14,8 @@
     "lint": "biome lint",
     "lint:write": "biome lint --write ./src",
     "lint:write:unsafe": "biome lint --write --unsafe ./src",
-    "check": "biome check"
+    "check": "biome check",
+    "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
