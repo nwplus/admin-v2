@@ -1,4 +1,4 @@
-import { LoadingSmall } from "@/components/ui/loading_small";
+import { Loading } from "@/components/ui/loading";
 import type { Applicant } from "@/lib/firebase/types";
 import { getAdminFlags, subscribeToApplicants } from "@/services/evaluator";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
@@ -50,7 +50,7 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <EvaluatorContext.Provider value={value}>
-      {isLoading ? <LoadingSmall/>: children}
+      {isLoading ? <Loading variant="small"/>: children}
     </EvaluatorContext.Provider>
   );
 };

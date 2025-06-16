@@ -1,5 +1,4 @@
-import type { Loading } from "@/components/ui/loading";
-import { LoadingSmall } from "@/components/ui/loading_small";
+import { Loading } from "@/components/ui/loading";
 import type { HackerApplicationMetadata, HackerApplicationQuestion } from "@/lib/firebase/types";
 import {
   subscribeToHackerAppDoc,
@@ -62,7 +61,7 @@ const HackerApplicationProvider = ({
 
   return (
     <HackathonContext.Provider value={value}>
-      {isLoading ?  <LoadingSmall /> : children}
+      {isLoading ?  <Loading variant="small"/> : children}
     </HackathonContext.Provider>
   );
 };
