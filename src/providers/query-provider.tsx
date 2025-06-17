@@ -1,7 +1,9 @@
 import { createContext, useContext, useState, useCallback, type ReactNode, useEffect } from "react";
 import type { SortingState } from "@tanstack/react-table";
 import type { FlattenedApplicant } from "@/services/query";
-import { useApplicant } from "./applicant-provider";
+import { subscribeToHackathons } from "@/lib/firebase/firestore";
+import { subscribeToApplicants, flattenApplicantData } from "@/services/query";
+import type { Hackathon } from "@/lib/firebase/types";
 
 /**
  * Users can group by a column and apply an aggregation function to another column.
@@ -25,6 +27,14 @@ export interface FilterRowsSelection {
 }
 
 interface QueryContextType {
+  // Applicant state (based on selected hackathon)
+  hackathons: Hackathon[];
+  selectedHackathon: string;
+  setSelectedHackathon: (hackathon: string) => void;
+  applicants: FlattenedApplicant[];
+  isLoading: boolean;
+
+  // Current query state (selected columns, grouping, filtering, sorting)
   selectedColumns: string[];
   groupBySelection: GroupBySelection | undefined;
   filterSelection: FilterRowsSelection | undefined;
@@ -60,12 +70,38 @@ interface QueryProviderProps {
  * Primarily used in the query page.
  */
 export function QueryProvider({ children }: QueryProviderProps) {
-  const { applicants } = useApplicant();
+  const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  const [selectedHackathon, setSelectedHackathon] = useState<string>("");
+  const [applicants, setApplicants] = useState<FlattenedApplicant[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_SELECTED_COLUMNS);
   const [groupBySelection, setGroupBySelection] = useState<GroupBySelection | undefined>(undefined);
   const [filterSelection, setFilterSelection] = useState<FilterRowsSelection | undefined>(undefined);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [tableData, setTableData] = useState<FlattenedApplicant[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeToHackathons((hackathons) => {
+      setHackathons(hackathons);
+      if (hackathons.length > 0 && !selectedHackathon) {
+        setSelectedHackathon(hackathons[hackathons.length - 2]._id);
+      }
+    });
+    return () => unsubscribe();
+  }, [selectedHackathon]);
+
+  useEffect(() => {
+    if (!selectedHackathon) return;
+
+    const unsubscribe = subscribeToApplicants(selectedHackathon, (applicants) => {
+      const flattenedApplicants = applicants.map(flattenApplicantData);
+      setApplicants(flattenedApplicants);
+      setIsLoading(false);
+    });
+
+    return unsubscribe;
+  }, [selectedHackathon]);
 
   useEffect(() => {
     setTableData(applicants);
@@ -80,6 +116,11 @@ export function QueryProvider({ children }: QueryProviderProps) {
   }, []);
 
   const value = {
+    hackathons,
+    selectedHackathon,
+    setSelectedHackathon,
+    applicants,
+    isLoading,
     selectedColumns,
     groupBySelection,
     filterSelection,
@@ -93,7 +134,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
   return (
     <QueryContext.Provider value={value}>
-      {children}
+      {isLoading ? <>Loading</> : children}
     </QueryContext.Provider>
   );
 }
