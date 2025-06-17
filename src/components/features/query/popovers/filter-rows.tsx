@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 
 /**
@@ -89,8 +90,8 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
               ))}
             </SelectContent>
           </Select>
-          <input
-            className="min-w-[120px] rounded border px-2 py-1 text-sm"
+          <Input
+            className="min-w-[120px]"
             placeholder="Enter value…"
             value={filterValue}
             onChange={e => setFilterValue(e.target.value)}
