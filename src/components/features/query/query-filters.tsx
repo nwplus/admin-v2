@@ -3,17 +3,14 @@ import { Menu, Filter, ArrowUpDown, Group } from "lucide-react";
 import { GroupBy } from "./popovers/group-by";
 import { FilterRows } from "./popovers/filter-rows";
 import { SortBy } from "./popovers/sort-by";
-import type { FlattenedApplicant } from "@/services/query";
 import { useQuery } from "@/providers/query-provider";
 
 interface QueryFiltersProps {
   availableColumns: string[];
-  tableData: FlattenedApplicant[];
 }
 
 export function QueryFilters({
-  availableColumns,
-  tableData,
+  availableColumns
 }: QueryFiltersProps) {
   const {
     selectedColumns,
@@ -22,6 +19,7 @@ export function QueryFilters({
     onFilterChange,
     sorting,
     onSortingChange,
+    tableData,
   } = useQuery();
 
   const handleColumnsChange = (columns: string[]) => {
