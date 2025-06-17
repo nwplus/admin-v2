@@ -1,26 +1,16 @@
 import { auth, db } from "@/lib/firebase/client";
 import type {
-  Applicant,
-  FAQ,
-  Hackathon,
-  HackathonDayOf,
-  HackathonSponsors,
   HackerApplicationMetadata,
   HackerApplicationQuestion,
   HackerApplicationSections,
-  InternalWebsitesCMS,
 } from "@/lib/firebase/types";
 import {
-  type DocumentReference,
   Timestamp,
-  collection,
-  deleteDoc,
+  collection, 
   doc,
-  getDoc,
   getDocs,
   onSnapshot,
   query,
-  runTransaction,
   setDoc,
   writeBatch,
 } from "firebase/firestore";
