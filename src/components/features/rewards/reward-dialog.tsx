@@ -32,7 +32,7 @@ const EMPTY_FORM = {
   blurb: "",
   imgName: "",
   imgURL: "",
-  type: "",
+  type: "" as "Reward" | "Raffle",
   prizesAvailable: "",
   requiredPoints: "",
 };
@@ -41,8 +41,8 @@ const formSchema = z.object({
   reward: z.string().min(2).max(100),
   blurb: z.string().min(2).max(500),
   imgName: z.string().min(2).max(100),
-  imgURL: z.string().min(2).max(100),
-  type: z.string().min(5).max(7),
+  imgURL: z.string().url(),
+  type: z.enum(["Reward", "Raffle"]),
   prizesAvailable: z.string().max(10),
   requiredPoints: z.string().max(10),
 });
@@ -65,7 +65,7 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
       blurb: activeReward?.blurb ?? "",
       imgName: activeReward?.imgName ?? "",
       imgURL: activeReward?.imgURL ?? "",
-      type: activeReward?.type ?? "",
+      type: activeReward?.type ?? ("" as "Reward" | "Raffle"),
       prizesAvailable: activeReward?.prizesAvailable ?? "",
       requiredPoints: activeReward?.requiredPoints ?? "",
     },
