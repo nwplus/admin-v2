@@ -9,6 +9,7 @@ import {
   HelpCircle,
   type LucideIcon,
   Search,
+  Star,
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -97,6 +98,11 @@ export const generateHackathonNavigation = (hackathons: Hackathon[]) => {
           label: "Schedule",
           href: `/hackathons/${hackathon._id}/schedule`,
           icon: Calendar,
+        },
+        {
+          label: "Rewards",
+          href: `/hackathons/${hackathon._id}/rewards`,
+          icon: Star,
         },
         {
           label: "Application",
