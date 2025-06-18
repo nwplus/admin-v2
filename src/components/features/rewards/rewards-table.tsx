@@ -81,7 +81,7 @@ export function RewardsTable({
             setColumnFilters={setColumnFilters}
             setGlobalFilter={setSearch}
             onRowClick={(data) => setActiveReward(rewards?.find((q) => q.key === data.key) ?? null)}
-            emptyMessage="No questions found"
+            emptyMessage="No rewards found"
           />
         </CardContent>
       </Card>
