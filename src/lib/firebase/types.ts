@@ -296,3 +296,48 @@ export interface DiscordQuestion {
   updatedAt: Timestamp;
   updatedBy: string;
 }
+
+export interface DevConfig {
+  _id: string;
+  channelIDs?: {
+    adminConsole?: string;
+    adminLog?: string;
+  }
+  embedColor?: string;
+  hackathonName?: string;
+  isSetUpComplete?: boolean;
+  roleIDs?: {
+    adminRole?: string;
+    everyoneRole?: string;
+    memberRole?: string;
+    mentorRole?: string;
+    staffRole?: string;
+  }
+  verification?: {
+    guestRoleID?: string;
+    isEnabled?: boolean;
+    roles?: [
+      {
+        name: string;
+        roleID: string;
+      },
+      {
+        name: string;
+        roleID: string;
+      },
+      {
+        name: string;
+        roleID: string;
+      },
+      {
+        name: string;
+        roleID: string;
+      },
+      {
+        name: string;
+        roleID: string;
+      }
+    ]
+    welcomeSupportChannel?: string;
+  }
+}

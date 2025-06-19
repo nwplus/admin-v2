@@ -153,13 +153,13 @@ export function TableDemo() {
       cell: ({ row }) => (
         <div className="space-x-2 flex gap-2">
           <Edit 
-            className="w-5 text-gray-500 cursor-pointer text-theme"
+            className="w-5  cursor-pointer text-theme"
             onClick={() => {
               setSelectedQuestions(row.original)
               setIsOpen(true)
             }}
           />
-          <Trash className="w-5 text-gray-500 cursor-pointer text-red-500" />
+          <Trash className="w-5 cursor-pointer text-red-500" />
         </div>
       ),
     }),

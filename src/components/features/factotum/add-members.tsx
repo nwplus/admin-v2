@@ -12,7 +12,7 @@ export default function AddMembers() {
 
             <Label className="text-black text-md mb-2 font-bold">I am adding...</Label>
             <Select defaultValue="Hacker">
-              <SelectTrigger className="w-56 text-black">
+              <SelectTrigger className="w-56 text-black border-2 border-gray-300 focus-visible:border-gray-300">
                 <SelectValue className="text-black"/>
               </SelectTrigger>
               <SelectContent>
