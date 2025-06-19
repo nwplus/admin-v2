@@ -22,7 +22,7 @@ export function Loading({ variant = "large" }: { variant?: "small" | "large" }) 
           <div className="absolute h-16 w-16 animate-spin rounded-full border-4 border-theme-green border-t-transparent [animation-delay:0.2s]" />
           <div className="absolute h-16 w-16 animate-spin rounded-full border-4 border-theme-green border-t-transparent [animation-delay:0.4s]" />
         </div>
-        <p className="text-lg font-medium text-foreground-theme text-white">Loading...</p>
+        <p className="text-lg font-medium text-foreground-theme">Loading...</p>
       </div>
     </div>
   );
