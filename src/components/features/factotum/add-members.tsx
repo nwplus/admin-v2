@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 export default function AddMembers() {
+    //only ui for now, no functionality until factotum rework.
     return (
         <div>
             <h1 className="font-bold text-2xl line-height-10 mb-5">Add Discord Members</h1>

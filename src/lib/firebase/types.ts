@@ -319,25 +319,35 @@ export interface DevConfig {
     roles?: [
       {
         name: string;
-        roleID: string;
+        roleId: string;
       },
       {
         name: string;
-        roleID: string;
+        roleId: string;
       },
       {
         name: string;
-        roleID: string;
+        roleId: string;
       },
       {
         name: string;
-        roleID: string;
+        roleId: string;
       },
       {
         name: string;
-        roleID: string;
+        roleId: string;
       }
     ]
     welcomeSupportChannel?: string;
   }
+}
+
+export interface ContestQuestion {
+  username: string
+  email: string
+  type: string
+  firstname: string
+  lastname: string
+  preferredname: string
+  phonenumber: string
 }

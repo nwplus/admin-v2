@@ -4,6 +4,7 @@ import type { FlattenedApplicant } from "@/services/query";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import { subscribeToApplicants, flattenApplicantData } from "@/services/query";
 import type { Hackathon } from "@/lib/firebase/types";
+import { Loading } from "@/components/ui/loading";
 
 /**
  * Users can group by a column and apply an aggregation function to another column.
@@ -134,7 +135,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
   return (
     <QueryContext.Provider value={value}>
-      {isLoading ? <>Loading</> : children}
+      {isLoading ? <Loading variant="small"/> : children}
     </QueryContext.Provider>
   );
 }

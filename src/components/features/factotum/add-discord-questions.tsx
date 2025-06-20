@@ -6,7 +6,7 @@ import { TableDemo } from "./lorem-table";
 
 
 
-
+//Only ui for now, no functionality until factotum revamp
 export default function AddDiscordQuestions() {
     return (
         <div>

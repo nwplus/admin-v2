@@ -10,6 +10,7 @@ import AddMembers from "@/components/features/factotum/add-members";
 import AddDiscordQuestions from "@/components/features/factotum/add-discord-questions";
 import CheckedInTable from "@/components/features/factotum/checkedin-table";
 import DevConfig from "@/components/features/factotum/dev-config";
+import { FactotumProvider } from "@/providers/factotum-provider";
 
 export const Route = createFileRoute("/_auth/factotum")({
   component: RouteComponent,
@@ -18,14 +19,16 @@ export const Route = createFileRoute("/_auth/factotum")({
 function RouteComponent() {
   const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState("Add Members");
+  const [hackathon, setHackathon] = useState("Hackcamp")
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("1234567890");
+    navigator.clipboard.writeText("1254959743705813012"); //hard coded for now. 
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
+    <FactotumProvider>
     <div className="flex h-full w-full flex-col gap-3">
       <div className="flex items-center justify-between ">
         <PageHeader className="flex items-center gap-3">Factotum</PageHeader>
@@ -36,7 +39,7 @@ function RouteComponent() {
         <div className="flex gap-5">
           <div>
             <Label className="text-black text-md mb-2 font-bold">Select your Hackathon</Label>
-            <Select defaultValue="Hackcamp" >
+            <Select value="Hackcamp" onValueChange={setHackathon}>
               <SelectTrigger className="w-56 text-black border-2 border-gray-300 focus-visible:border-gray-300">
                 <SelectValue className="text-black"/>
               </SelectTrigger>
@@ -51,7 +54,7 @@ function RouteComponent() {
           <div>
             <Label className="text-black text-md mb-2 font-bold">Server ID</Label>
             <div className="flex gap-2">
-              <Input className="w-56 text-black" disabled value={"1234567890"} />
+              <Input className="w-56 text-black" disabled value={"1254959743705813012"} /> 
                 {copied ? <Check className="h-4 w-4 self-center text-green-500" /> : <Copy className="h-4 w-4 self-center cursor-pointer" onClick={handleCopy}  />}
             </div>
           </div>
@@ -75,6 +78,7 @@ function RouteComponent() {
 
       <div/>
     </div>
+    </FactotumProvider>
   );
 }
 

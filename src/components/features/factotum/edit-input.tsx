@@ -2,10 +2,16 @@
 import { Check, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { updateDevConfig } from "@/services/dev-config";
+import { useFactotum } from "@/providers/factotum-provider";
 
+export default function EditInput({value, path, onChange, label}: {value: string, path:string, label:string, onChange: (value: string) => void}) {
+    const devConfig = useFactotum();
 
-export default function EditInput({value, label, onChange}: {value: string, label: string, onChange: (value: string) => void}) {
-
+    const Edit = async () => {
+        if (path == "") return
+        updateDevConfig(devConfig, path, value)
+    }
 
     const [isEditing, setIsEditing] = useState(false);
     
@@ -14,10 +20,10 @@ export default function EditInput({value, label, onChange}: {value: string, labe
                     <p className="text-black text-sm font-bold mb-1">{label}</p>
                     <div className="flex relative items-center">
                         <Input 
-                            id={label}
+                            id={path}
                             className="text-black border-2 border-gray-300 focus-visible:border-gray-300"  
-                            value={value as string} 
-                            onChange={(e) => onChange(e.target.value)} 
+                            value={value} 
+                            onChange={(e) => onChange(e.target.value)}
                             disabled={!isEditing}
                         />
                         {isEditing ? (
@@ -25,6 +31,7 @@ export default function EditInput({value, label, onChange}: {value: string, labe
                                 className="w-5 h-5 cursor-pointer text-green-500 absolute right-2" 
                                 onClick={() => {
                                     setIsEditing(false);
+                                    Edit()
                                 }} 
                             />
                         ) : (

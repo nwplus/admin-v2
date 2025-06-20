@@ -1,13 +1,9 @@
-import { auth, db } from "@/lib/firebase/client";
+import { db } from "@/lib/firebase/client";
 import type { DevConfig } from "@/lib/firebase/types";
 import {
-  Timestamp,
-  collection,
-  deleteDoc,
   doc,
   onSnapshot,
-  query,
-  setDoc,
+  updateDoc,
 } from "firebase/firestore";
 
 /**
@@ -16,19 +12,33 @@ import {
  * @returns a function to be called on dismount
  */
 
-export const subscribeToDevConfig = (callback: (docs: DevConfig[]) => void) => {
-    return onSnapshot(query(collection(db, "ExternalProjects", "Factotum", "InitBotInfo")), (querySnapshot) => {
-        const devConfig = [];
-        for (const doc of querySnapshot.docs) {
-            devConfig.push({
-                ...(doc.data() as unknown as DevConfig),
-                _id: doc.id,
-            });
+export const subscribeToDevConfig = (callback: (docs: DevConfig) => void) => {
+    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "InitBotInfo", "1254959743705813012"), (querySnapshot) => {
+        if (querySnapshot.exists()) {
+            const data = {
+                ...querySnapshot.data(), _id:querySnapshot.id
+            }
+            callback(data);
         }
-        callback(devConfig);
+        else {
+            console.warn("No Document found")
+            
+        }
+    
+ 
     });
 };
 
-// export const upsertDevConfig = async (devConfig: DevConfig, id?: string) => {
-    
-// }
+//Function to change a single Dev Config
+export const updateDevConfig = async (devConfig: DevConfig, field: string, value: string) => {
+    try {
+        const docRef = doc(db, "ExternalProjects", "Factotum", "InitBotInfo", devConfig._id );
+        await updateDoc(docRef, {
+            [field]: value
+        })
+    }
+    catch (error) {
+        console.error(error);
+        throw error; 
+    }
+}

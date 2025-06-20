@@ -12,8 +12,6 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import type { DiscordQuestion } from "@/lib/firebase/types";
-import { db } from "@/lib/firebase/client";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { toast } from "sonner";
 
 interface DiscordQuestionDialogProps {
@@ -33,13 +31,6 @@ export function DiscordQuestionDialog({
   const [required, setRequired] = useState(question.required);
 
   const handleSave = () => {
-    // const questionRef = doc(db, "questions", question.id);
-    // updateDoc(questionRef, {
-    //   sponsor: sponsor,
-    //   question: questionText,
-    //   answer: answer,
-
-    // })
     toast.success("Question updated successfully");
     onOpenChange(false);
   }
