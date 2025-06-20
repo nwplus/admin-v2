@@ -286,3 +286,68 @@ export type HackerApplicationMetadata = Record<
   HackerApplicationSections,
   HackerApplicationMetadataInfo
 >;
+
+export interface DiscordQuestion {
+  id: string;
+  sponsor: string;
+  question: string;
+  answer: string;
+  required: boolean;
+  updatedAt: Timestamp;
+  updatedBy: string;
+}
+
+export interface DevConfig {
+  _id: string;
+  channelIDs?: {
+    adminConsole?: string;
+    adminLog?: string;
+  }
+  embedColor?: string;
+  hackathonName?: string;
+  isSetUpComplete?: boolean;
+  roleIDs?: {
+    adminRole?: string;
+    everyoneRole?: string;
+    memberRole?: string;
+    mentorRole?: string;
+    staffRole?: string;
+  }
+  verification?: {
+    guestRoleID?: string;
+    isEnabled?: boolean;
+    roles?: [
+      {
+        name: string;
+        roleId: string;
+      },
+      {
+        name: string;
+        roleId: string;
+      },
+      {
+        name: string;
+        roleId: string;
+      },
+      {
+        name: string;
+        roleId: string;
+      },
+      {
+        name: string;
+        roleId: string;
+      }
+    ]
+    welcomeSupportChannel?: string;
+  }
+}
+
+export interface ContestQuestion {
+  username: string
+  email: string
+  type: string
+  firstname: string
+  lastname: string
+  preferredname: string
+  phonenumber: string
+}

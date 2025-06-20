@@ -1,3 +1,4 @@
+import { Loading } from "@/components/ui/loading";
 import { checkAdminClaim } from "@/lib/firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import type { User } from "firebase/auth";
@@ -45,7 +46,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {isLoading ? <div>Loading</div> : children}
+      {isLoading ? <Loading /> : children}
     </AuthContext.Provider>
   );
 };
