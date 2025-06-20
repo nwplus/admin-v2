@@ -6,6 +6,9 @@ import { useState } from "react"
 import { DiscordQuestionDialog } from "./discord-question-dialog"
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table"
 import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+
+//example data, waiting until factotum rework
 const questions: DiscordQuestion[] = [
   {
     id: "1",
@@ -67,30 +70,32 @@ export function TableDemo() {
   ]
 
   return (
-    <div className="p-5 border-2 border-gray-300 rounded-xl">
-      <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search..."
-              className="mb-5"
-            />
-      <DataTable
-        columns={columns}
-        data={questions}
-        defaultPageSize={10}
-        pageSizeOptions={[5, 10, 20, 50]}
-        globalFilter={search}
-        setGlobalFilter={setSearch}
-      />
-
-      {selectedQuestions && (
-        <DiscordQuestionDialog
-          question={selectedQuestions}
-          isOpen={isOpen}
-          onOpenChange={setIsOpen}
+    <Card className="w-fullrounded-xl">
+      <CardContent>
+        <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search..."
+                className="mb-5"
+              />
+        <DataTable
+          columns={columns}
+          data={questions}
+          defaultPageSize={10}
+          pageSizeOptions={[5, 10, 20, 50]}
+          globalFilter={search}
+          setGlobalFilter={setSearch}
         />
-      )}
-    </div>
+
+        {selectedQuestions && (
+          <DiscordQuestionDialog
+            question={selectedQuestions}
+            isOpen={isOpen}
+            onOpenChange={setIsOpen}
+          />
+        )}
+      </CardContent>
+    </Card>
   )
 }
   
