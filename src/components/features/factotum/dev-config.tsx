@@ -1,5 +1,3 @@
-
-
 import {  Label } from "@/components/ui/label"
 import { useState, useEffect } from "react";
 import EditInput from "./edit-input";
@@ -53,14 +51,17 @@ export default function DevConfig() {
             setWelcomeSupportChannel(config.verification?.welcomeSupportChannel || "1111111");
 
             const roles = config.verification?.roles;
-            roles?.forEach((role) => {
-                if (role.name === "hacker") setHackerRoleID(role.roleId || "11111");
-                else if (role.name == "sponsor") setSponsorRoleID(role.roleId || "11111");
-                else if (role.name == "mentor") setMentorRoleID(role.roleId || "11111");
-                else if (role.name == "photographer") setPhotographerRoleID(role.roleId || "11111");
-                else if (role.name == "volunteer") setVolunteerRoleID(role.roleId || "11111");
-            })
-           
+            if (roles) {
+                const roleMapping = Object.fromEntries(
+                    roles.map(role => [role.name, role.roleId || "11111"])
+                );
+                
+                setHackerRoleID(roleMapping.hacker || "11111");
+                setSponsorRoleID(roleMapping.sponsor || "11111");
+                setMentorRoleID(roleMapping.mentor || "11111");
+                setPhotographerRoleID(roleMapping.photographer || "11111");
+                setVolunteerRoleID(roleMapping.volunteer || "11111");
+            }
         }
     }, [devConfig]);
 
