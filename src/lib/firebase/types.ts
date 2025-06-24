@@ -110,11 +110,14 @@ export interface HackathonProjects {
  *  Hackathon rewards
  */
 export interface HackathonRewards {
+  _id?: string; // FE
+  key?: string; // the doc ID
   blurb?: string;
   from?: string;
+  reward?: string;
+  type?: "Reward" | "Raffle";
   imgName?: string;
   imgURL?: string;
-  key?: string; // the doc id
   lastmod?: Timestamp; // should be `lastModified`
   lastmodBy?: string; // ...
   prizesAvailable?: string; // holds a number
@@ -152,8 +155,10 @@ export interface Applicant {
   basicInfo: {
     educationLevel: ApplicantMajor;
     email: string;
-    firstName: string;
-    lastName: string;
+    firstName?: string;
+    lastName?: string;
+    legalFirstName: string;
+    legalLastName: string;
     gender: string | Record<string, boolean>;
     graduation: number;
     isOfLegalAge: boolean;
