@@ -231,19 +231,20 @@ export interface Applicant {
   };
   dayOf?: {
     day1?: {
-      breakfast?: any[];
-      lunch?: any[];
-      dinner?: any[];
+      breakfast?: Timestamp[];
+      lunch?: Timestamp[];
+      dinner?: Timestamp[];
     };
     day2?: {
-      breakfast?: any[];
-      lunch?: any[];
-      dinner?: any[];
+      breakfast?: Timestamp[];
+      lunch?: Timestamp[];
+      dinner?: Timestamp[];
     };
     checkedIn?: boolean;
     events?: Array<{
       eventId: string;
       eventName: string;
+      timestamp: Timestamp;
     }>;
   };
   termsAndConditions?: {

@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase/client";
-import type { Applicant } from "@/lib/firebase/types";
+import type { Applicant, HackathonDayOf } from "@/lib/firebase/types";
 import { collection, onSnapshot, query, getDocs, doc } from "firebase/firestore";
 import { returnTrueKey, createStringFromSelection } from "@/lib/utils";
 
@@ -56,7 +56,7 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     linkedin: applicant.skills?.linkedin || "",
     portfolio: applicant.skills?.portfolio || "",
     resume: applicant.skills?.resume || "",
-    firstTimeHacker: applicant.skills?.numHackathonsAttended == 0 || false,
+    firstTimeHacker: applicant.skills?.numHackathonsAttended === 0 || false,
     
     // Engagement source
     engagementSource: createStringFromSelection(
@@ -264,14 +264,14 @@ export const calculateApplicantPoints = async (
     const allEvents = dayOfSnapshot.docs.map(doc => ({ 
       id: doc.id, 
       ...doc.data() 
-    } as any));
+    } as HackathonDayOf));
     
     for (const applicant of applicants) {
       let points = 0;
       
       if (applicant.dayOf?.events && applicant.dayOf.events.length > 0) {
         points = applicant.dayOf.events.reduce((acc, attendedEvent) => {
-          const eventDoc = allEvents.find(event => event.id === attendedEvent.eventId);
+          const eventDoc = allEvents.find(event => event.eventID === attendedEvent.eventId);
           return acc + Number(eventDoc?.points ?? 0);
         }, 0);
       }
@@ -280,9 +280,9 @@ export const calculateApplicantPoints = async (
     }
   } catch (error) {
     console.error('Error calculating applicant points:', error);
-    applicants.forEach(applicant => {
+    for (const applicant of applicants) {
       pointsMap[applicant.basicInfo?.email || ''] = 0;
-    });
+    }
   }
   
   return pointsMap;

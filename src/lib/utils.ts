@@ -65,7 +65,7 @@ export const returnTrueKey = (booleanMap: Record<string, boolean> | undefined): 
  */
 export const createStringFromSelection = (
   selection: Record<string, boolean> | undefined, 
-  additionalText: string = ''
+  additionalText = ''
 ): string => {
   if (!selection) return '';
   
