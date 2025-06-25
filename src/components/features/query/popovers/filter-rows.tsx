@@ -106,7 +106,7 @@ export function FilterRows({
           <Button variant="outline" className="w-full justify-between font-normal">
             <span>
               {filterSelections.length > 0 
-                ? <span className="text-neutral-700 font-medium">
+                ? <span className="font-medium text-neutral-700">
                     {filterSelections.length} filter{filterSelections.length !== 1 ? 's' : ''} applied
                   </span>
                 : <span className="text-muted-foreground">
@@ -125,7 +125,7 @@ export function FilterRows({
               <TooltipContent>
                 <div className="space-y-1">
                   <p className="font-medium">Active Filters:</p>
-                  <div className="text-xs font-mono">
+                  <div className="font-mono text-xs">
                     {getFilterLogicDisplay()}
                   </div>
                 </div>
@@ -137,7 +137,7 @@ export function FilterRows({
       <PopoverContent className="w-fit">
         {filterSelections.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium">Active Filters</h4>
+            <h4 className="font-medium text-sm">Active Filters</h4>
             <div className="space-y-2">
               {filterSelections.map((filter, index) => (
                 <div key={filter.id} className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export function FilterRows({
                       value={filter.logicalOperator || 'AND'}
                       onValueChange={(value: 'AND' | 'OR') => onFilterOperatorChange(filter.id, value)}
                     >
-                      <SelectTrigger className="w-20 h-8">
+                      <SelectTrigger className="h-8 w-20">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -155,8 +155,8 @@ export function FilterRows({
                       </SelectContent>
                     </Select>
                   )}
-                  <div className="flex items-center gap-2 p-2 bg-muted rounded-md flex-1">
-                    <span className="text-xs flex-1 px-2">
+                  <div className="flex flex-1 items-center gap-2 rounded-md bg-muted p-2">
+                    <span className="flex-1 px-2 text-xs">
                       {getFilterDisplayText(filter)}
                     </span>
                     <Button
@@ -174,8 +174,8 @@ export function FilterRows({
           </div>
         )}
 
-        <div className="space-y-2 mt-4">
-          <h4 className="text-sm font-medium">Add New Filter</h4>
+        <div className="mt-4 space-y-2">
+          <h4 className="font-medium text-sm">Add New Filter</h4>
           <div className="space-y-2">
             {filterSelections.length > 0 && (
               <div className="flex items-center gap-2">

@@ -117,20 +117,18 @@ function applyAggregation(
       if (filteredValues.length === 0) return null;
       if (typeof filteredValues[0] === "number") {
         return Math.min(...(filteredValues as number[]));
-      } else {
+      }
         return filteredValues.reduce((min, current) => 
           String(current) < String(min) ? current : min
         );
-      }
     case "MAX":
       if (filteredValues.length === 0) return null;
       if (typeof filteredValues[0] === "number") {
         return Math.max(...(filteredValues as number[]));
-      } else {
+      }
         return filteredValues.reduce((max, current) => 
           String(current) > String(max) ? current : max
         );
-      }
   }
 }
 
