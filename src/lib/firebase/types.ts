@@ -163,10 +163,10 @@ export interface Applicant {
     graduation: number;
     isOfLegalAge: boolean;
     location: string; // city
-    major: string; // could be typed
+    major: string | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
     school: string; // should be typed
-    ethnicity: {
+    ethnicity?: {
       asian: boolean;
       black: boolean;
       caucasian: boolean;
@@ -176,6 +176,26 @@ export interface Applicant {
       northAmerica: boolean;
       other: boolean;
       preferNot: boolean;
+    }; // deprecated, including for backwards compatibility
+    culturalBackground?: {
+      asian: boolean;
+      black: boolean;
+      caucasian: boolean;
+      hispanic: boolean;
+      middleEastern: boolean;
+      nativeHawaiian: boolean;
+      northAmerica: boolean;
+      other: boolean;
+      preferNot: boolean;
+    };
+    dietaryRestriction?: {
+      celiacDisease: boolean;
+      halal: boolean;
+      kosher: boolean;
+      none: boolean;
+      other: boolean;
+      vegan: boolean;
+      vegetarian: boolean;
     };
   };
   score?: {
@@ -208,6 +228,24 @@ export interface Applicant {
   submission?: {
     lastUpdated?: Timestamp;
     submitted?: boolean;
+  };
+  dayOf?: {
+    day1?: {
+      breakfast?: Timestamp[];
+      lunch?: Timestamp[];
+      dinner?: Timestamp[];
+    };
+    day2?: {
+      breakfast?: Timestamp[];
+      lunch?: Timestamp[];
+      dinner?: Timestamp[];
+    };
+    checkedIn?: boolean;
+    events?: Array<{
+      eventId: string;
+      eventName: string;
+      timestamp: Timestamp;
+    }>;
   };
   termsAndConditions?: {
     MLHCodeOfConduct?: boolean;
