@@ -16,7 +16,10 @@ export function QueryFilters({
     selectedColumns,
     onColumnToggle,
     onGroupByChange,
-    onFilterChange,
+    filterSelections,
+    onFilterAdd,
+    onFilterRemove,
+    onFilterOperatorChange,
     sorting,
     onSortingChange,
     tableData,
@@ -102,7 +105,10 @@ export function QueryFilters({
           <FilterRows
             columns={columns}
             columnTypes={columnTypes}
-            onApply={onFilterChange}
+            filterSelections={filterSelections}
+            onAddFilter={onFilterAdd}
+            onRemoveFilter={onFilterRemove}
+            onFilterOperatorChange={onFilterOperatorChange}
           />
         </div>
 
