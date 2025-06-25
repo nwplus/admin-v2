@@ -4,6 +4,7 @@ import { GroupBy } from "./popovers/group-by";
 import { FilterRows } from "./popovers/filter-rows";
 import { SortBy } from "./popovers/sort-by";
 import { useQuery } from "@/providers/query-provider";
+import { useMemo } from "react";
 
 interface QueryFiltersProps {
   availableColumns: string[];
@@ -39,21 +40,35 @@ export function QueryFilters({
   }));
 
   const columns = tableData[0] ? Object.keys(tableData[0]) : [];
-  const columnTypes = Object.fromEntries(
-    columns.map(col => [col, typeof tableData[0]?.[col]])
-  );
+  
+  const columnTypes = useMemo(() => {
+    return Object.fromEntries(
+      columns.map(col => [col, typeof tableData[0]?.[col]])
+    );
+  }, [columns, tableData]);
 
   /**
    * Definitions to determine which columns are groupable and aggreagtable.
    * For example, SUM/AVG can only be applied to numeric columns.
    */
   const countColumns = columns;
-  const sumAvgColumns = columns.filter(col => columnTypes[col] === "number");
-  const minMaxColumns = columns.filter(col =>
-    columnTypes[col] === "number" ||
-    columnTypes[col] === "string" ||
-    tableData[0]?.[col] instanceof Date
-  );
+ 
+  const { sumAvgColumns, minMaxColumns, groupableColumns } = useMemo(() => {
+    const sumAvg = columns.filter(col => columnTypes[col] === "number");
+    const minMax = columns.filter(col =>
+      columnTypes[col] === "number" ||
+      columnTypes[col] === "string" ||
+      tableData[0]?.[col] instanceof Date
+    );
+    
+    const groupable = columns.filter(col => {
+      const val = tableData[0]?.[col];
+      return typeof val === "string" || typeof val === "boolean";
+    });
+    
+    return { sumAvgColumns: sumAvg, minMaxColumns: minMax, groupableColumns: groupable };
+  }, [columns, columnTypes, tableData]);
+
   const aggregatableColumnsMap = {
     COUNT: countColumns,
     SUM: sumAvgColumns,
@@ -61,10 +76,6 @@ export function QueryFilters({
     MIN: minMaxColumns,
     MAX: minMaxColumns,
   };
-  const groupableColumns = columns.filter(col => {
-    const val = tableData[0]?.[col];
-    return typeof val === "string" || typeof val === "boolean";
-  });
 
   return (
     <div className="space-y-4 overflow-hidden rounded-lg bg-gray-50 p-4">
