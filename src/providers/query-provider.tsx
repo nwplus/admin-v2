@@ -167,7 +167,7 @@ const DEFAULT_SELECTED_COLUMNS = [
   "applicationStatus",
   "school",
   "major",
-  "numHackathonsAttended",
+  "firstTimeHacker",
   "MLHCodeOfConduct"
 ];
 

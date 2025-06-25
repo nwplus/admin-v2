@@ -43,3 +43,38 @@ export const isValidISODateString = (value?: string): value is string => {
   const date = new Date(value);
   return !Number.isNaN(date.getTime()) && date.toISOString() === value;
 };
+
+/**
+ * Extracts the key of the first true value from a boolean map object.
+ * Useful for single-select fields in form data like ethnicity, gender
+ * @param booleanMap - boolean map object to extract the key from
+ * @returns the key of the first true value
+ */
+export const returnTrueKey = (booleanMap: Record<string, boolean> | undefined): string => {
+  if (!booleanMap) return '';
+  const trueKey = Object.entries(booleanMap).find(([_, value]) => value)?.[0];
+  return trueKey || '';
+};
+
+/**
+ * Creates a comma-separated string from a boolean map object by combining selected keys.
+ * Useful for multi-select fields in form data like dietary restrictions, majors
+ * @param selection - boolean map object to extract key from
+ * @param additionalText - additional text to add to the string
+ * @returns a comma-separated string of selected keys
+ */
+export const createStringFromSelection = (
+  selection: Record<string, boolean> | undefined, 
+  additionalText: string = ''
+): string => {
+  if (!selection) return '';
+  
+  const trueKeys = Object.entries(selection)
+    .filter(([_, value]) => value)
+    .map(([key, _]) => key);
+  
+  if (trueKeys.length === 0) return '';
+  if (trueKeys.length === 1) return trueKeys[0];
+  
+  return trueKeys.join(', ') + (additionalText ? `, ${additionalText}` : '');
+};
