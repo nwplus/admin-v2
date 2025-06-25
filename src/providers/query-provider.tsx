@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, type ReactNode, useEf
 import type { SortingState } from "@tanstack/react-table";
 import type { FlattenedApplicant } from "@/services/query";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
-import { subscribeToApplicants, flattenApplicantData } from "@/services/query";
+import { subscribeToApplicants, flattenApplicantData, calculateApplicantPoints } from "@/services/query";
 import type { Hackathon } from "@/lib/firebase/types";
 
 /**
@@ -231,10 +231,24 @@ export function QueryProvider({ children }: QueryProviderProps) {
   useEffect(() => {
     if (!selectedHackathon) return;
 
-    const unsubscribe = subscribeToApplicants(selectedHackathon, (applicants) => {
-      const flattenedApplicants = applicants.map(flattenApplicantData);
-      setApplicants(flattenedApplicants);
-      setIsLoading(false);
+    const unsubscribe = subscribeToApplicants(selectedHackathon, async (applicants) => {
+      try {
+        const flattenedApplicants = applicants.map(applicant => flattenApplicantData(applicant));
+        setApplicants(flattenedApplicants);
+        setIsLoading(false);
+        
+        const pointsMap = await calculateApplicantPoints(applicants, selectedHackathon);
+        
+        setApplicants(prevApplicants => 
+          prevApplicants.map(applicant => ({
+            ...applicant,
+            points: pointsMap[applicant.email] || 0
+          }))
+        );
+      } catch (error) {
+        console.error('Error flattening applicants:', error);
+        setIsLoading(false);
+      }
     });
 
     return unsubscribe;

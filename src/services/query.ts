@@ -1,6 +1,6 @@
 import { db } from "@/lib/firebase/client";
 import type { Applicant } from "@/lib/firebase/types";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, onSnapshot, query, getDocs, doc } from "firebase/firestore";
 import { returnTrueKey, createStringFromSelection } from "@/lib/utils";
 
 /**
@@ -11,14 +11,8 @@ import { returnTrueKey, createStringFromSelection } from "@/lib/utils";
  */
 export const subscribeToApplicants = (hackathon: string, callback: (docs: Applicant[]) => void) =>
   onSnapshot(query(collection(db, "Hackathons", hackathon, "Applicants")), (querySnapshot) => {
-    const applicants = [];
-    for (const doc of querySnapshot.docs) {
-      applicants.push({
-        ...(doc.data() as unknown as Applicant),
-        _id: doc.id,
-      });
-    }
-    callback(applicants);
+    const docs = querySnapshot.docs.map((doc) => ({ _id: doc.id, ...doc.data() } as Applicant));
+    callback(docs);
   });
 
 /**
@@ -90,7 +84,7 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     day2Dinner: applicant.dayOf?.day2?.dinner?.length || 0,
     checkedIn: applicant.dayOf?.checkedIn || false,
     attendedEvents: applicant.dayOf?.events?.map((e: { eventName: string }) => e.eventName).join(', ') || '',
-    points: 0, // This will need to be calculated separately as it requires async operations
+    points: 0,
   };
   
   return flattened;
@@ -100,7 +94,7 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
  * Get all available columns from the flattened applicant data
  * @returns array of column names
  */
-export const getAvailableColumns = () => {
+export const getAvailableColumns = (): string[] => {
   const sampleApplicant: Applicant = {
     _id: "sample",
     basicInfo: {
@@ -191,7 +185,8 @@ export const getAvailableColumns = () => {
     }
   };
   
-  return Object.keys(flattenApplicantData(sampleApplicant));
+  const flattenedApplicant = flattenApplicantData(sampleApplicant);
+  return Object.keys(flattenedApplicant);
 };
 
 /**
@@ -246,7 +241,49 @@ export interface FlattenedApplicant {
   day2Dinner: number;
   checkedIn: boolean;
   attendedEvents: string;
-  points: number; // TODO: have a helper to calculate calculate this async
+  points: number;
   
   [key: string]: string | number | boolean | Date | null | Record<string, boolean> | undefined; // extra keys for group-by results
 }
+
+/**
+ * Calculates all hackers' points from day-of events asynchronously
+ * 
+ * @param applicants - array of unflattened applicant data
+ * @param hackathon - hackathon ID
+ * @returns Promise that resolves to a map of applicant email : points
+ */
+export const calculateApplicantPoints = async (
+  applicants: Applicant[], 
+  hackathon: string
+): Promise<Record<string, number>> => {
+  const pointsMap: Record<string, number> = {};
+  
+  try {
+    const dayOfSnapshot = await getDocs(collection(db, "Hackathons", hackathon, "DayOf"));
+    const allEvents = dayOfSnapshot.docs.map(doc => ({ 
+      id: doc.id, 
+      ...doc.data() 
+    } as any));
+    
+    for (const applicant of applicants) {
+      let points = 0;
+      
+      if (applicant.dayOf?.events && applicant.dayOf.events.length > 0) {
+        points = applicant.dayOf.events.reduce((acc, attendedEvent) => {
+          const eventDoc = allEvents.find(event => event.id === attendedEvent.eventId);
+          return acc + Number(eventDoc?.points ?? 0);
+        }, 0);
+      }
+      
+      pointsMap[applicant.basicInfo?.email || ''] = points;
+    }
+  } catch (error) {
+    console.error('Error calculating applicant points:', error);
+    applicants.forEach(applicant => {
+      pointsMap[applicant.basicInfo?.email || ''] = 0;
+    });
+  }
+  
+  return pointsMap;
+};
