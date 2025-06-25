@@ -23,7 +23,7 @@ export function QueryFilters({
     onFilterOperatorChange,
     sorting,
     onSortingChange,
-    tableData,
+    applicants,
   } = useQuery();
 
   const handleColumnsChange = (columns: string[]) => {
@@ -39,35 +39,34 @@ export function QueryFilters({
     value: column,
   }));
 
-  const columns = tableData[0] ? Object.keys(tableData[0]) : [];
+  const columns = applicants[0] ? Object.keys(applicants[0]) : [];
   
   const columnTypes = useMemo(() => {
     return Object.fromEntries(
-      columns.map(col => [col, typeof tableData[0]?.[col]])
+      columns.map(col => [col, typeof applicants[0]?.[col]])
     );
-  }, [columns, tableData]);
+  }, [columns, applicants]);
 
   /**
    * Definitions to determine which columns are groupable and aggreagtable.
    * For example, SUM/AVG can only be applied to numeric columns.
    */
   const countColumns = columns;
- 
+  
   const { sumAvgColumns, minMaxColumns, groupableColumns } = useMemo(() => {
     const sumAvg = columns.filter(col => columnTypes[col] === "number");
     const minMax = columns.filter(col =>
       columnTypes[col] === "number" ||
       columnTypes[col] === "string" ||
-      tableData[0]?.[col] instanceof Date
+      applicants[0]?.[col] instanceof Date
     );
-    
     const groupable = columns.filter(col => {
-      const val = tableData[0]?.[col];
+      const val = applicants[0]?.[col];
       return typeof val === "string" || typeof val === "boolean";
     });
     
     return { sumAvgColumns: sumAvg, minMaxColumns: minMax, groupableColumns: groupable };
-  }, [columns, columnTypes, tableData]);
+  }, [columns, columnTypes, applicants]);
 
   const aggregatableColumnsMap = {
     COUNT: countColumns,
