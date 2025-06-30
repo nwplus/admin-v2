@@ -1,7 +1,7 @@
 
 import { Check, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFactotum } from "@/providers/factotum-provider";
 
 export default function EditInput({value, path, onChange, label}: {value: string, path:string, label:string, onChange: (id: string, value: string, path: string) => void}) {
@@ -14,6 +14,10 @@ export default function EditInput({value, path, onChange, label}: {value: string
     const [isEditing, setIsEditing] = useState(false);
 
     const [inputValue, setInputValue] = useState(value)
+
+    useEffect(() => {
+        setInputValue(value)
+    }, [value])
     
     return (
         <div className="mb-4">

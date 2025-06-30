@@ -1,16 +1,24 @@
 import { db } from "@/lib/firebase/client";
-import type { DevConfig, GeneralConfig, TicketsConfig, VerificationConfig } from "@/lib/firebase/types";
+import type { GeneralConfig, TicketsConfig, VerificationConfig } from "@/lib/firebase/types";
 import {
   doc,
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
 
+import { getDocs, collection } from "firebase/firestore";
+
+export const getGuilds = async () => {
+    const querySnapshot = await getDocs(collection(db, "ExternalProjects", "Factotum", "guilds"))
+    return querySnapshot.docs.map((doc) => doc.id)
+}
+
 
 export const subscribeToGeneralConfig = (callback: (docs: GeneralConfig) => void, id: string) => {
     return onSnapshot(doc(db, "ExternalProjects", "Factotum", "guilds", id), (snapshot) => {
         if(snapshot.exists()) {
             const data = snapshot.data()
+            console.log("listener mounted, data: ", data)
             callback(data)
         }
         else {

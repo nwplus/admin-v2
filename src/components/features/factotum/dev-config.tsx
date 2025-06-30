@@ -7,9 +7,9 @@ export default function DevConfig() {
 
     const devConfig = useFactotum()
 
-    const generalConfig = devConfig?.GeneralConfig;
-    const ticketsConfig = devConfig?.TicketsConfig;
-    const verificationConfig = devConfig?.VerificationConfig;
+    const generalConfig = devConfig?.generalConfig;
+    const ticketsConfig = devConfig?.ticketsConfig;
+    const verificationConfig = devConfig?.verificationConfig;
 
     return (
         <div>

@@ -1,10 +1,17 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { type DevConfig, type GeneralConfig, type TicketsConfig, type VerificationConfig } from "@/lib/firebase/types";
+import { type GeneralConfig, type TicketsConfig, type VerificationConfig } from "@/lib/firebase/types";
 import { subscribeToGeneralConfig, subscribeToTicketsConfig, subscribeToVerificationConfig } from "@/services/dev-config";
 
 
-export const FactotumContext = createContext<DevConfig | undefined>(undefined);
+interface FactotumValue {
+  id: string;
+  generalConfig?: GeneralConfig;
+  ticketsConfig?: TicketsConfig;
+  verificationConfig?: VerificationConfig;
+}
+
+export const FactotumContext = createContext<FactotumValue | undefined>(undefined);
 
 export function FactotumProvider ({children, id} : { children: ReactNode; id: string }) {
     
@@ -13,28 +20,37 @@ export function FactotumProvider ({children, id} : { children: ReactNode; id: st
     const [verificationConfig, setVerificationConfig] = useState<VerificationConfig>()
 
     useEffect(() => {
-        const unsub = () => {
-          subscribeToGeneralConfig((generalConfig: GeneralConfig) => {
-          setGeneralConfig(generalConfig);
-        }, id);
+      const unsubGeneral = subscribeToGeneralConfig(setGeneralConfig, id);
+      const unsubTickets = subscribeToTicketsConfig(setTicketsConfig, id);
+      const unsubVerification = subscribeToVerificationConfig(setVerificationConfig, id);
+      
+    
+      return () => {
+        unsubGeneral();
+        unsubTickets();
+        unsubVerification();
+        console.log("all 3 listeners mountd")
+      };
+    }, [id]);  
 
-        subscribeToTicketsConfig((ticketsConfig: TicketsConfig) => {
-          setTicketsConfig(ticketsConfig);
-        }, id);
 
-        subscribeToVerificationConfig((verificationConfig: VerificationConfig) => {
-          setVerificationConfig(verificationConfig);
-        }, id);
-      }
-        return () => unsub();
-    }, []);
+    // const value = useMemo(
+    //   () => ({
+    //     id: id,
+    //     generalConfig,
+    //     ticketsConfig,
+    //     verificationConfig,
+    //   }),
+    //   [id, generalConfig, ticketsConfig, verificationConfig] 
+    // );
 
     const value = {
       id: id,
-      GeneralConfig: generalConfig, 
-      VerificationConfig: verificationConfig,
-      TicketsConfig: ticketsConfig
+      generalConfig,
+      ticketsConfig,
+      verificationConfig
     }
+    
 
     return (
         <FactotumContext.Provider value = {value}>
