@@ -286,3 +286,84 @@ export type HackerApplicationMetadata = Record<
   HackerApplicationSections,
   HackerApplicationMetadataInfo
 >;
+
+export interface DiscordQuestion {
+  id: string;
+  sponsor: string;
+  question: string;
+  answer: string;
+  required: boolean;
+  updatedAt: Timestamp;
+  updatedBy: string;
+}
+
+export interface GeneralConfig {
+  channelIds?: {  
+    adminConsole?: string,
+    adminLog?: string
+  },
+  hackathonName?: string,
+  roleIds?: {
+    admin?: string,
+    hacker?: string,
+    mentor?: string,
+    staff?: string,
+    unverified?: string,
+    verified?: string
+  }
+  isSetupComplete?: boolean,
+}
+
+
+export interface TicketsConfig {
+  channelIds?: {
+    incomingTicketsChannel?: string
+  },
+  currentTicketCount?: number,
+  extraSpecialties?: string,
+  roleIds?: {
+    requestTicketRole?: string
+  },
+  savedMessages?: {
+    mentorSpecialtySelection?: {
+      channelId?: string,
+      messageId?: string
+    }
+    requestTicket?: {
+      channelId?: string,
+      messageId?: string
+    }
+  },
+  unansweredTicketTime?: number
+}
+
+export interface VerificationConfig {
+  roleIds?: {
+    hacker?: string,
+    mentor?: string,
+    organizer?: string,
+    photographer?: string,
+    sponsor?: string,
+    volunteer?: string
+  },
+  savedMessage?: {
+    channelId?: string,
+    messageId?: string
+  }
+}
+
+export interface DevConfig {
+  id: string,
+  GeneralConfig?: GeneralConfig,
+  VerificationConfig?: VerificationConfig,
+  TicketsConfig?: TicketsConfig
+}
+export interface ContestQuestion {
+  username: string
+  email: string
+  type: string
+  firstname: string
+  lastname: string
+  preferredname: string
+  phonenumber: string
+}
