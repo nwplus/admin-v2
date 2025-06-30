@@ -10,7 +10,7 @@ import AddMembers from "@/components/features/factotum/add-members";
 import AddDiscordQuestions from "@/components/features/factotum/add-discord-questions";
 import CheckedInTable from "@/components/features/factotum/checkedin-table";
 import DevConfig from "@/components/features/factotum/dev-config";
-import { FactotumProvider } from "@/providers/factotum-provider";
+import { FactotumProvider, useFactotum } from "@/providers/factotum-provider";
 
 export const Route = createFileRoute("/_auth/factotum")({
   component: RouteComponent,
@@ -22,13 +22,15 @@ function RouteComponent() {
   const [hackathon, setHackathon] = useState("Hackcamp")
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("1254959743705813012"); //hard coded for now. 
+    navigator.clipboard.writeText(useFactotum().id); 
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+
   return (
-    <FactotumProvider>
+    // HARD CODED FOR NOW?
+    <FactotumProvider id = "1295946539059122267" > 
     <div className="flex h-full w-full flex-col gap-3">
       <div className="flex items-center justify-between ">
         <PageHeader className="flex items-center gap-3">Factotum</PageHeader>

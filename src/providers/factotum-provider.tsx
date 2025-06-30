@@ -1,73 +1,43 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { subscribeToDevConfig } from "@/services/dev-config";
-import DevConfig from "@/components/features/factotum/dev-config";
+import { type DevConfig, type GeneralConfig, type TicketsConfig, type VerificationConfig } from "@/lib/firebase/types";
+import { subscribeToGeneralConfig, subscribeToTicketsConfig, subscribeToVerificationConfig } from "@/services/dev-config";
 
 
-export interface DevConfig {
-    _id: string;
-    channelIDs?: {
-      adminConsole?: string;
-      adminLog?: string;
-    }
-    embedColor?: string;
-    hackathonName?: string;
-    isSetUpComplete?: boolean;
-    roleIDs?: {
-      adminRole?: string;
-      everyoneRole?: string;
-      memberRole?: string;
-      mentorRole?: string;
-      staffRole?: string;
-    }
-    verification?: {
-      guestRoleID?: string;
-      isEnabled?: boolean;
-      roles?: [
-        {
-          name: string;
-          roleId: string;
-        },
-        {
-          name: string;
-          roleId: string;
-        },
-        {
-          name: string;
-          roleId: string;
-        },
-        {
-          name: string;
-          roleId: string;
-        },
-        {
-          name: string;
-          roleId: string;
-        }
-      ]
-      welcomeSupportChannel?: string;
-    }
-  }
+export const FactotumContext = createContext<DevConfig | undefined>(undefined);
 
-
-
-  export const FactotumContext = createContext<DevConfig | undefined>(undefined);
-
-  export function FactotumProvider ({children} : { children: ReactNode }) {
+export function FactotumProvider ({children, id} : { children: ReactNode; id: string }) {
     
-    const [devConfig, setDevConfig] = useState<DevConfig>();
+    const [generalConfig, setGeneralConfig] = useState<GeneralConfig>()
+    const [ticketsConfig, setTicketsConfig] = useState<TicketsConfig>()
+    const [verificationConfig, setVerificationConfig] = useState<VerificationConfig>()
 
     useEffect(() => {
-        const unsub = subscribeToDevConfig((devConfig: DevConfig) => {
-            setDevConfig(devConfig);
-        });
+        const unsub = () => {
+          subscribeToGeneralConfig((generalConfig: GeneralConfig) => {
+          setGeneralConfig(generalConfig);
+        }, id);
+
+        subscribeToTicketsConfig((ticketsConfig: TicketsConfig) => {
+          setTicketsConfig(ticketsConfig);
+        }, id);
+
+        subscribeToVerificationConfig((verificationConfig: VerificationConfig) => {
+          setVerificationConfig(verificationConfig);
+        }, id);
+      }
         return () => unsub();
     }, []);
 
-
+    const value = {
+      id: id,
+      GeneralConfig: generalConfig, 
+      VerificationConfig: verificationConfig,
+      TicketsConfig: ticketsConfig
+    }
 
     return (
-        <FactotumContext.Provider value = {devConfig}>
+        <FactotumContext.Provider value = {value}>
             {children}
         </FactotumContext.Provider>
     )

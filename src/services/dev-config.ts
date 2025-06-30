@@ -1,40 +1,53 @@
 import { db } from "@/lib/firebase/client";
-import type { DevConfig } from "@/lib/firebase/types";
+import type { DevConfig, GeneralConfig, TicketsConfig, VerificationConfig } from "@/lib/firebase/types";
 import {
   doc,
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
 
-/**
- * Utility function that returns DevConfig collection realtime data
- * @param callback - The function used to ingest the data
- * @returns a function to be called on dismount
- */
 
-export const subscribeToDevConfig = (callback: (docs: DevConfig) => void) => {
-    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "InitBotInfo", "1254959743705813012"), (querySnapshot) => {
-        if (querySnapshot.exists()) {
-            const data = {
-                ...querySnapshot.data(), _id:querySnapshot.id
-            }
-            callback(data);
+export const subscribeToGeneralConfig = (callback: (docs: GeneralConfig) => void, id: string) => {
+    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "guilds", id), (snapshot) => {
+        if(snapshot.exists()) {
+            const data = snapshot.data()
+            callback(data)
         }
         else {
-            console.warn("No Document found")
-            
+            console.warn("No Document found");  
         }
-    
- 
-    });
-};
+    })
+} 
 
-//Function to change a single Dev Config
-export const updateDevConfig = async (devConfig: DevConfig, field: string, value: string) => {
+export const subscribeToTicketsConfig = (callback: (docs: TicketsConfig) => void, id: string) => {
+    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "tickets"), (snapshot) => {
+        if(snapshot.exists()) {
+            const data = snapshot.data()
+            callback(data)
+        }
+        else {
+            console.warn("No Document found");  
+        }
+    })
+} 
+
+export const subscribeToVerificationConfig = (callback: (docs: VerificationConfig) => void, id: string) => {
+    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "verification"), (snapshot) => {
+        if(snapshot.exists()) {
+            const data = snapshot.data()
+            callback(data)
+        }
+        else {
+            console.warn("No Document found");  
+        }
+    })
+} 
+
+export const updateGeneralConfig = async (id: string, path: string, value: string | boolean) => {
     try {
-        const docRef = doc(db, "ExternalProjects", "Factotum", "InitBotInfo", devConfig._id );
+        const docRef = doc(db, "ExternalProjects", "Factotum", "guilds", id);
         await updateDoc(docRef, {
-            [field]: value
+            [path]: value
         })
     }
     catch (error) {
@@ -42,3 +55,28 @@ export const updateDevConfig = async (devConfig: DevConfig, field: string, value
         throw error; 
     }
 }
+export const updateTicketsConfig = async (id: string, path: string, value: string | boolean) => {
+    try {
+        const docRef = doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "tickets");
+        await updateDoc(docRef, {
+            [path]: value
+        })
+    }
+    catch (error) {
+        console.error(error);
+        throw error; 
+    }
+}
+export const updateVerificationConfig = async (id: string, path: string, value: string | boolean) => {
+    try {
+        const docRef = doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "verification");
+        await updateDoc(docRef, {
+            [path]: value
+        })
+    }
+    catch (error) {
+        console.error(error);
+        throw error; 
+    }
+}
+

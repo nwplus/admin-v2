@@ -297,51 +297,67 @@ export interface DiscordQuestion {
   updatedBy: string;
 }
 
-export interface DevConfig {
-  _id: string;
-  channelIDs?: {
-    adminConsole?: string;
-    adminLog?: string;
+export interface GeneralConfig {
+  channelIds?: {  
+    adminConsole?: string,
+    adminLog?: string
+  },
+  hackathonName?: string,
+  roleIds?: {
+    admin?: string,
+    hacker?: string,
+    mentor?: string,
+    staff?: string,
+    unverified?: string,
+    verified?: string
   }
-  embedColor?: string;
-  hackathonName?: string;
-  isSetUpComplete?: boolean;
-  roleIDs?: {
-    adminRole?: string;
-    everyoneRole?: string;
-    memberRole?: string;
-    mentorRole?: string;
-    staffRole?: string;
-  }
-  verification?: {
-    guestRoleID?: string;
-    isEnabled?: boolean;
-    roles?: [
-      {
-        name: string;
-        roleId: string;
-      },
-      {
-        name: string;
-        roleId: string;
-      },
-      {
-        name: string;
-        roleId: string;
-      },
-      {
-        name: string;
-        roleId: string;
-      },
-      {
-        name: string;
-        roleId: string;
-      }
-    ]
-    welcomeSupportChannel?: string;
+  isSetupComplete?: boolean,
+}
+
+
+export interface TicketsConfig {
+  channelIds?: {
+    incomingTicketsChannel?: string
+  },
+  currentTicketCount?: number,
+  extraSpecialties?: string,
+  roleIds?: {
+    requestTicketRole?: string
+  },
+  savedMessages?: {
+    mentorSpecialtySelection?: {
+      channelId?: string,
+      messageId?: string
+    }
+    requestTicket?: {
+      channelId?: string,
+      messageId?: string
+    }
+  },
+  unansweredTicketTime?: number
+}
+
+export interface VerificationConfig {
+  roleIds?: {
+    hacker?: string,
+    mentor?: string,
+    organizer?: string,
+    photographer?: string,
+    sponsor?: string,
+    volunteer?: string
+  },
+  savedMessage?: {
+    channelId?: string,
+    messageId?: string
   }
 }
 
+export interface DevConfig {
+  id: string,
+  GeneralConfig?: GeneralConfig,
+  VerificationConfig?: VerificationConfig,
+  TicketsConfig?: TicketsConfig
+}
 export interface ContestQuestion {
   username: string
   email: string

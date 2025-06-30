@@ -2,18 +2,18 @@
 import { Check, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { updateDevConfig } from "@/services/dev-config";
 import { useFactotum } from "@/providers/factotum-provider";
 
-export default function EditInput({value, path, onChange, label}: {value: string, path:string, label:string, onChange: (value: string) => void}) {
-    const devConfig = useFactotum();
-
+export default function EditInput({value, path, onChange, label}: {value: string, path:string, label:string, onChange: (id: string, value: string, path: string) => void}) {
+    const id = useFactotum().id;
+    
     const Edit = async () => {
-        if (path == "") return
-        updateDevConfig(devConfig, path, value)
+        onChange(id, path, inputValue)
     }
 
     const [isEditing, setIsEditing] = useState(false);
+
+    const [inputValue, setInputValue] = useState(value)
     
     return (
         <div className="mb-4">
@@ -22,8 +22,8 @@ export default function EditInput({value, path, onChange, label}: {value: string
                         <Input 
                             id={path}
                             className="text-black border-2 border-gray-300 focus-visible:border-gray-300"  
-                            value={value} 
-                            onChange={(e) => onChange(e.target.value)}
+                            value={inputValue} 
+                            onChange={(e) => setInputValue(e.target.value)}
                             disabled={!isEditing}
                         />
                         {isEditing ? (
