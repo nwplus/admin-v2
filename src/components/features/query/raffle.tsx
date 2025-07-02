@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FileBarChart } from "lucide-react";
@@ -18,24 +24,24 @@ export function Raffle() {
       toast.error("No applicants available for raffle");
       return;
     }
-    
-    const eligibleApplicants = tableData.filter(applicant => 
-      applicant.applicationStatus === "acceptedAndAttending"
+
+    const eligibleApplicants = tableData.filter(
+      (applicant) => applicant.applicationStatus === "acceptedAndAttending",
     );
-    
+
     if (eligibleApplicants.length === 0) {
       toast.error("No eligible applicants (marked as acceptedAndAttending) for raffle");
       return;
     }
-    
+
     const randomIndex = Math.floor(Math.random() * eligibleApplicants.length);
     setWinner(eligibleApplicants[randomIndex]);
   }, [tableData]);
 
   return (
     <>
-      <Button 
-        variant="default" 
+      <Button
+        variant="default"
         className="w-full bg-slate-700 hover:bg-slate-800 sm:w-auto"
         onClick={handleRaffle}
         disabled={tableData.length === 0}
@@ -53,7 +59,9 @@ export function Raffle() {
               {winner && (
                 <div>
                   <div>
-                    <strong>{winner.firstName} {winner.lastName}</strong>
+                    <strong>
+                      {winner.firstName} {winner.lastName}
+                    </strong>
                   </div>
                   <div>{winner.email}</div>
                 </div>

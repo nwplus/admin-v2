@@ -103,7 +103,7 @@ export function DataTable<T>({
                     )}
                     onClick={header.column.getToggleSortingHandler()}
                     onKeyDown={header.column.getToggleSortingHandler()}
-                    style={{ minWidth: '120px' }}
+                    style={{ minWidth: "120px" }}
                   >
                     <div className="flex items-center gap-1">
                       {flexRender(header.column.columnDef.header, header.getContext())}
@@ -126,7 +126,7 @@ export function DataTable<T>({
                   key={row.id}
                   className={cn(
                     "transition-colors",
-                    onRowClick ? "cursor-pointer hover:bg-gray-50 active:bg-gray-100" : ""
+                    onRowClick ? "cursor-pointer hover:bg-gray-50 active:bg-gray-100" : "",
                   )}
                   onClick={onRowClick ? () => onRowClick(row.original) : undefined}
                   onKeyDown={
@@ -138,7 +138,7 @@ export function DataTable<T>({
                   {row.getVisibleCells().map((cell) => (
                     <td key={cell.id} className="px-2 py-2 align-top sm:px-3">
                       <div className="max-w-[120px] sm:max-w-none">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </div>
                     </td>
                   ))}
@@ -146,10 +146,7 @@ export function DataTable<T>({
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-3 py-8 text-center text-gray-500"
-                >
+                <td colSpan={columns.length} className="px-3 py-8 text-center text-gray-500">
                   {emptyMessage}
                 </td>
               </tr>
@@ -160,48 +157,48 @@ export function DataTable<T>({
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          className="flex items-center gap-1"
-        >
-          <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="hidden sm:inline">Previous</span>
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          className="flex items-center gap-1"
-        >
-          <span className="hidden sm:inline">Next</span>
-          <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
-        </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            className="flex items-center gap-1"
+          >
+            <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Previous</span>
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            className="flex items-center gap-1"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+          </Button>
         </div>
 
         <div className="flex flex-col gap-2 text-neutral-800 text-xs sm:flex-row sm:items-center sm:gap-4 sm:text-sm">
           <span className="whitespace-nowrap">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-        </span>
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </span>
 
-        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <span className="whitespace-nowrap text-gray-500">Rows per page:</span>
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={(e) => {
-              table.setPageSize(Number(e.target.value));
-            }}
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => {
+                table.setPageSize(Number(e.target.value));
+              }}
               className="min-w-0 rounded border px-2 py-1 text-xs sm:text-sm"
-          >
-            {pageSizeOptions.map((pageSize: number) => (
-              <option key={pageSize} value={pageSize}>
-                {pageSize}
-              </option>
-            ))}
-          </select>
+            >
+              {pageSizeOptions.map((pageSize: number) => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

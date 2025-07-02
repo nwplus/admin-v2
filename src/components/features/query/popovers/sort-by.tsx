@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { X } from "lucide-react";
 import type { SortingState } from "@tanstack/react-table";
 
@@ -13,13 +19,15 @@ interface SortByProps {
 
 /**
  * Popover for single column sorting.
- * Note that the sorting state is kept in sync with the tanstack table API. 
+ * Note that the sorting state is kept in sync with the tanstack table API.
  */
 export function SortBy({ columns, sorting, setSorting }: SortByProps) {
   const [open, setOpen] = useState(false);
   const currentSort = sorting[0] || { id: "", desc: false };
   const [sortColumn, setSortColumn] = useState(currentSort.id || "");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(currentSort.desc ? "desc" : "asc");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+    currentSort.desc ? "desc" : "asc",
+  );
 
   // Keep local state in sync with external sorting
   useEffect(() => {
@@ -43,9 +51,11 @@ export function SortBy({ columns, sorting, setSorting }: SortByProps) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-full justify-between font-normal">
-          {sortColumn
-            ? `Sort: ${sortColumn} (${sortDirection})`
-            : <span className="text-muted-foreground">Sort by...</span>}
+          {sortColumn ? (
+            `Sort: ${sortColumn} (${sortDirection})`
+          ) : (
+            <span className="text-muted-foreground">Sort by...</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-fit">
@@ -56,12 +66,17 @@ export function SortBy({ columns, sorting, setSorting }: SortByProps) {
               <SelectValue placeholder="Select Column" />
             </SelectTrigger>
             <SelectContent>
-              {columns.map(col => (
-                <SelectItem key={col} value={col}>{col}</SelectItem>
+              {columns.map((col) => (
+                <SelectItem key={col} value={col}>
+                  {col}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select value={sortDirection} onValueChange={v => setSortDirection(v as "asc" | "desc") }>
+          <Select
+            value={sortDirection}
+            onValueChange={(v) => setSortDirection(v as "asc" | "desc")}
+          >
             <SelectTrigger className="min-w-[120px]">
               <SelectValue placeholder="Direction" />
             </SelectTrigger>

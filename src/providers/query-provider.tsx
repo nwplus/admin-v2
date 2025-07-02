@@ -1,13 +1,14 @@
-import { createContext, useContext, useState, useCallback, type ReactNode, useEffect } from "react";
-import type { SortingState } from "@tanstack/react-table";
-import type { FlattenedApplicant } from "@/services/query";
+import { Loading } from "@/components/ui/loading";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
-import { subscribeToApplicants, flattenApplicantData } from "@/services/query";
 import type { Hackathon } from "@/lib/firebase/types";
+import type { FlattenedApplicant } from "@/services/query";
+import { flattenApplicantData, subscribeToApplicants } from "@/services/query";
+import type { SortingState } from "@tanstack/react-table";
+import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
 
 /**
  * Users can group by a column and apply an aggregation function to another column.
- * This interface represents these three selections. 
+ * This interface represents these three selections.
  */
 export interface GroupBySelection {
   groupByColumn: string;
@@ -56,7 +57,7 @@ const DEFAULT_SELECTED_COLUMNS = [
   "school",
   "major",
   "numHackathonsAttended",
-  "MLHCodeOfConduct"
+  "MLHCodeOfConduct",
 ];
 
 interface QueryProviderProps {
@@ -64,9 +65,9 @@ interface QueryProviderProps {
 }
 
 /**
- * Maintains the state of query filters (grouping, filtering, sorting) 
+ * Maintains the state of query filters (grouping, filtering, sorting)
  * selected by the user and the resulting display data.
- * 
+ *
  * Primarily used in the query page.
  */
 export function QueryProvider({ children }: QueryProviderProps) {
@@ -77,7 +78,9 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_SELECTED_COLUMNS);
   const [groupBySelection, setGroupBySelection] = useState<GroupBySelection | undefined>(undefined);
-  const [filterSelection, setFilterSelection] = useState<FilterRowsSelection | undefined>(undefined);
+  const [filterSelection, setFilterSelection] = useState<FilterRowsSelection | undefined>(
+    undefined,
+  );
   const [sorting, setSorting] = useState<SortingState>([]);
   const [tableData, setTableData] = useState<FlattenedApplicant[]>([]);
 
@@ -108,10 +111,8 @@ export function QueryProvider({ children }: QueryProviderProps) {
   }, [applicants]);
 
   const handleColumnToggle = useCallback((column: string) => {
-    setSelectedColumns(prev => 
-      prev.includes(column) 
-        ? prev.filter(col => col !== column)
-        : [...prev, column]
+    setSelectedColumns((prev) =>
+      prev.includes(column) ? prev.filter((col) => col !== column) : [...prev, column],
     );
   }, []);
 
@@ -134,7 +135,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
   return (
     <QueryContext.Provider value={value}>
-      {isLoading ? <>Loading</> : children}
+      {isLoading ? <Loading /> : children}
     </QueryContext.Provider>
   );
 }
@@ -145,4 +146,4 @@ export function useQuery() {
     throw new Error("useQuery must be used within a QueryProvider");
   }
   return context;
-} 
+}

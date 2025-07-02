@@ -19,8 +19,8 @@ function QueryPage() {
 
   return (
     <QueryProvider>
-    <div className="flex h-full w-full flex-col gap-3">
-      <PageHeader>Query</PageHeader>
+      <div className="flex h-full w-full flex-col gap-3">
+        <PageHeader>Query</PageHeader>
         <Card className="w-full">
           <CardHeader className="pb-4">
             <div className="max-w-full overflow-x-scroll">
@@ -33,9 +33,7 @@ function QueryPage() {
               </div>
 
               <div className="mt-6 space-y-4">
-                <QueryFilters
-                  availableColumns={availableColumns}
-                />
+                <QueryFilters availableColumns={availableColumns} />
                 <div className="w-full overflow-hidden">
                   <QueryTable />
                 </div>
@@ -43,7 +41,7 @@ function QueryPage() {
             </div>
           </CardHeader>
         </Card>
-    </div>
+      </div>
     </QueryProvider>
   );
 }
