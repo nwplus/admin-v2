@@ -1,12 +1,12 @@
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { DiscordQuestion } from "@/lib/firebase/types";
-import { useEffect, useState } from "react";
-import { DiscordQuestionDialog } from "./discord-question-dialog";
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
-import { susbcribeToDiscordQuestions } from "@/services/discord-questions";
+import type { DiscordQuestion } from "@/lib/firebase/types";
 import { useFactotum } from "@/providers/factotum-provider";
+import { susbcribeToDiscordQuestions } from "@/services/discord-questions";
+import { useEffect, useState } from "react";
+import { DiscordQuestionDialog } from "./discord-question-dialog";
 
 export function QuestionTable() {
   const [activeQuestion, setActiveQuestion] = useState<DiscordQuestion | null>(null);
@@ -15,9 +15,7 @@ export function QuestionTable() {
   const server = useFactotum().server;
 
   useEffect(() => {
-    const unsub = () => {
-      susbcribeToDiscordQuestions(setQuestions, server);
-    };
+    const unsub = susbcribeToDiscordQuestions(setQuestions, server);
     return () => {
       unsub();
     };
