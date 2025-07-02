@@ -29,12 +29,21 @@ interface MultiSelectProps {
   className?: string;
   disabled?: boolean;
   compressed?: boolean; // compresses max height of the selection
-  selectAll?: boolean;  // adds a select all option
+  selectAll?: boolean; // adds a select all option
 }
 
 const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
   (
-    { options, selected, onChange, placeholder = "Select items...", className, disabled = false, compressed = false, selectAll = false },
+    {
+      options,
+      selected,
+      onChange,
+      placeholder = "Select items...",
+      className,
+      disabled = false,
+      compressed = false,
+      selectAll = false,
+    },
     ref,
   ) => {
     const [open, setOpen] = useState(false);
@@ -72,7 +81,11 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
             ref={ref}
             variant="outline"
             aria-expanded={open}
-            className={cn("h-auto min-h-9 w-full justify-between p-1 hover:bg-white", className, compressed && "max-h-9")}
+            className={cn(
+              "h-auto min-h-9 w-full justify-between p-1 hover:bg-white",
+              className,
+              compressed && "max-h-9",
+            )}
             disabled={disabled}
           >
             <div className="flex flex-1 flex-wrap items-center gap-1">
@@ -180,9 +193,9 @@ const MultiSelect = forwardRef<HTMLButtonElement, MultiSelectProps>(
             </CommandList>
           </Command>
         </PopoverContent>
-      {compressed && selected.length > 1 && (
-        <div className="pl-2 font-medium text-xs">+{selected.length - 1} more</div>
-      )}
+        {compressed && selected.length > 1 && (
+          <div className="pl-2 font-medium text-xs">+{selected.length - 1} more</div>
+        )}
       </Popover>
     );
   },

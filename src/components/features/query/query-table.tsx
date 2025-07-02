@@ -26,7 +26,7 @@ export function QueryTable() {
   }
 
   /**
-   * Format cell values for display. 
+   * Format cell values for display.
    * The applicant schema has changed over time -- some previously typed string values are now objects, which are handled here.
    */
   const formatCellValue = (value: unknown) => {
@@ -44,15 +44,19 @@ export function QueryTable() {
   };
 
   /**
-   * Applies filter operators to selected columns. 
+   * Applies filter operators to selected columns.
    */
   const filteredData = useMemo(() => {
     let filtered = [...tableData];
 
     // filterSelection logic
-    if (filterSelection?.filterColumn && filterSelection.filterCondition && filterSelection.filterValue !== undefined) {
+    if (
+      filterSelection?.filterColumn &&
+      filterSelection.filterCondition &&
+      filterSelection.filterValue !== undefined
+    ) {
       const { filterColumn, filterCondition, filterValue } = filterSelection;
-      filtered = filtered.filter(row => {
+      filtered = filtered.filter((row) => {
         const value = row[filterColumn];
         switch (filterCondition) {
           case "matches":
@@ -86,24 +90,27 @@ export function QueryTable() {
       return [
         columnHelper.accessor(groupBySelection.groupByColumn, {
           header: groupBySelection.groupByColumn,
-          cell: info => info.getValue(),
+          cell: (info) => info.getValue(),
         }),
-        columnHelper.accessor(`${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`, {
-          header: `${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`,
-          cell: info => info.getValue(),
-        }),
+        columnHelper.accessor(
+          `${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`,
+          {
+            header: `${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`,
+            cell: (info) => info.getValue(),
+          },
+        ),
       ];
     }
     return selectedColumns.map((columnName) =>
       columnHelper.accessor(columnName, {
         header: columnName,
-        cell: info => formatCellValue(info.getValue()),
+        cell: (info) => formatCellValue(info.getValue()),
         enableSorting: true,
         enableColumnFilter: true,
         size: 150,
         minSize: 120,
         maxSize: 300,
-      })
+      }),
     );
   }, [selectedColumns, groupBySelection]);
 
@@ -120,7 +127,9 @@ export function QueryTable() {
     }
     return Object.entries(groups).map(([key, rows]) => {
       let aggValue: string | number | boolean | Date | null | Record<string, boolean> | undefined;
-      const values = rows.map(r => r[groupBySelection.aggregationColumn]).filter(v => v !== undefined && v !== null);
+      const values = rows
+        .map((r) => r[groupBySelection.aggregationColumn])
+        .filter((v) => v !== undefined && v !== null);
       switch (groupBySelection.aggregationFunction) {
         case "COUNT":
           aggValue = values.length;
@@ -129,7 +138,10 @@ export function QueryTable() {
           aggValue = (values as number[]).reduce((a, b) => (a as number) + (b as number), 0);
           break;
         case "AVERAGE":
-          aggValue = values.length ? ((values as number[]).reduce((a, b) => (a as number) + (b as number), 0) / values.length) : 0;
+          aggValue = values.length
+            ? (values as number[]).reduce((a, b) => (a as number) + (b as number), 0) /
+              values.length
+            : 0;
           break;
         case "MIN":
           aggValue = Math.min(...(values as number[]));

@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 
@@ -62,31 +68,48 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-full justify-between font-normal">
-          {filterColumn
-            ? `Filter: ${filterColumn} ${filterCondition} ${filterValue}`
-            : <span className="text-muted-foreground">Add filter...</span>}
+          {filterColumn ? (
+            `Filter: ${filterColumn} ${filterCondition} ${filterValue}`
+          ) : (
+            <span className="text-muted-foreground">Add filter...</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-fit">
         <div className="flex items-center gap-2">
           <span className="mr-1 text-sm">Where</span>
-          <Select value={filterColumn} onValueChange={col => { setFilterColumn(col); setFilterCondition(""); setFilterValue(""); }}>
+          <Select
+            value={filterColumn}
+            onValueChange={(col) => {
+              setFilterColumn(col);
+              setFilterCondition("");
+              setFilterValue("");
+            }}
+          >
             <SelectTrigger className="min-w-[180px]">
               <SelectValue placeholder="Select Column" />
             </SelectTrigger>
             <SelectContent>
-              {columns.map(col => (
-                <SelectItem key={col} value={col}>{col}</SelectItem>
+              {columns.map((col) => (
+                <SelectItem key={col} value={col}>
+                  {col}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select value={filterCondition} onValueChange={setFilterCondition} disabled={!filterColumn}>
+          <Select
+            value={filterCondition}
+            onValueChange={setFilterCondition}
+            disabled={!filterColumn}
+          >
             <SelectTrigger className="min-w-[180px]">
               <SelectValue placeholder="Condition" />
             </SelectTrigger>
             <SelectContent>
               {conditionOptions.map((opt: { value: string; label: string }) => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -94,14 +117,24 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
             className="min-w-[120px]"
             placeholder="Enter value…"
             value={filterValue}
-            onChange={e => setFilterValue(e.target.value)}
+            onChange={(e) => setFilterValue(e.target.value)}
             disabled={!filterCondition}
           />
           <div className="flex items-center">
-            <Button size="icon" variant="ghost" onClick={handleClear} disabled={!filterColumn && !filterCondition && !filterValue}>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleClear}
+              disabled={!filterColumn && !filterCondition && !filterValue}
+            >
               <X className="h-4 w-4" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={handleApply} disabled={!(filterColumn && filterCondition && filterValue)}>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleApply}
+              disabled={!(filterColumn && filterCondition && filterValue)}
+            >
               ✓
             </Button>
           </div>
@@ -109,4 +142,4 @@ export function FilterRows({ columns, columnTypes, onApply }: FilterRowsProps) {
       </PopoverContent>
     </Popover>
   );
-} 
+}

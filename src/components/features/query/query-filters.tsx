@@ -9,9 +9,7 @@ interface QueryFiltersProps {
   availableColumns: string[];
 }
 
-export function QueryFilters({
-  availableColumns
-}: QueryFiltersProps) {
+export function QueryFilters({ availableColumns }: QueryFiltersProps) {
   const {
     selectedColumns,
     onColumnToggle,
@@ -23,33 +21,32 @@ export function QueryFilters({
   } = useQuery();
 
   const handleColumnsChange = (columns: string[]) => {
-    const columnsToAdd = columns.filter(col => !selectedColumns.includes(col));
-    const columnsToRemove = selectedColumns.filter(col => !columns.includes(col));
+    const columnsToAdd = columns.filter((col) => !selectedColumns.includes(col));
+    const columnsToRemove = selectedColumns.filter((col) => !columns.includes(col));
     for (const column of [...columnsToAdd, ...columnsToRemove]) {
       onColumnToggle(column);
     }
   };
 
-  const columnOptions = availableColumns.map(column => ({
+  const columnOptions = availableColumns.map((column) => ({
     label: column,
     value: column,
   }));
 
   const columns = tableData[0] ? Object.keys(tableData[0]) : [];
-  const columnTypes = Object.fromEntries(
-    columns.map(col => [col, typeof tableData[0]?.[col]])
-  );
+  const columnTypes = Object.fromEntries(columns.map((col) => [col, typeof tableData[0]?.[col]]));
 
   /**
    * Definitions to determine which columns are groupable and aggreagtable.
    * For example, SUM/AVG can only be applied to numeric columns.
    */
   const countColumns = columns;
-  const sumAvgColumns = columns.filter(col => columnTypes[col] === "number");
-  const minMaxColumns = columns.filter(col =>
-    columnTypes[col] === "number" ||
-    columnTypes[col] === "string" ||
-    tableData[0]?.[col] instanceof Date
+  const sumAvgColumns = columns.filter((col) => columnTypes[col] === "number");
+  const minMaxColumns = columns.filter(
+    (col) =>
+      columnTypes[col] === "number" ||
+      columnTypes[col] === "string" ||
+      tableData[0]?.[col] instanceof Date,
   );
   const aggregatableColumnsMap = {
     COUNT: countColumns,
@@ -58,7 +55,7 @@ export function QueryFilters({
     MIN: minMaxColumns,
     MAX: minMaxColumns,
   };
-  const groupableColumns = columns.filter(col => {
+  const groupableColumns = columns.filter((col) => {
     const val = tableData[0]?.[col];
     return typeof val === "string" || typeof val === "boolean";
   });
@@ -99,11 +96,7 @@ export function QueryFilters({
             <Filter className="h-4 w-4" />
             <span className="font-medium text-sm">Filter</span>
           </div>
-          <FilterRows
-            columns={columns}
-            columnTypes={columnTypes}
-            onApply={onFilterChange}
-          />
+          <FilterRows columns={columns} columnTypes={columnTypes} onApply={onFilterChange} />
         </div>
 
         <div className="flex flex-col gap-2">
@@ -111,13 +104,9 @@ export function QueryFilters({
             <ArrowUpDown className="h-4 w-4" />
             <span className="font-medium text-sm">Sort</span>
           </div>
-          <SortBy
-            columns={selectedColumns}
-            sorting={sorting}
-            setSorting={onSortingChange}
-          />
+          <SortBy columns={selectedColumns} sorting={sorting} setSorting={onSortingChange} />
         </div>
       </div>
     </div>
   );
-} 
+}

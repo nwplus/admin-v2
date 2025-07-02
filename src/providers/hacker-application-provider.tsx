@@ -61,7 +61,7 @@ const HackerApplicationProvider = ({
 
   return (
     <HackathonContext.Provider value={value}>
-      {isLoading ?  <Loading variant="small" /> : children}
+      {isLoading ? <Loading /> : children}
     </HackathonContext.Provider>
   );
 };

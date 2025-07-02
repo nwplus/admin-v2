@@ -288,7 +288,7 @@ export type HackerApplicationMetadata = Record<
 >;
 
 export interface DiscordQuestion {
-  id?:string,
+  id?: string;
   sponsor?: string;
   question?: string;
   answer?: string[];
@@ -298,72 +298,71 @@ export interface DiscordQuestion {
 }
 
 export interface GeneralConfig {
-  channelIds?: {  
-    adminConsole?: string,
-    adminLog?: string
-  },
-  hackathonName?: string,
+  channelIds?: {
+    adminConsole?: string;
+    adminLog?: string;
+  };
+  hackathonName?: string;
   roleIds?: {
-    admin?: string,
-    hacker?: string,
-    mentor?: string,
-    staff?: string,
-    unverified?: string,
-    verified?: string
-  }
-  isSetupComplete?: boolean,
+    admin?: string;
+    hacker?: string;
+    mentor?: string;
+    staff?: string;
+    unverified?: string;
+    verified?: string;
+  };
+  isSetupComplete?: boolean;
 }
-
 
 export interface TicketsConfig {
   channelIds?: {
-    incomingTicketsChannel?: string
-  },
-  currentTicketCount?: number,
-  extraSpecialties?: string,
+    incomingTicketsChannel?: string;
+  };
+  currentTicketCount?: number;
+  extraSpecialties?: string;
   roleIds?: {
-    requestTicketRole?: string
-  },
+    requestTicketRole?: string;
+  };
   savedMessages?: {
     mentorSpecialtySelection?: {
-      channelId?: string,
-      messageId?: string
-    }
+      channelId?: string;
+      messageId?: string;
+    };
     requestTicket?: {
-      channelId?: string,
-      messageId?: string
-    }
-  },
-  unansweredTicketTime?: number
+      channelId?: string;
+      messageId?: string;
+    };
+  };
+  unansweredTicketTime?: number;
 }
 
 export interface VerificationConfig {
   roleIds?: {
-    hacker?: string,
-    mentor?: string,
-    organizer?: string,
-    photographer?: string,
-    sponsor?: string,
-    volunteer?: string
-  },
+    hacker?: string;
+    mentor?: string;
+    organizer?: string;
+    photographer?: string;
+    sponsor?: string;
+    volunteer?: string;
+  };
   savedMessage?: {
-    channelId?: string,
-    messageId?: string
-  }
+    channelId?: string;
+    messageId?: string;
+  };
 }
 
 export interface DevConfig {
-  id: string,
-  GeneralConfig?: GeneralConfig,
-  VerificationConfig?: VerificationConfig,
-  TicketsConfig?: TicketsConfig
+  id: string;
+  GeneralConfig?: GeneralConfig;
+  VerificationConfig?: VerificationConfig;
+  TicketsConfig?: TicketsConfig;
 }
 export interface ContestQuestion {
-  username: string
-  email: string
-  type: string
-  firstname: string
-  lastname: string
-  preferredname: string
-  phonenumber: string
+  username: string;
+  email: string;
+  type: string;
+  firstname: string;
+  lastname: string;
+  preferredname: string;
+  phonenumber: string;
 }

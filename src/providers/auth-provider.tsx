@@ -46,7 +46,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {isLoading ? <Loading /> : children}
+      {isLoading ? <Loading isFullScreen /> : children}
     </AuthContext.Provider>
   );
 };

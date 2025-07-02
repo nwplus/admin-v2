@@ -1,31 +1,29 @@
-import { Checkbox } from "@/components/ui/checkbox"
-import type { DiscordQuestion } from "@/lib/firebase/types"
-import { useEffect, useState } from "react"
-import { DiscordQuestionDialog } from "./discord-question-dialog"
-import { DataTable, createTableColumnHelper } from "@/components/ui/data-table"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { susbcribeToDiscordQuestions } from "@/services/discord-questions"
-import { useFactotum } from "@/providers/factotum-provider"
-
-
+import { Checkbox } from "@/components/ui/checkbox";
+import type { DiscordQuestion } from "@/lib/firebase/types";
+import { useEffect, useState } from "react";
+import { DiscordQuestionDialog } from "./discord-question-dialog";
+import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { susbcribeToDiscordQuestions } from "@/services/discord-questions";
+import { useFactotum } from "@/providers/factotum-provider";
 
 export function QuestionTable() {
-  const [activeQuestion, setActiveQuestion] = useState<DiscordQuestion | null>(null)
+  const [activeQuestion, setActiveQuestion] = useState<DiscordQuestion | null>(null);
   const [search, setSearch] = useState<string>("");
-  const [questions, setQuestions] = useState<DiscordQuestion[]>([])
-  const server = useFactotum().server
+  const [questions, setQuestions] = useState<DiscordQuestion[]>([]);
+  const server = useFactotum().server;
 
   useEffect(() => {
     const unsub = () => {
-      susbcribeToDiscordQuestions(setQuestions, server)
-    }
+      susbcribeToDiscordQuestions(setQuestions, server);
+    };
     return () => {
-      unsub()
-    }
-  }, [server])
+      unsub();
+    };
+  }, [server]);
 
-  const columnHelper = createTableColumnHelper<DiscordQuestion>()
+  const columnHelper = createTableColumnHelper<DiscordQuestion>();
 
   const columns = [
     columnHelper.accessor("lastModified", {
@@ -52,17 +50,17 @@ export function QuestionTable() {
       header: "All Answers Required?",
       cell: ({ row }) => <Checkbox defaultChecked={row.original.needAllAnswers} />,
     }),
-  ]
+  ];
 
   return (
     <Card className="w-fullrounded-xl">
       <CardContent>
         <Input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search..."
-                className="mb-5"
-              />
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search..."
+          className="mb-5"
+        />
         <DataTable
           columns={columns}
           data={questions}
@@ -73,15 +71,12 @@ export function QuestionTable() {
           setGlobalFilter={setSearch}
         />
 
-    
-          <DiscordQuestionDialog
-            open = {!!activeQuestion}
-            onClose = {() => setActiveQuestion(null)}
-            activeQuestion={activeQuestion}
-          />
-      
+        <DiscordQuestionDialog
+          open={!!activeQuestion}
+          onClose={() => setActiveQuestion(null)}
+          activeQuestion={activeQuestion}
+        />
       </CardContent>
     </Card>
-  )
+  );
 }
-  

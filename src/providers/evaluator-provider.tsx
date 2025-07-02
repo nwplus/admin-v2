@@ -50,7 +50,7 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <EvaluatorContext.Provider value={value}>
-      {isLoading ? <Loading variant="small"/>: children}
+      {isLoading ? <Loading /> : children}
     </EvaluatorContext.Provider>
   );
 };

@@ -101,7 +101,7 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
                 <FormItem>
                   <FormLabel>Question</FormLabel>
                   <FormControl>
-                   <Textarea placeholder="Type here..." {...field} />
+                    <Textarea placeholder="Type here..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -40,38 +40,38 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     gender: applicant.basicInfo?.gender || "",
     location: applicant.basicInfo?.location || "",
     isOfLegalAge: applicant.basicInfo?.isOfLegalAge || false,
-    
+
     // Application Status
     applicationStatus: applicant.status?.applicationStatus || "",
     attending: applicant.status?.attending || false,
     responded: applicant.status?.responded || false,
-    
+
     // Skills
     github: applicant.skills?.github || "",
     linkedin: applicant.skills?.linkedin || "",
     portfolio: applicant.skills?.portfolio || "",
     resume: applicant.skills?.resume || "",
     numHackathonsAttended: applicant.skills?.numHackathonsAttended || 0,
-    
+
     // Contribution roles (flattened)
     contributionDeveloper: applicant.skills?.contributionRole?.developer || false,
     contributionDesigner: applicant.skills?.contributionRole?.designer || false,
     contributionProductManager: applicant.skills?.contributionRole?.productManager || false,
     contributionOther: applicant.skills?.contributionRole?.other || false,
-    
+
     // Questionnaire
     engagementSource: applicant.questionnaire?.engagementSource || "",
     friendEmail: applicant.questionnaire?.friendEmail || "",
-    eventsAttended: Array.isArray(applicant.questionnaire?.eventsAttended) 
-      ? applicant.questionnaire?.eventsAttended.join(", ") 
+    eventsAttended: Array.isArray(applicant.questionnaire?.eventsAttended)
+      ? applicant.questionnaire?.eventsAttended.join(", ")
       : "",
-    
+
     // Terms and conditions
     MLHCodeOfConduct: applicant.termsAndConditions?.MLHCodeOfConduct || false,
     nwPlusPrivacyPolicy: applicant.termsAndConditions?.nwPlusPrivacyPolicy || false,
     shareWithSponsors: applicant.termsAndConditions?.shareWithSponsors || false,
     shareWithnwPlus: applicant.termsAndConditions?.shareWithnwPlus || false,
-    
+
     // Ethnicity (flattened)
     ethnicityAsian: applicant.basicInfo?.ethnicity?.asian || false,
     ethnicityBlack: applicant.basicInfo?.ethnicity?.black || false,
@@ -82,18 +82,18 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     ethnicityNorthAmerica: applicant.basicInfo?.ethnicity?.northAmerica || false,
     ethnicityOther: applicant.basicInfo?.ethnicity?.other || false,
     ethnicityPreferNot: applicant.basicInfo?.ethnicity?.preferNot || false,
-    
+
     // Score info
     totalScore: applicant.score?.totalScore || 0,
     scoreComment: applicant.score?.comment || "",
     scoreLastUpdated: applicant.score?.lastUpdated?.toDate?.() || null,
     scoreLastUpdatedBy: applicant.score?.lastUpdatedBy || "",
-    
+
     // Submission info
     submitted: applicant.submission?.submitted || false,
     submissionLastUpdated: applicant.submission?.lastUpdated?.toDate?.() || null,
   };
-  
+
   return flattened;
 };
 
@@ -126,7 +126,7 @@ export const getAvailableColumns = () => {
         northAmerica: false,
         other: false,
         preferNot: false,
-      }
+      },
     },
     status: {
       applicationStatus: "inProgress",
@@ -144,7 +144,7 @@ export const getAvailableColumns = () => {
         designer: false,
         productManager: false,
         other: false,
-      }
+      },
     },
     questionnaire: {
       engagementSource: "",
@@ -156,9 +156,9 @@ export const getAvailableColumns = () => {
       nwPlusPrivacyPolicy: false,
       shareWithSponsors: false,
       shareWithnwPlus: false,
-    }
+    },
   };
-  
+
   return Object.keys(flattenApplicantData(sampleApplicant));
 };
 

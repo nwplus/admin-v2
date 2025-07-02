@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import type { DiscordQuestion } from "@/lib/firebase/types";
@@ -31,17 +26,18 @@ const formSchema = z.object({
   needAllAnswers: z.boolean(),
 });
 interface DiscordQuestionDialogProps {
-  open: boolean,
+  open: boolean;
   onClose: () => void;
-  activeQuestion?: DiscordQuestion | null
+  activeQuestion?: DiscordQuestion | null;
 }
 
 export function DiscordQuestionDialog({
-  open, onClose, activeQuestion
+  open,
+  onClose,
+  activeQuestion,
 }: DiscordQuestionDialogProps) {
-
   const [loading, setLoading] = useState<boolean>(false);
-  const server = useFactotum().server
+  const server = useFactotum().server;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,7 +62,7 @@ export function DiscordQuestionDialog({
         answer: answerArray,
       } as unknown as DiscordQuestion,
       server,
-      activeQuestion?.id
+      activeQuestion?.id,
     );
     form.reset({
       question: "",
@@ -74,7 +70,7 @@ export function DiscordQuestionDialog({
       sponsor: "",
       needAllAnswers: false,
     });
-    toast(`Question successfully edited`);
+    toast("Question successfully edited");
     setLoading(false);
     onClose();
   };
@@ -102,22 +98,22 @@ export function DiscordQuestionDialog({
           <DialogTitle>Edit Discord Question</DialogTitle>
         </DialogHeader>
 
-        <Form {...form}> 
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
-            control = {form.control}
-            name = "question"
-            render={({field}) => (
-              <FormItem>
+              control={form.control}
+              name="question"
+              render={({ field }) => (
+                <FormItem>
                   <FormLabel>Question</FormLabel>
                   <FormControl>
                     <Textarea placeholder="Type here..." {...field} />
                   </FormControl>
                   <FormMessage />
-                </FormItem>   
-            )} 
+                </FormItem>
+              )}
             />
-            
+
             <FormField
               control={form.control}
               name="answer"
@@ -152,10 +148,7 @@ export function DiscordQuestionDialog({
                 <FormItem>
                   <FormLabel>Need All Answers?</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -166,22 +159,20 @@ export function DiscordQuestionDialog({
                 <Button disabled={loading} type="submit">
                   Save Changes
                 </Button>
-         
-                  <Confirm variant="destructive" onConfirm={onDelete}>
-                    Delete
-                  </Confirm>
-                
+
+                <Confirm variant="destructive" onConfirm={onDelete}>
+                  Delete
+                </Confirm>
               </div>
-          
-                <div className="text-neutral-500 text-sm">
-                  Last edited at {activeQuestion?.lastModified?.toDate()?.toLocaleString()} by{" "}
-                  {activeQuestion?.lastModifiedBy}
-                </div>
-              
+
+              <div className="text-neutral-500 text-sm">
+                Last edited at {activeQuestion?.lastModified?.toDate()?.toLocaleString()} by{" "}
+                {activeQuestion?.lastModifiedBy}
+              </div>
             </div>
           </form>
         </Form>
       </DialogContent>
     </Dialog>
   );
-} 
+}
