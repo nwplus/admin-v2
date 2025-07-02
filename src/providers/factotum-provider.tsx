@@ -5,7 +5,7 @@ import { subscribeToGeneralConfig, subscribeToTicketsConfig, subscribeToVerifica
 
 
 interface FactotumValue {
-  id: string;
+  server: string;
   generalConfig?: GeneralConfig;
   ticketsConfig?: TicketsConfig;
   verificationConfig?: VerificationConfig;
@@ -13,43 +13,35 @@ interface FactotumValue {
 
 export const FactotumContext = createContext<FactotumValue | undefined>(undefined);
 
-export function FactotumProvider ({children, id} : { children: ReactNode; id: string }) {
+export function FactotumProvider ({children, server} : { children: ReactNode; server: string }) {
     
     const [generalConfig, setGeneralConfig] = useState<GeneralConfig>()
     const [ticketsConfig, setTicketsConfig] = useState<TicketsConfig>()
     const [verificationConfig, setVerificationConfig] = useState<VerificationConfig>()
 
     useEffect(() => {
-      const unsubGeneral = subscribeToGeneralConfig(setGeneralConfig, id);
-      const unsubTickets = subscribeToTicketsConfig(setTicketsConfig, id);
-      const unsubVerification = subscribeToVerificationConfig(setVerificationConfig, id);
+      const unsubGeneral = subscribeToGeneralConfig(setGeneralConfig, server);
+      const unsubTickets = subscribeToTicketsConfig(setTicketsConfig, server);
+      const unsubVerification = subscribeToVerificationConfig(setVerificationConfig, server);
       
     
       return () => {
         unsubGeneral();
         unsubTickets();
         unsubVerification();
-        console.log("all 3 listeners mountd")
       };
-    }, [id]);  
+    }, [server]);  
 
 
-    // const value = useMemo(
-    //   () => ({
-    //     id: id,
-    //     generalConfig,
-    //     ticketsConfig,
-    //     verificationConfig,
-    //   }),
-    //   [id, generalConfig, ticketsConfig, verificationConfig] 
-    // );
-
-    const value = {
-      id: id,
-      generalConfig,
-      ticketsConfig,
-      verificationConfig
-    }
+    const value = useMemo(
+      () => ({
+        server: server,
+        generalConfig,
+        ticketsConfig,
+        verificationConfig,
+      }),
+      [server, generalConfig, ticketsConfig, verificationConfig] 
+    );
     
 
     return (

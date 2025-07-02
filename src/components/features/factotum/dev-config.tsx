@@ -5,12 +5,8 @@ import TicketsConfig from "./configs/ticket-config";
 import VerificationConfig from "./configs/verification-config";
 export default function DevConfig() {
 
-    const devConfig = useFactotum()
-
-    const generalConfig = devConfig?.generalConfig;
-    const ticketsConfig = devConfig?.ticketsConfig;
-    const verificationConfig = devConfig?.verificationConfig;
-
+    const {generalConfig, ticketsConfig, verificationConfig} = useFactotum()
+    
     return (
         <div>
             <h1 className="font-bold text-2xl line-height-10 mb-5">Dev Configuration</h1>

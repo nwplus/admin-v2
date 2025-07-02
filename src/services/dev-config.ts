@@ -2,33 +2,28 @@ import { db } from "@/lib/firebase/client";
 import type { GeneralConfig, TicketsConfig, VerificationConfig } from "@/lib/firebase/types";
 import {
   doc,
+  DocumentReference,
   onSnapshot,
   updateDoc,
+  addDoc,
 } from "firebase/firestore";
-
 import { getDocs, collection } from "firebase/firestore";
 
+// Returns a list of guild names
 export const getGuilds = async () => {
     const querySnapshot = await getDocs(collection(db, "ExternalProjects", "Factotum", "guilds"))
-    return querySnapshot.docs.map((doc) => doc.id)
+    return querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        hackathonName: doc.data().hackathonName as string,
+    }));
 }
 
+const genDocRef = (server: string) => doc(db, "ExternalProjects", "Factotum", "guilds", server)
+const otherDocRef = (server:string, type:"tickets" | "verification") => doc(db, "ExternalProjects", "Factotum", "guilds", server, "command-data", type)
 
-export const subscribeToGeneralConfig = (callback: (docs: GeneralConfig) => void, id: string) => {
-    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "guilds", id), (snapshot) => {
-        if(snapshot.exists()) {
-            const data = snapshot.data()
-            console.log("listener mounted, data: ", data)
-            callback(data)
-        }
-        else {
-            console.warn("No Document found");  
-        }
-    })
-} 
-
-export const subscribeToTicketsConfig = (callback: (docs: TicketsConfig) => void, id: string) => {
-    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "tickets"), (snapshot) => {
+//Subscribes to different document listeners
+export const subscribeToGeneralConfig = (callback: (docs: GeneralConfig) => void, server: string) => {
+    return onSnapshot(genDocRef(server), (snapshot) => {
         if(snapshot.exists()) {
             const data = snapshot.data()
             callback(data)
@@ -38,9 +33,19 @@ export const subscribeToTicketsConfig = (callback: (docs: TicketsConfig) => void
         }
     })
 } 
-
-export const subscribeToVerificationConfig = (callback: (docs: VerificationConfig) => void, id: string) => {
-    return onSnapshot(doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "verification"), (snapshot) => {
+export const subscribeToTicketsConfig = (callback: (docs: TicketsConfig) => void, server: string) => {
+    return onSnapshot(otherDocRef(server, "tickets"), (snapshot) => {
+        if(snapshot.exists()) {
+            const data = snapshot.data()
+            callback(data)
+        }
+        else {
+            console.warn("No Document found");  
+        }
+    })
+} 
+export const subscribeToVerificationConfig = (callback: (docs: VerificationConfig) => void, server: string) => {
+    return onSnapshot(otherDocRef(server, "verification"), (snapshot) => {
         if(snapshot.exists()) {
             const data = snapshot.data()
             callback(data)
@@ -51,40 +56,47 @@ export const subscribeToVerificationConfig = (callback: (docs: VerificationConfi
     })
 } 
 
-export const updateGeneralConfig = async (id: string, path: string, value: string | boolean) => {
+
+//Functions to update specific fields
+async function updateConfig(ref:DocumentReference, path:string, value:string|boolean) {
     try {
-        const docRef = doc(db, "ExternalProjects", "Factotum", "guilds", id);
-        await updateDoc(docRef, {
-            [path]: value
-        })
+        await updateDoc(ref, {[path]: value})
     }
-    catch (error) {
-        console.error(error);
-        throw error; 
-    }
+    catch (error) { throw error }
 }
-export const updateTicketsConfig = async (id: string, path: string, value: string | boolean) => {
-    try {
-        const docRef = doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "tickets");
-        await updateDoc(docRef, {
-            [path]: value
-        })
-    }
-    catch (error) {
-        console.error(error);
-        throw error; 
-    }
+export const updateGeneralConfig = async (server: string, path: string, value: string | boolean) => {
+    updateConfig(genDocRef(server), path, value)
 }
-export const updateVerificationConfig = async (id: string, path: string, value: string | boolean) => {
-    try {
-        const docRef = doc(db, "ExternalProjects", "Factotum", "guilds", id, "command-data", "verification");
-        await updateDoc(docRef, {
-            [path]: value
-        })
-    }
-    catch (error) {
-        console.error(error);
-        throw error; 
-    }
+export const updateTicketsConfig = async (server: string, path: string, value: string | boolean) => {
+    updateConfig(otherDocRef(server, "tickets"), path, value)
 }
+export const updateVerificationConfig = async (server: string, path: string, value: string | boolean) => {
+    updateConfig(otherDocRef(server, "verification"), path, value)
+}
+
+
+//Function to add participants
+export const addParticipants = async (emails: string[], roles: string[], server: string) => {
+  try {
+    await Promise.all(
+      emails.map((email) =>
+        addDoc(
+          collection(
+            db,
+            "ExternalProjects",
+            "Factotum",
+            "guilds",
+            server,
+            "command-data",
+            "verification",
+            "other-attendees"
+          ),
+          { email, roles }
+        )
+      )
+    );
+  } catch (err) {
+    throw err;
+  }
+};
 

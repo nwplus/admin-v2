@@ -288,13 +288,13 @@ export type HackerApplicationMetadata = Record<
 >;
 
 export interface DiscordQuestion {
-  id: string;
-  sponsor: string;
-  question: string;
-  answer: string;
-  required: boolean;
-  updatedAt: Timestamp;
-  updatedBy: string;
+  id?:string,
+  sponsor?: string;
+  question?: string;
+  answer?: string[];
+  needAllAnswers?: boolean;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
 }
 
 export interface GeneralConfig {

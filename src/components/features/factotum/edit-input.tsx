@@ -5,14 +5,13 @@ import { useEffect, useState } from "react";
 import { useFactotum } from "@/providers/factotum-provider";
 
 export default function EditInput({value, path, onChange, label}: {value: string, path:string, label:string, onChange: (id: string, value: string, path: string) => void}) {
-    const id = useFactotum().id;
+    const id = useFactotum().server;
     
     const Edit = async () => {
         onChange(id, path, inputValue)
     }
 
     const [isEditing, setIsEditing] = useState(false);
-
     const [inputValue, setInputValue] = useState(value)
 
     useEffect(() => {

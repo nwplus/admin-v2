@@ -1,8 +1,6 @@
 import { PageHeader } from "@/components/graphy/typo";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Copy, Check } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,7 +8,7 @@ import AddMembers from "@/components/features/factotum/add-members";
 import AddDiscordQuestions from "@/components/features/factotum/add-discord-questions";
 import CheckedInTable from "@/components/features/factotum/checkedin-table";
 import DevConfig from "@/components/features/factotum/dev-config";
-import { FactotumProvider, useFactotum } from "@/providers/factotum-provider";
+import { FactotumProvider } from "@/providers/factotum-provider";
 import { getGuilds } from "@/services/dev-config";
 import { Loading } from "@/components/ui/loading";
 
@@ -20,24 +18,18 @@ export const Route = createFileRoute("/_auth/factotum")({
 
 function RouteComponent() {
 
-  const [copied, setCopied] = useState(false);
   const [tab, setTab] = useState("Add Members");
-  const [hackathons, setHackathons] = useState<string[]>([])
+  const [hackathons, setHackathons] = useState<{id: string, hackathonName: string}[]>([])
   const [currentHackathon, setCurrentHackathon] = useState<string>("");
   const [loading, setLoading] = useState(true)
 
-  // const handleCopy = () => {
-  //   navigator.clipboard.writeText(useFactotum().id); 
-  //   setCopied(true);
-  //   setTimeout(() => setCopied(false), 2000);
-  // };
 
   useEffect(() => {
     const getListOfGuilds = async () => {
       const guilds = await getGuilds()
       setHackathons(guilds)
       if (guilds.length) {
-        setCurrentHackathon(guilds[0])
+        setCurrentHackathon(guilds[0].id)
         setLoading(false)
       }
     }
@@ -49,7 +41,8 @@ function RouteComponent() {
       {loading ? (
         <Loading variant="small" />
       ) : (
-        <FactotumProvider id={currentHackathon} key = {currentHackathon}>
+        //take out key when real full data is available. No full rerenders needed
+        <FactotumProvider server={currentHackathon} key = {currentHackathon}>
           <div className="flex h-full w-full flex-col gap-3">
             <div className="flex items-center justify-between ">
               <PageHeader className="flex items-center gap-3">Factotum</PageHeader>
@@ -64,7 +57,7 @@ function RouteComponent() {
                       <SelectValue className="text-black"/>
                     </SelectTrigger>
                     <SelectContent>
-                      {hackathons.map((curr) => <SelectItem key={curr} value={curr}>{curr}</SelectItem> )}
+                      {hackathons.map((curr) => <SelectItem key={curr.id} value={curr.id}>{curr.hackathonName}</SelectItem> )}
                     </SelectContent>
                   </Select>
                 </div>

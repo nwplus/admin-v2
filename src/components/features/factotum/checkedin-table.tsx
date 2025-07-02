@@ -6,26 +6,7 @@ import { CardContent, Card } from "@/components/ui/card";
 
 //example data, waiting until factotum rework
 const questions : ContestQuestion[] = [
-    {
-        username: "johnsmith",
-        email: "john@nwplus.io",
-        type: "Hacker",
-        firstname: "John",
-        lastname: "Smith",
-        preferredname: "John",
-        phonenumber: "111-111-1111"
-
-    },
-    {
-        username: "foobar",
-        email: "foo@nwplus.io",
-        type: "Mentor",
-        firstname: "Foo",
-        lastname: "Bar",
-        preferredname: "Foo",
-        phonenumber: "222-222-2222"
-
-    }
+    //blank data for now
 ]
 export default function CheckedInTable() {
     const [search, setSearch] = useState<string>("");   
