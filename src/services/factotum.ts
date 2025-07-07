@@ -62,7 +62,7 @@ async function updateConfig(ref: DocumentReference, path: string, value: string 
   try {
     await updateDoc(ref, { [path]: value });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 export const updateGeneralConfig = async (

@@ -83,6 +83,6 @@ export const deleteDiscordQuestion = async (server: string, questionId?: string)
       ),
     );
   } catch (err) {
-    console.log(err);
+    console.error(err)
   }
 };
