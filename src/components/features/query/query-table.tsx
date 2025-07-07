@@ -16,7 +16,6 @@ export function QueryTable() {
     tableData,
     selectedColumns,
     groupBySelection,
-    filterSelection,
     sorting,
     onSortingChange,
   } = useQuery();
@@ -42,43 +41,6 @@ export function QueryTable() {
     if (typeof value === "number") return value.toString();
     return String(value);
   };
-
-  /**
-   * Applies filter operators to selected columns.
-   */
-  const filteredData = useMemo(() => {
-    let filtered = [...tableData];
-
-    // filterSelection logic
-    if (
-      filterSelection?.filterColumn &&
-      filterSelection.filterCondition &&
-      filterSelection.filterValue !== undefined
-    ) {
-      const { filterColumn, filterCondition, filterValue } = filterSelection;
-      filtered = filtered.filter((row) => {
-        const value = row[filterColumn];
-        switch (filterCondition) {
-          case "matches":
-            return String(value).includes(filterValue);
-          case "does_not_match":
-            return !String(value).includes(filterValue);
-          case "equals":
-            return String(value) === filterValue;
-          case "not_equals":
-            return String(value) !== filterValue;
-          case "greater_than":
-            return value && value > filterValue;
-          case "less_than":
-            return value && value < filterValue;
-          default:
-            return true;
-        }
-      });
-    }
-
-    return filtered;
-  }, [tableData, filterSelection]);
 
   /**
    * Returns default column headers and values based on selected filters.
@@ -114,58 +76,13 @@ export function QueryTable() {
     );
   }, [selectedColumns, groupBySelection]);
 
-  /**
-   * Returns grouped data based on the groupBySelection.
-   */
-  const groupedData = useMemo(() => {
-    if (!groupBySelection) return filteredData;
-    const groups: Record<string, FlattenedApplicant[]> = {};
-    for (const row of filteredData) {
-      const key = String(row[groupBySelection.groupByColumn]);
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(row);
-    }
-    return Object.entries(groups).map(([key, rows]) => {
-      let aggValue: string | number | boolean | Date | null | Record<string, boolean> | undefined;
-      const values = rows
-        .map((r) => r[groupBySelection.aggregationColumn])
-        .filter((v) => v !== undefined && v !== null);
-      switch (groupBySelection.aggregationFunction) {
-        case "COUNT":
-          aggValue = values.length;
-          break;
-        case "SUM":
-          aggValue = (values as number[]).reduce((a, b) => (a as number) + (b as number), 0);
-          break;
-        case "AVERAGE":
-          aggValue = values.length
-            ? (values as number[]).reduce((a, b) => (a as number) + (b as number), 0) /
-              values.length
-            : 0;
-          break;
-        case "MIN":
-          aggValue = Math.min(...(values as number[]));
-          break;
-        case "MAX":
-          aggValue = Math.max(...(values as number[]));
-          break;
-        default:
-          aggValue = values.length;
-      }
-      return {
-        [groupBySelection.groupByColumn]: key,
-        [`${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`]: aggValue,
-      } as FlattenedApplicant;
-    });
-  }, [filteredData, groupBySelection]);
-
   return (
     <div className="w-full space-y-4 overflow-hidden">
       <div className="w-full overflow-x-auto">
         <div className="max-w-full">
           <DataTable
             columns={columns}
-            data={groupedData}
+            data={tableData}
             columnFilters={columnFilters}
             setColumnFilters={setColumnFilters}
             sorting={sorting}
