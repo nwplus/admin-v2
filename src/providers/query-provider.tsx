@@ -6,10 +6,7 @@ import type { FlattenedApplicant } from "@/services/query";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import { subscribeToApplicants, flattenApplicantData, calculateApplicantPoints } from "@/services/query";
 import type { Hackathon } from "@/lib/firebase/types";
-import type { FlattenedApplicant } from "@/services/query";
-import { flattenApplicantData, subscribeToApplicants } from "@/services/query";
-import type { SortingState } from "@tanstack/react-table";
-import { type ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
+
 
 /**
  * Represents all possible filter operators that can be applied to a feature column. 
