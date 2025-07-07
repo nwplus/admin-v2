@@ -56,6 +56,7 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     linkedin: applicant.skills?.linkedin || "",
     portfolio: applicant.skills?.portfolio || "",
     resume: applicant.skills?.resume || "",
+
     firstTimeHacker: applicant.skills?.numHackathonsAttended === 0 || false,
     
     // Engagement source
@@ -65,11 +66,13 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     ),
     friendEmail: applicant.questionnaire?.friendEmail || "",
     
+
     // Terms and conditions
     MLHCodeOfConduct: applicant.termsAndConditions?.MLHCodeOfConduct || false,
     nwPlusPrivacyPolicy: applicant.termsAndConditions?.nwPlusPrivacyPolicy || false,
     shareWithSponsors: applicant.termsAndConditions?.shareWithSponsors || false,
     shareWithnwPlus: applicant.termsAndConditions?.shareWithnwPlus || false,
+
     
     // Score info
     totalScore: applicant.score?.totalScore || 0,
@@ -85,8 +88,9 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     checkedIn: applicant.dayOf?.checkedIn || false,
     attendedEvents: applicant.dayOf?.events?.map((e: { eventName: string }) => e.eventName).join(', ') || '',
     points: 0,
+
   };
-  
+
   return flattened;
 };
 
@@ -136,6 +140,7 @@ export const getAvailableColumns = (): string[] => {
         other: false,
         preferNot: false,
       },
+
       dietaryRestriction: {
         celiacDisease: false,
         halal: false,
@@ -170,7 +175,7 @@ export const getAvailableColumns = (): string[] => {
         designer: false,
         productManager: false,
         other: false,
-      }
+      },
     },
     questionnaire: {
       engagementSource: "",
@@ -182,7 +187,7 @@ export const getAvailableColumns = (): string[] => {
       nwPlusPrivacyPolicy: false,
       shareWithSponsors: false,
       shareWithnwPlus: false,
-    }
+    },
   };
   
   const flattenedApplicant = flattenApplicantData(sampleApplicant);
@@ -246,6 +251,7 @@ export interface FlattenedApplicant {
   [key: string]: string | number | boolean | Date | null | Record<string, boolean> | undefined; // extra keys for group-by results
 }
 
+
 /**
  * Calculates all hackers' points from day-of events asynchronously
  * 
@@ -287,3 +293,4 @@ export const calculateApplicantPoints = async (
   
   return pointsMap;
 };
+

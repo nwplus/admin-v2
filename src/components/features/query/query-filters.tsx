@@ -10,9 +10,7 @@ interface QueryFiltersProps {
   availableColumns: string[];
 }
 
-export function QueryFilters({
-  availableColumns
-}: QueryFiltersProps) {
+export function QueryFilters({ availableColumns }: QueryFiltersProps) {
   const {
     selectedColumns,
     onColumnToggle,
@@ -27,17 +25,18 @@ export function QueryFilters({
   } = useQuery();
 
   const handleColumnsChange = (columns: string[]) => {
-    const columnsToAdd = columns.filter(col => !selectedColumns.includes(col));
-    const columnsToRemove = selectedColumns.filter(col => !columns.includes(col));
+    const columnsToAdd = columns.filter((col) => !selectedColumns.includes(col));
+    const columnsToRemove = selectedColumns.filter((col) => !columns.includes(col));
     for (const column of [...columnsToAdd, ...columnsToRemove]) {
       onColumnToggle(column);
     }
   };
 
-  const columnOptions = availableColumns.map(column => ({
+  const columnOptions = availableColumns.map((column) => ({
     label: column,
     value: column,
   }));
+
 
   const columns = applicants[0] ? Object.keys(applicants[0]) : [];
   
@@ -46,6 +45,7 @@ export function QueryFilters({
       columns.map(col => [col, typeof applicants[0]?.[col]])
     );
   }, [columns, applicants]);
+
 
   /**
    * Definitions to determine which columns are groupable and aggreagtable.
@@ -120,6 +120,7 @@ export function QueryFilters({
             onRemoveFilter={onFilterRemove}
             onFilterOperatorChange={onFilterOperatorChange}
           />
+          
         </div>
 
         <div className="flex flex-col gap-2">
@@ -127,13 +128,9 @@ export function QueryFilters({
             <ArrowUpDown className="h-4 w-4" />
             <span className="font-medium text-sm">Sort</span>
           </div>
-          <SortBy
-            columns={selectedColumns}
-            sorting={sorting}
-            setSorting={onSortingChange}
-          />
+          <SortBy columns={selectedColumns} sorting={sorting} setSorting={onSortingChange} />
         </div>
       </div>
     </div>
   );
-} 
+}

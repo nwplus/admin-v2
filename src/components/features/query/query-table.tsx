@@ -25,7 +25,7 @@ export function QueryTable() {
   }
 
   /**
-   * Format cell values for display. 
+   * Format cell values for display.
    * The applicant schema has changed over time -- some previously typed string values are now objects, which are handled here.
    */
   const formatCellValue = (value: unknown) => {
@@ -52,24 +52,27 @@ export function QueryTable() {
       return [
         columnHelper.accessor(groupBySelection.groupByColumn, {
           header: groupBySelection.groupByColumn,
-          cell: info => info.getValue(),
+          cell: (info) => info.getValue(),
         }),
-        columnHelper.accessor(`${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`, {
-          header: `${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`,
-          cell: info => info.getValue(),
-        }),
+        columnHelper.accessor(
+          `${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`,
+          {
+            header: `${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`,
+            cell: (info) => info.getValue(),
+          },
+        ),
       ];
     }
     return selectedColumns.map((columnName) =>
       columnHelper.accessor(columnName, {
         header: columnName,
-        cell: info => formatCellValue(info.getValue()),
+        cell: (info) => formatCellValue(info.getValue()),
         enableSorting: true,
         enableColumnFilter: true,
         size: 150,
         minSize: 120,
         maxSize: 300,
-      })
+      }),
     );
   }, [selectedColumns, groupBySelection]);
 

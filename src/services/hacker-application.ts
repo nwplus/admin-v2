@@ -6,7 +6,7 @@ import type {
 } from "@/lib/firebase/types";
 import {
   Timestamp,
-  collection, 
+  collection,
   doc,
   getDocs,
   onSnapshot,

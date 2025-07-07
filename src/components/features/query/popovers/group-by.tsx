@@ -1,19 +1,29 @@
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { X } from "lucide-react";
 
 interface GroupByProps {
   groupableColumns: string[];
   aggregatableColumnsMap: Record<string, string[]>;
-  onApply: (opts: { groupByColumn: string; aggregationFunction: string; aggregationColumn: string } | undefined) => void;
+  onApply: (
+    opts:
+      | { groupByColumn: string; aggregationFunction: string; aggregationColumn: string }
+      | undefined,
+  ) => void;
 }
 
 /**
- * Popover for grouping data based on a selected attribute and using this 
+ * Popover for grouping data based on a selected attribute and using this
  * to apply an aggregation function to another attribute.
- * 
+ *
  * Provides the onApply callback prop to the parent component to notify a new selection.
  */
 export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: GroupByProps) {
@@ -41,9 +51,11 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-full justify-between font-normal">
-          {groupByColumn
-            ? `Group by: ${groupByColumn}`
-            : <span className="text-muted-foreground">Select a column to group by...</span>}
+          {groupByColumn ? (
+            `Group by: ${groupByColumn}`
+          ) : (
+            <span className="text-muted-foreground">Select a column to group by...</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-fit">
@@ -53,18 +65,28 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
               <SelectValue placeholder="Group by column" />
             </SelectTrigger>
             <SelectContent>
-              {groupableColumns.map(col => (
-                <SelectItem key={col} value={col}>{col}</SelectItem>
+              {groupableColumns.map((col) => (
+                <SelectItem key={col} value={col}>
+                  {col}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select value={aggregationFunction} onValueChange={fn => { setAggregationFunction(fn); setAggregationColumn(""); }}>
+          <Select
+            value={aggregationFunction}
+            onValueChange={(fn) => {
+              setAggregationFunction(fn);
+              setAggregationColumn("");
+            }}
+          >
             <SelectTrigger className="min-w-[120px]">
               <SelectValue placeholder="Function" />
             </SelectTrigger>
             <SelectContent>
-              {aggregationOptions.map(fn => (
-                <SelectItem key={fn} value={fn}>{fn}</SelectItem>
+              {aggregationOptions.map((fn) => (
+                <SelectItem key={fn} value={fn}>
+                  {fn}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -73,16 +95,28 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
               <SelectValue placeholder="Aggregate column" />
             </SelectTrigger>
             <SelectContent>
-              {aggregationColumnOptions.map(col => (
-                <SelectItem key={col} value={col}>{col}</SelectItem>
+              {aggregationColumnOptions.map((col) => (
+                <SelectItem key={col} value={col}>
+                  {col}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <div className="flex items-center">
-            <Button size="icon" variant="ghost" onClick={handleClear} disabled={!groupByColumn && !aggregationFunction && !aggregationColumn}>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleClear}
+              disabled={!groupByColumn && !aggregationFunction && !aggregationColumn}
+            >
               <X className="h-4 w-4" />
             </Button>
-          <Button size="icon" variant="ghost" onClick={handleApply} disabled={!(groupByColumn && aggregationFunction && aggregationColumn)}>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleApply}
+              disabled={!(groupByColumn && aggregationFunction && aggregationColumn)}
+            >
               ✓
             </Button>
           </div>
@@ -90,4 +124,4 @@ export function GroupBy({ groupableColumns, aggregatableColumnsMap, onApply }: G
       </PopoverContent>
     </Popover>
   );
-} 
+}
