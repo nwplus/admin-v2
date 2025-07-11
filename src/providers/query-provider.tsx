@@ -236,7 +236,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
     const unsubscribe = subscribeToApplicants(selectedHackathon, async (applicants) => {
       try {
-        const flattenedApplicants = applicants.map(applicant => flattenApplicantData(applicant));
+        const flattenedApplicants = applicants.map(applicant => flattenApplicantData(applicant, selectedHackathon));
         setApplicants(flattenedApplicants);
         setIsLoading(false);
         
