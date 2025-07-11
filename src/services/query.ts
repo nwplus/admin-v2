@@ -25,7 +25,7 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
 
   const [, year] = hackathon ? splitHackathon(hackathon) : [undefined, undefined];
   const hackathonYear = year ? parseInt(year) : 2025;
-  const isLegacyFormat = hackathonYear < 2025;
+  const isLegacyFormat = hackathonYear < 2024 || hackathon == "nwHacks2024"; 
 
   const flattened: FlattenedApplicant = {
     // Basic Info
@@ -68,10 +68,12 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
     firstTimeHacker: applicant.skills?.numHackathonsAttended === 0 || false,
     
     // Engagement source
-    engagementSource: createStringFromSelection(
-      applicant.questionnaire?.engagementSource as Record<string, boolean> | undefined,
-      applicant.questionnaire?.otherEngagementSource || ''
-    ),
+    engagementSource: isLegacyFormat
+      ? (applicant.questionnaire?.engagementSource as string || '')
+      : createStringFromSelection(
+          applicant.questionnaire?.engagementSource as Record<string, boolean> | undefined,
+          applicant.questionnaire?.otherEngagementSource || ''
+        ),
     friendEmail: applicant.questionnaire?.friendEmail || "",
     
 
