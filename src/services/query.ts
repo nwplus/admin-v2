@@ -1,7 +1,7 @@
 import { db } from "@/lib/firebase/client";
 import type { Applicant, HackathonDayOf } from "@/lib/firebase/types";
 import { collection, onSnapshot, query, getDocs, doc } from "firebase/firestore";
-import { returnTrueKey, createStringFromSelection } from "@/lib/utils";
+import { returnTrueKey, createStringFromSelection, splitHackathon } from "@/lib/utils";
 
 /**
  * Utility function that returns Applicants collection realtime data for a specific hackathon
@@ -18,9 +18,15 @@ export const subscribeToApplicants = (hackathon: string, callback: (docs: Applic
 /**
  * Utility function to flatten applicant data for table display
  * @param applicant - The applicant object to flatten
+ * @param hackathon - The hackathon name to determine data format
  * @returns a flattened object with all properties at the top level
  */
-export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant => {
+export const flattenApplicantData = (applicant: Applicant, hackathon?: string): FlattenedApplicant => {
+
+  const [, year] = hackathon ? splitHackathon(hackathon) : [undefined, undefined];
+  const hackathonYear = year ? parseInt(year) : 2025;
+  const isLegacyFormat = hackathonYear < 2025;
+
   const flattened: FlattenedApplicant = {
     // Basic Info
     firstName: applicant.basicInfo?.legalFirstName || applicant.basicInfo?.firstName || "",
@@ -28,10 +34,12 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
     email: applicant.basicInfo?.email || "",
     phoneNumber: applicant.basicInfo?.phoneNumber || "",
     school: applicant.basicInfo?.school || "",
-    major: createStringFromSelection(
-      applicant.basicInfo?.major as Record<string, boolean> | undefined,
-      ''
-    ),
+    major: isLegacyFormat 
+      ? (applicant.basicInfo?.major as string || '')
+      : createStringFromSelection(
+          applicant.basicInfo?.major as Record<string, boolean> | undefined,
+          ''
+        ),
     educationLevel: applicant.basicInfo?.educationLevel || "",
     graduation: applicant.basicInfo?.graduation || "",
     gender: typeof applicant.basicInfo?.gender === 'string'
