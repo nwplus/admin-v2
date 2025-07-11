@@ -1,6 +1,7 @@
 import { db } from "@/lib/firebase/client";
-import type { Applicant } from "@/lib/firebase/types";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import type { Applicant, HackathonDayOf } from "@/lib/firebase/types";
+import { collection, onSnapshot, query, getDocs, doc } from "firebase/firestore";
+import { returnTrueKey, createStringFromSelection } from "@/lib/utils";
 
 /**
  * Utility function that returns Applicants collection realtime data for a specific hackathon
@@ -10,14 +11,8 @@ import { collection, onSnapshot, query } from "firebase/firestore";
  */
 export const subscribeToApplicants = (hackathon: string, callback: (docs: Applicant[]) => void) =>
   onSnapshot(query(collection(db, "Hackathons", hackathon, "Applicants")), (querySnapshot) => {
-    const applicants = [];
-    for (const doc of querySnapshot.docs) {
-      applicants.push({
-        ...(doc.data() as unknown as Applicant),
-        _id: doc.id,
-      });
-    }
-    callback(applicants);
+    const docs = querySnapshot.docs.map((doc) => ({ _id: doc.id, ...doc.data() } as Applicant));
+    callback(docs);
   });
 
 /**
@@ -27,73 +22,75 @@ export const subscribeToApplicants = (hackathon: string, callback: (docs: Applic
  */
 export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant => {
   const flattened: FlattenedApplicant = {
-    _id: applicant._id,
     // Basic Info
     firstName: applicant.basicInfo?.legalFirstName || applicant.basicInfo?.firstName || "",
     lastName: applicant.basicInfo?.legalLastName || applicant.basicInfo?.lastName || "",
     email: applicant.basicInfo?.email || "",
     phoneNumber: applicant.basicInfo?.phoneNumber || "",
     school: applicant.basicInfo?.school || "",
-    major: applicant.basicInfo?.major || "",
+    major: createStringFromSelection(
+      applicant.basicInfo?.major as Record<string, boolean> | undefined,
+      ''
+    ),
     educationLevel: applicant.basicInfo?.educationLevel || "",
     graduation: applicant.basicInfo?.graduation || "",
-    gender: applicant.basicInfo?.gender || "",
-    location: applicant.basicInfo?.location || "",
+    gender: typeof applicant.basicInfo?.gender === 'string'
+      ? applicant.basicInfo.gender
+      : createStringFromSelection(
+          applicant.basicInfo?.gender as Record<string, boolean> | undefined,
+          ''
+        ),
     isOfLegalAge: applicant.basicInfo?.isOfLegalAge || false,
+    culturalBackground: returnTrueKey(applicant.basicInfo?.ethnicity || applicant.basicInfo?.culturalBackground),
+    dietaryRestriction: createStringFromSelection(
+      applicant.basicInfo?.dietaryRestriction,
+      ''
+    ),
     
     // Application Status
     applicationStatus: applicant.status?.applicationStatus || "",
-    attending: applicant.status?.attending || false,
-    responded: applicant.status?.responded || false,
     
     // Skills
+    role: returnTrueKey(applicant.skills?.contributionRole),
     github: applicant.skills?.github || "",
     linkedin: applicant.skills?.linkedin || "",
     portfolio: applicant.skills?.portfolio || "",
     resume: applicant.skills?.resume || "",
-    numHackathonsAttended: applicant.skills?.numHackathonsAttended || 0,
+
+    firstTimeHacker: applicant.skills?.numHackathonsAttended === 0 || false,
     
-    // Contribution roles (flattened)
-    contributionDeveloper: applicant.skills?.contributionRole?.developer || false,
-    contributionDesigner: applicant.skills?.contributionRole?.designer || false,
-    contributionProductManager: applicant.skills?.contributionRole?.productManager || false,
-    contributionOther: applicant.skills?.contributionRole?.other || false,
-    
-    // Questionnaire
-    engagementSource: applicant.questionnaire?.engagementSource || "",
+    // Engagement source
+    engagementSource: createStringFromSelection(
+      applicant.questionnaire?.engagementSource as Record<string, boolean> | undefined,
+      applicant.questionnaire?.otherEngagementSource || ''
+    ),
     friendEmail: applicant.questionnaire?.friendEmail || "",
-    eventsAttended: Array.isArray(applicant.questionnaire?.eventsAttended) 
-      ? applicant.questionnaire?.eventsAttended.join(", ") 
-      : "",
     
+
     // Terms and conditions
     MLHCodeOfConduct: applicant.termsAndConditions?.MLHCodeOfConduct || false,
     nwPlusPrivacyPolicy: applicant.termsAndConditions?.nwPlusPrivacyPolicy || false,
     shareWithSponsors: applicant.termsAndConditions?.shareWithSponsors || false,
     shareWithnwPlus: applicant.termsAndConditions?.shareWithnwPlus || false,
-    
-    // Ethnicity (flattened)
-    ethnicityAsian: applicant.basicInfo?.ethnicity?.asian || false,
-    ethnicityBlack: applicant.basicInfo?.ethnicity?.black || false,
-    ethnicityCaucasian: applicant.basicInfo?.ethnicity?.caucasian || false,
-    ethnicityHispanic: applicant.basicInfo?.ethnicity?.hispanic || false,
-    ethnicityMiddleEastern: applicant.basicInfo?.ethnicity?.middleEastern || false,
-    ethnicityNativeHawaiian: applicant.basicInfo?.ethnicity?.nativeHawaiian || false,
-    ethnicityNorthAmerica: applicant.basicInfo?.ethnicity?.northAmerica || false,
-    ethnicityOther: applicant.basicInfo?.ethnicity?.other || false,
-    ethnicityPreferNot: applicant.basicInfo?.ethnicity?.preferNot || false,
+
     
     // Score info
     totalScore: applicant.score?.totalScore || 0,
     scoreComment: applicant.score?.comment || "",
-    scoreLastUpdated: applicant.score?.lastUpdated?.toDate?.() || null,
-    scoreLastUpdatedBy: applicant.score?.lastUpdatedBy || "",
     
-    // Submission info
-    submitted: applicant.submission?.submitted || false,
-    submissionLastUpdated: applicant.submission?.lastUpdated?.toDate?.() || null,
+    // Day-of info
+    day1Breakfast: applicant.dayOf?.day1?.breakfast?.length || 0,
+    day1Lunch: applicant.dayOf?.day1?.lunch?.length || 0,
+    day1Dinner: applicant.dayOf?.day1?.dinner?.length || 0,
+    day2Breakfast: applicant.dayOf?.day2?.breakfast?.length || 0,
+    day2Lunch: applicant.dayOf?.day2?.lunch?.length || 0,
+    day2Dinner: applicant.dayOf?.day2?.dinner?.length || 0,
+    checkedIn: applicant.dayOf?.checkedIn || false,
+    attendedEvents: applicant.dayOf?.events?.map((e: { eventName: string }) => e.eventName).join(', ') || '',
+    points: 0,
+
   };
-  
+
   return flattened;
 };
 
@@ -101,7 +98,7 @@ export const flattenApplicantData = (applicant: Applicant): FlattenedApplicant =
  * Get all available columns from the flattened applicant data
  * @returns array of column names
  */
-export const getAvailableColumns = () => {
+export const getAvailableColumns = (): string[] => {
   const sampleApplicant: Applicant = {
     _id: "sample",
     basicInfo: {
@@ -110,7 +107,23 @@ export const getAvailableColumns = () => {
       email: "",
       phoneNumber: "",
       school: "",
-      major: "",
+      major: {
+        arts: false,
+        business: false,
+        computerScience: false,
+        healthScience: false,
+        humanities: false,
+        informationTech: false,
+        mathOrStats: false,
+        naturalScience: false,
+        other: false,
+        otherEngineering: false,
+        preferNotToAnswer: false,
+        schoolDoesNotOfferMajors: false,
+        socialScience: false,
+        undecidedOrUndeclared: false,
+        webDevOrDesign: false,
+      },
       educationLevel: "computerScience",
       graduation: 2024,
       gender: "",
@@ -126,25 +139,43 @@ export const getAvailableColumns = () => {
         northAmerica: false,
         other: false,
         preferNot: false,
+      },
+
+      dietaryRestriction: {
+        celiacDisease: false,
+        halal: false,
+        kosher: false,
+        none: false,
+        other: false,
+        vegan: false,
+        vegetarian: false,
+      },
+      culturalBackground: {
+        asian: false,
+        black: false,
+        caucasian: false,
+        hispanic: false,
+        middleEastern: false,
+        nativeHawaiian: false,
+        northAmerica: false,
+        other: false,
+        preferNot: false,
       }
     },
     status: {
       applicationStatus: "inProgress",
-      attending: false,
-      responded: false,
     },
     skills: {
       github: "",
       linkedin: "",
       portfolio: "",
       resume: "",
-      numHackathonsAttended: 0,
       contributionRole: {
         developer: false,
         designer: false,
         productManager: false,
         other: false,
-      }
+      },
     },
     questionnaire: {
       engagementSource: "",
@@ -156,17 +187,18 @@ export const getAvailableColumns = () => {
       nwPlusPrivacyPolicy: false,
       shareWithSponsors: false,
       shareWithnwPlus: false,
-    }
+    },
   };
   
-  return Object.keys(flattenApplicantData(sampleApplicant));
+  const flattenedApplicant = flattenApplicantData(sampleApplicant);
+  return Object.keys(flattenedApplicant);
 };
 
 /**
  * Represents a flattened applicant object to display as table data in the query page
  */
 export interface FlattenedApplicant {
-  _id: string;
+  // Basic Info
   firstName: string;
   lastName: string;
   email: string;
@@ -175,42 +207,90 @@ export interface FlattenedApplicant {
   major: string;
   educationLevel: string;
   graduation: string | number;
-  gender: string | Record<string, boolean>;
-  location: string;
+  gender: string;
   isOfLegalAge: boolean;
+  culturalBackground: string;
+  dietaryRestriction: string;
+  
+  // Application Status
   applicationStatus: string;
-  attending: boolean;
-  responded: boolean;
+  
+  // Skills
+  role: string;
   github: string;
   linkedin: string;
   portfolio: string;
   resume: string;
-  numHackathonsAttended: number;
-  contributionDeveloper: boolean;
-  contributionDesigner: boolean;
-  contributionProductManager: boolean;
-  contributionOther: boolean;
-  engagementSource: string | Record<string, boolean>;
+  firstTimeHacker: boolean;
+  
+  // Questionnaire
+  engagementSource: string;
   friendEmail: string;
-  eventsAttended: string;
+  
+  // Terms and conditions
   MLHCodeOfConduct: boolean;
   nwPlusPrivacyPolicy: boolean;
   shareWithSponsors: boolean;
   shareWithnwPlus: boolean;
-  ethnicityAsian: boolean;
-  ethnicityBlack: boolean;
-  ethnicityCaucasian: boolean;
-  ethnicityHispanic: boolean;
-  ethnicityMiddleEastern: boolean;
-  ethnicityNativeHawaiian: boolean;
-  ethnicityNorthAmerica: boolean;
-  ethnicityOther: boolean;
-  ethnicityPreferNot: boolean;
+  
+  // Score info
   totalScore: number;
   scoreComment: string;
-  scoreLastUpdated: Date | null;
-  scoreLastUpdatedBy: string;
-  submitted: boolean;
-  submissionLastUpdated: Date | null;
+  
+  // Day-of info
+  day1Breakfast: number;
+  day1Lunch: number;
+  day1Dinner: number;
+  day2Breakfast: number;
+  day2Lunch: number;
+  day2Dinner: number;
+  checkedIn: boolean;
+  attendedEvents: string;
+  points: number;
+  
   [key: string]: string | number | boolean | Date | null | Record<string, boolean> | undefined; // extra keys for group-by results
 }
+
+
+/**
+ * Calculates all hackers' points from day-of events asynchronously
+ * 
+ * @param applicants - array of unflattened applicant data
+ * @param hackathon - hackathon ID
+ * @returns Promise that resolves to a map of applicant email : points
+ */
+export const calculateApplicantPoints = async (
+  applicants: Applicant[], 
+  hackathon: string
+): Promise<Record<string, number>> => {
+  const pointsMap: Record<string, number> = {};
+  
+  try {
+    const dayOfSnapshot = await getDocs(collection(db, "Hackathons", hackathon, "DayOf"));
+    const allEvents = dayOfSnapshot.docs.map(doc => ({ 
+      id: doc.id, 
+      ...doc.data() 
+    } as HackathonDayOf));
+    
+    for (const applicant of applicants) {
+      let points = 0;
+      
+      if (applicant.dayOf?.events && applicant.dayOf.events.length > 0) {
+        points = applicant.dayOf.events.reduce((acc, attendedEvent) => {
+          const eventDoc = allEvents.find(event => event.eventID === attendedEvent.eventId);
+          return acc + Number(eventDoc?.points ?? 0);
+        }, 0);
+      }
+      
+      pointsMap[applicant.basicInfo?.email || ''] = points;
+    }
+  } catch (error) {
+    console.error('Error calculating applicant points:', error);
+    for (const applicant of applicants) {
+      pointsMap[applicant.basicInfo?.email || ''] = 0;
+    }
+  }
+  
+  return pointsMap;
+};
+

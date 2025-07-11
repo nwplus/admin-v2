@@ -15,8 +15,8 @@ export interface ApplicantContextType {
 export const ApplicantContext = createContext<ApplicantContextType | null>(null);
 
 /**
- * Maintains state of applicant data based on the selected hackathon. 
- * 
+ * Maintains state of applicant data based on the selected hackathon.
+ *
  * Primarily used in the query page.
  */
 export function ApplicantProvider({ children }: { children: ReactNode }) {
@@ -68,4 +68,4 @@ export const useApplicant = () => {
     throw new Error("useApplicant must be used within an ApplicantProvider");
   }
   return context;
-}; 
+};
