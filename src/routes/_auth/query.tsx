@@ -9,6 +9,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Raffle } from "@/components/features/query/raffle";
 import { ExportQuery } from "@/components/features/query/export";
 import { HackathonSelector } from "@/components/features/query/hackathon-selector";
+import { SavedQueries } from "@/components/features/query/saved-queries";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_auth/query")({
@@ -28,9 +29,11 @@ function QueryPage() {
               <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
                 <HackathonSelector />
                 <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
-                  <Button variant="outline">
-                    Saved Queries
-                  </Button>
+                  <SavedQueries>
+                    <Button variant="outline">
+                      Saved Queries
+                    </Button>
+                  </SavedQueries>
                   <ExportQuery />
                   <Raffle />
                 </div>
