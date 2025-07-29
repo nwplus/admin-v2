@@ -6,8 +6,7 @@ import { QueryTable } from "@/components/features/query/query-table";
 import { getAvailableColumns } from "@/services/query";
 import { QueryProvider } from "@/providers/query-provider";
 import { createFileRoute } from "@tanstack/react-router";
-import { Raffle } from "@/components/features/query/raffle";
-import { ExportQuery } from "@/components/features/query/export";
+import { QueryActions } from "@/components/features/query/query-actions";
 import { HackathonSelector } from "@/components/features/query/hackathon-selector";
 import { SavedQueries } from "@/components/features/query/saved-queries";
 import { Button } from "@/components/ui/button";
@@ -34,8 +33,7 @@ function QueryPage() {
                       Saved Queries
                     </Button>
                   </SavedQueries>
-                  <ExportQuery />
-                  <Raffle />
+                  <QueryActions />
                 </div>
               </div>
 
