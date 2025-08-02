@@ -100,13 +100,15 @@ export function QueryActions() {
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuTrigger asChild>
-                <button className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 transition-colors cursor-pointer focus:outline-none">
+                <button 
+                  type="button"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-100 focus:outline-none">
                   <MoreVertical className="h-5 w-5 text-gray-600" />
                   <span className="sr-only">More actions</span>
                 </button>
               </DropdownMenuTrigger>
             </TooltipTrigger>
-            <TooltipContent className="bg-gray-900 text-white border-gray-800">
+            <TooltipContent className="border-gray-800 bg-gray-900 text-white">
               <p>Actions</p>
             </TooltipContent>
           </Tooltip>

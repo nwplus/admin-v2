@@ -85,7 +85,7 @@ function parseQueryToString(query: FirebaseQuery): string {
   if (query.filterSelections.length > 0) {
     const whereConditions = query.filterSelections.map((filter, index) => {
       const operator = getFilterOperatorSymbol(filter.filterCondition);
-      const value = isNaN(Number(filter.filterValue)) 
+      const value = Number.isNaN(Number(filter.filterValue)) 
         ? `'${filter.filterValue}'` 
         : filter.filterValue;
       
@@ -200,11 +200,15 @@ export function SavedQueries({ children }: SavedQueriesProps) {
 
   const handleApplyQuery = useCallback(async (query: FirebaseQuery) => {
     try {
-      filterSelections.forEach(filter => onFilterRemove(filter.id));
+      for (const filter of filterSelections) {
+        onFilterRemove(filter.id);
+      }
       onGroupByChange(undefined);
       onSortingChange([]);
       
-      query.filterSelections.forEach(filter => onFilterAdd(filter));
+      for (const filter of query.filterSelections) {
+        onFilterAdd(filter);
+      }
       if (query.groupBySelection) {
         onGroupByChange(query.groupBySelection);
       }
@@ -213,24 +217,24 @@ export function SavedQueries({ children }: SavedQueriesProps) {
       const currentColumns = new Set(selectedColumns);
       const targetColumns = new Set(query.selectedColumns);
       
-      selectedColumns.forEach(col => {
+      for (const col of selectedColumns) {
         if (!targetColumns.has(col)) {
           onColumnToggle(col);
         }
-      });
+      }
       
-      query.selectedColumns.forEach(col => {
+      for (const col of query.selectedColumns) {
         if (!currentColumns.has(col)) {
           onColumnToggle(col);
         }
-      });
+      }
       
       setOpen(false);
       toast.success(`Applied query: ${query.description}`);
     } catch (error) {
       toast.error("Failed to apply query");
     }
-  }, [filterSelections, onFilterRemove, onGroupByChange, onSortingChange, selectedColumns, onColumnToggle]);
+  }, [filterSelections, onFilterRemove, onGroupByChange, onSortingChange, selectedColumns, onColumnToggle, onFilterAdd]);
 
   const handleSaveCurrentQuery = async () => {
     const validationErrors = validateSaveForm(saveForm);
@@ -246,7 +250,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0);
 
-      const queryToSave: any = {
+      const queryToSave: Omit<FirebaseQuery, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'> = {
         description: saveForm.description.trim(),
         selectedColumns,
         filterSelections,
@@ -318,7 +322,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-h-[90vh] max-w-5xl overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BookmarkIcon className="h-5 w-5" />
@@ -332,7 +336,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
         <Tabs
           value={selectedTab}
           onValueChange={(value) => setSelectedTab(value as TabValue)}
-          className="flex-1 overflow-hidden justify-start"
+          className="flex-1 justify-start overflow-hidden"
         >
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value={TABS.BROWSE}>Browse Queries</TabsTrigger>
@@ -340,10 +344,10 @@ export function SavedQueries({ children }: SavedQueriesProps) {
           </TabsList>
           
           <TabsContent value={TABS.BROWSE} className="h-full flex-1">
-            <div className="space-y-4 h-auto">
+            <div className="h-auto space-y-4">
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <SearchIcon className="-translate-y-1/2 absolute top-1/2 left-3 h-4 w-4 transform text-muted-foreground" />
                   <Input
                     placeholder="Search queries by description or tags..."
                     value={searchTerm}
@@ -354,18 +358,18 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                 </div>
               </div>
 
-              <div className="overflow-y-auto max-h-full space-y-3">
+              <div className="max-h-full space-y-3 overflow-y-auto">
                 {isLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <Loading />
                   </div>
                 ) : filteredQueries.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="py-8 text-center text-muted-foreground">
                     {searchTerm ? "No queries match your search" : "No saved queries yet"}
                   </div>
                 ) : (
                   filteredQueries.map((query) => (
-                    <Card key={query.id} className="cursor-pointer hover:bg-accent/50 transition-colors">
+                    <Card key={query.id} className="cursor-pointer transition-colors hover:bg-accent/50">
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <CardTitle className="text-base">{query.description}</CardTitle>
@@ -400,13 +404,13 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                         </CardDescription>
                       </CardHeader>
                       
-                      <CardContent className="pb-3 space-y-3">
+                      <CardContent className="space-y-3 pb-3">
                         <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-sm font-medium">
+                          <div className="flex items-center gap-2 font-medium text-sm">
                             <CodeIcon className="h-3 w-3" />
                             Query Preview
                           </div>
-                          <div className="bg-muted rounded-md p-3 text-xs font-mono overflow-x-auto">
+                          <div className="overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs">
                             <pre className="whitespace-pre-wrap text-muted-foreground">
                               {parseQueryToString(query)}
                             </pre>
@@ -416,7 +420,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                         {query.tags && query.tags.length > 0 && (
                           <div className="flex items-center gap-1">
                             <TagIcon className="h-3 w-3 text-muted-foreground" />
-                            <div className="flex gap-1 flex-wrap">
+                            <div className="flex flex-wrap gap-1">
                               {query.tags.map((tag) => (
                                 <Badge key={tag} variant="outline" className="text-xs">
                                   {tag}
@@ -445,13 +449,13 @@ export function SavedQueries({ children }: SavedQueriesProps) {
 
           <TabsContent value={TABS.CREATE} className="space-y-4 overflow-y-auto">
               {!hasCurrentQueryData ? (
-                <div className="text-center mt-4 py-8 text-muted-foreground">
+                <div className="mt-4 py-8 text-center text-muted-foreground">
                   <p>No query configuration to save.</p>
                   <p className="text-sm">Set up some filters, select columns, or configure sorting first.</p>
                 </div>
               ) : (
                 <>
-                  <div className="space-y-4 mb-6 mt-4">
+                  <div className="mt-4 mb-6 space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="description">Description *</Label>
                       <Input
@@ -482,12 +486,12 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                     </div>
                   </div>
 
-                  <div className="space-y-4 mb-6">
-                    <div className="flex items-center gap-2 text-sm font-medium">
+                  <div className="mb-6 space-y-4">
+                    <div className="flex items-center gap-2 font-medium text-sm">
                       <CodeIcon className="h-4 w-4" />
                       Current Query Preview
                     </div>
-                    <div className="bg-muted rounded-md p-4 text-sm font-mono overflow-x-auto max-h-[140px]">
+                    <div className="max-h-[140px] overflow-x-auto rounded-md bg-muted p-4 font-mono text-sm">
                       <pre className="whitespace-pre-wrap text-muted-foreground">
                         {getCurrentQueryString()}
                       </pre>
@@ -508,7 +512,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                       </>
                     ) : (
                       <>
-                        <PlusIcon className="h-4 w-4 mr-2" />
+                        <PlusIcon className="mr-2 h-4 w-4" />
                         Save Current Query
                       </>
                     )}

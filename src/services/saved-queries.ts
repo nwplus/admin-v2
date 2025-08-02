@@ -155,14 +155,18 @@ export const upsertSavedQuery = async (savedQuery: Omit<FirebaseQuery, 'id' | 'c
     }
 
     const now = Timestamp.now();
-    const record = {
+    const record: {
+      updatedAt: Timestamp;
+      createdBy: string;
+      createdAt?: Timestamp;
+    } = {
       updatedAt: now,
       createdBy: currentUser.email,
     };
 
     const isNewDocument = !id;
     if (isNewDocument) {
-      (record as any).createdAt = now;
+      record.createdAt = now;
     }
 
     const queryId = id || doc(queriesCollection()).id;
@@ -256,16 +260,13 @@ export const duplicateSavedQuery = async (queryId: string, newDescription?: stri
       throw new Error("Query not found");
     }
 
+    const { id, createdAt, updatedAt, createdBy, ...queryData } = originalQuery;
+    
     const duplicatedQuery = {
-      ...originalQuery,
+      ...queryData,
       description: newDescription || `Copy of ${originalQuery.description}`,
       isPublic: false, 
     };
-
-    delete (duplicatedQuery as any).id;
-    delete (duplicatedQuery as any).createdAt;
-    delete (duplicatedQuery as any).updatedAt;
-    delete (duplicatedQuery as any).createdBy;
 
     return await upsertSavedQuery(duplicatedQuery);
   } catch (error) {
