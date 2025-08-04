@@ -30,7 +30,7 @@ function RouteComponent() {
         <TabsContent value="judging" className="mt-6">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold">Judging</h2>
-            <p className="text-muted-foreground">Coming soon!</p>
+            <p className="text-muted-foreground">Coming soon! (´･ω･`)</p>
           </div>
         </TabsContent>
       </Tabs>
