@@ -8,6 +8,7 @@ import {
   FileText,
   HelpCircle,
   type LucideIcon,
+  Monitor,
   Search,
   Star,
   Users,
@@ -37,6 +38,11 @@ export type NavigationGroup = {
 const NAVIGATION: NavigationGroup[] = [
   {
     content: [
+      {
+        label: "Livesite",
+        href: "/livesite",
+        icon: Monitor,
+      },
       {
         label: "FAQ",
         href: "/faq",

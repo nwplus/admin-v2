@@ -15,6 +15,7 @@ import { Route as SigninImport } from './routes/signin'
 import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexImport } from './routes/_auth/index'
 import { Route as AuthQueryImport } from './routes/_auth/query'
+import { Route as AuthLivesiteImport } from './routes/_auth/livesite'
 import { Route as AuthFaqImport } from './routes/_auth/faq'
 import { Route as AuthFactotumImport } from './routes/_auth/factotum'
 import { Route as AuthEvaluatorImport } from './routes/_auth/evaluator'
@@ -47,6 +48,12 @@ const AuthIndexRoute = AuthIndexImport.update({
 const AuthQueryRoute = AuthQueryImport.update({
   id: '/query',
   path: '/query',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthLivesiteRoute = AuthLivesiteImport.update({
+  id: '/livesite',
+  path: '/livesite',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -149,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthFaqImport
       parentRoute: typeof AuthRouteImport
     }
+    '/_auth/livesite': {
+      id: '/_auth/livesite'
+      path: '/livesite'
+      fullPath: '/livesite'
+      preLoaderRoute: typeof AuthLivesiteImport
+      parentRoute: typeof AuthRouteImport
+    }
     '/_auth/query': {
       id: '/_auth/query'
       path: '/query'
@@ -240,6 +254,7 @@ interface AuthRouteRouteChildren {
   AuthEvaluatorRoute: typeof AuthEvaluatorRoute
   AuthFactotumRoute: typeof AuthFactotumRoute
   AuthFaqRoute: typeof AuthFaqRoute
+  AuthLivesiteRoute: typeof AuthLivesiteRoute
   AuthQueryRoute: typeof AuthQueryRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthHackathonsHackathonIdRouteRoute: typeof AuthHackathonsHackathonIdRouteRouteWithChildren
@@ -249,6 +264,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthEvaluatorRoute: AuthEvaluatorRoute,
   AuthFactotumRoute: AuthFactotumRoute,
   AuthFaqRoute: AuthFaqRoute,
+  AuthLivesiteRoute: AuthLivesiteRoute,
   AuthQueryRoute: AuthQueryRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthHackathonsHackathonIdRouteRoute:
@@ -265,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/evaluator': typeof AuthEvaluatorRoute
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
+  '/livesite': typeof AuthLivesiteRoute
   '/query': typeof AuthQueryRoute
   '/': typeof AuthIndexRoute
   '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
@@ -280,6 +297,7 @@ export interface FileRoutesByTo {
   '/evaluator': typeof AuthEvaluatorRoute
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
+  '/livesite': typeof AuthLivesiteRoute
   '/query': typeof AuthQueryRoute
   '/': typeof AuthIndexRoute
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
@@ -296,6 +314,7 @@ export interface FileRoutesById {
   '/_auth/evaluator': typeof AuthEvaluatorRoute
   '/_auth/factotum': typeof AuthFactotumRoute
   '/_auth/faq': typeof AuthFaqRoute
+  '/_auth/livesite': typeof AuthLivesiteRoute
   '/_auth/query': typeof AuthQueryRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
@@ -314,6 +333,7 @@ export interface FileRouteTypes {
     | '/evaluator'
     | '/factotum'
     | '/faq'
+    | '/livesite'
     | '/query'
     | '/'
     | '/hackathons/$hackathonId'
@@ -328,6 +348,7 @@ export interface FileRouteTypes {
     | '/evaluator'
     | '/factotum'
     | '/faq'
+    | '/livesite'
     | '/query'
     | '/'
     | '/hackathons/$hackathonId/application'
@@ -342,6 +363,7 @@ export interface FileRouteTypes {
     | '/_auth/evaluator'
     | '/_auth/factotum'
     | '/_auth/faq'
+    | '/_auth/livesite'
     | '/_auth/query'
     | '/_auth/'
     | '/_auth/hackathons/$hackathonId'
@@ -383,6 +405,7 @@ export const routeTree = rootRoute
         "/_auth/evaluator",
         "/_auth/factotum",
         "/_auth/faq",
+        "/_auth/livesite",
         "/_auth/query",
         "/_auth/",
         "/_auth/hackathons/$hackathonId"
@@ -401,6 +424,10 @@ export const routeTree = rootRoute
     },
     "/_auth/faq": {
       "filePath": "_auth/faq.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/livesite": {
+      "filePath": "_auth/livesite.tsx",
       "parent": "/_auth"
     },
     "/_auth/query": {
