@@ -10,7 +10,7 @@ export const Route = createFileRoute('/_auth/livesite')({
 function RouteComponent() {
   return (
     <div className="flex w-full flex-col gap-3">
-      <h1 className="text-3xl font-bold">Livesite</h1>
+      <h1 className="font-bold text-3xl">Livesite</h1>
       
       <Tabs defaultValue="settings" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
@@ -29,7 +29,7 @@ function RouteComponent() {
         
         <TabsContent value="judging" className="mt-6">
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Judging</h2>
+            <h2 className="font-semibold text-xl">Judging</h2>
             <p className="text-muted-foreground">Coming soon! (´･ω･`)</p>
           </div>
         </TabsContent>

@@ -38,7 +38,7 @@ export function LivesiteSchedule() {
   if (!activeHackathon) {
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Schedule</h2>
+        <h2 className="font-semibold text-xl">Schedule</h2>
         <p className="text-muted-foreground">
           No active hackathon set. Please configure an active hackathon in settings.
         </p>
@@ -49,8 +49,8 @@ export function LivesiteSchedule() {
   return (
     <div className="space-y-4">
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="text-xl font-semibold">Schedule</h2>
-        <span className="text-sm text-muted-foreground px-4">{activeHackathon}</span>
+        <h2 className="font-semibold text-xl">Schedule</h2>
+        <span className="px-4 text-muted-foreground text-sm">{activeHackathon}</span>
       </div>
       <HackathonProvider activeHackathon={activeHackathon}>
         <ScheduleCard events={events} />

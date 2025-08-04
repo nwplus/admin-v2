@@ -28,7 +28,7 @@ export function LivesiteSettings() {
     return () => unsubscribe()
   }, [])
 
-  const formatTimestamp = (timestamp?: any) => {
+  const formatTimestamp = (timestamp?: { seconds?: number } | null) => {
     if (!timestamp) return 'Not set'
     if (timestamp.seconds) {
       return new Date(timestamp.seconds * 1000).toLocaleString()
@@ -43,7 +43,7 @@ export function LivesiteSettings() {
     if (!isoString) return ''
     try {
       const date = new Date(isoString)
-      if (isNaN(date.getTime())) return ''
+      if (Number.isNaN(date.getTime())) return ''
       return date.toISOString().slice(0, 16)
     } catch {
       return ''
@@ -89,13 +89,14 @@ export function LivesiteSettings() {
   const handleInputChange = (field: keyof LivesiteSettingsType, value: string | boolean) => {
     if (!editedSettings) return
     
+    let processedValue = value
     if (typeof value === 'string' && ['hackathonStart', 'hackathonEnd', 'hackingStart', 'hackingEnd'].includes(field)) {
-      value = fromDateTimeLocal(value)
+      processedValue = fromDateTimeLocal(value)
     }
     
     setEditedSettings({
       ...editedSettings,
-      [field]: value
+      [field]: processedValue
     })
   }
 
@@ -103,8 +104,8 @@ export function LivesiteSettings() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Livesite Settings</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-xl">Livesite Settings</h2>
         <div className="flex gap-2">
           {isEditing ? (
             <>
@@ -127,7 +128,7 @@ export function LivesiteSettings() {
       </div>
       
       {livesiteSettings && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Last edited by {livesiteSettings.lastEditedBy || 'Unknown'} on {formatTimestamp(livesiteSettings.lastEdited)}
         </p>
       )}
@@ -137,10 +138,10 @@ export function LivesiteSettings() {
       ) : !currentSettings ? (
         <p className="text-muted-foreground">No livesite settings found.</p>
       ) : (
-        <div className="border rounded-lg p-6">
-          <div className="flex gap-8 pb-8 border-b">
+        <div className="rounded-lg border p-6">
+          <div className="flex gap-8 border-b pb-8">
             <div className="w-48 flex-shrink-0">
-              <h3 className="text-lg font-semibold">General Information</h3>
+              <h3 className="font-semibold text-lg">General Information</h3>
             </div>
             <div className="flex-1 space-y-4">
               <div className="space-y-2">
@@ -176,9 +177,9 @@ export function LivesiteSettings() {
             </div>
           </div>
 
-          <div className="flex gap-8 py-8 border-b">
+          <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
-              <h3 className="text-lg font-semibold">Hacker Application Status</h3>
+              <h3 className="font-semibold text-lg">Hacker Application Status</h3>
             </div>
             <div className="flex-1 space-y-4">
               <div className="flex items-center justify-between">
@@ -233,9 +234,9 @@ export function LivesiteSettings() {
             </div>
           </div>
 
-          <div className="flex gap-8 py-8 border-b">
+          <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
-              <h3 className="text-lg font-semibold">Event Timeline</h3>
+              <h3 className="font-semibold text-lg">Event Timeline</h3>
             </div>
             <div className="flex-1 space-y-4">
               <div className="space-y-2">
@@ -288,8 +289,8 @@ export function LivesiteSettings() {
           <div className="flex gap-8 pt-8">
             <div className="w-48 flex-shrink-0">
               <div>
-                <h3 className="text-lg font-semibold">Judging & Submissions</h3>
-                <p className="text-sm text-muted-foreground mt-1">(Peer) judging is currently only supported for Hackcamp</p>
+                <h3 className="font-semibold text-lg">Judging & Submissions</h3>
+                <p className="mt-1 text-muted-foreground text-sm">(Peer) judging is currently only supported for Hackcamp</p>
               </div>
             </div>
             <div className="flex-1 space-y-4">
