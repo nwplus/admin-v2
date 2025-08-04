@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { LivesiteSettings } from '@/components/features/livesite/livesite-settings'
+import { LivesiteSchedule } from '@/components/features/livesite/livesite-schedule'
 
 export const Route = createFileRoute('/_auth/livesite')({
   component: RouteComponent,
@@ -23,10 +24,7 @@ function RouteComponent() {
         </TabsContent>
         
         <TabsContent value="schedule" className="mt-6">
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Schedule</h2>
-            <p className="text-muted-foreground">blablabla</p>
-          </div>
+          <LivesiteSchedule />
         </TabsContent>
         
         <TabsContent value="judging" className="mt-6">
