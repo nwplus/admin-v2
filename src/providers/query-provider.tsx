@@ -5,45 +5,14 @@ import type { SortingState } from "@tanstack/react-table";
 import type { FlattenedApplicant } from "@/services/query";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import { subscribeToApplicants, flattenApplicantData, calculateApplicantPoints } from "@/services/query";
-import type { Hackathon } from "@/lib/firebase/types";
-
-
-/**
- * Represents all possible filter operators that can be applied to a feature column. 
- */
-type FilterCondition = "matches" | "does_not_match" | "equals" | "not_equals" | "greater_than" | "less_than";
-
-/**
- * Represents all possible aggregation functions that can be applied to feature columns.
- */
-type AggregationFunction = "COUNT" | "SUM" | "AVERAGE" | "MIN" | "MAX";
-
-/**
- * Represents all possible value types that can exist in applicant data fields for type safety.
- */
-export type ApplicantFieldValue = string | number | boolean | Date | null | Record<string, boolean> | undefined;
-
-/**
- * Users can group by a column and apply an aggregation function to another column.
- * This interface represents these three selections.
- */
-export interface GroupBySelection {
-  groupByColumn: string;
-  aggregationFunction: string;
-  aggregationColumn: string;
-}
-
-/**
- * Users can filter the data based on a column and a condition.
- * This interface represents this selection.
- */
-export interface FilterRowsSelection {
-  id: string;
-  filterColumn: string;
-  filterCondition: string;
-  filterValue: string;
-  logicalOperator?: 'AND' | 'OR'; // To connect with the next condition 
-}
+import type { 
+  Hackathon, 
+  FilterCondition, 
+  AggregationFunction, 
+  ApplicantFieldValue, 
+  GroupBySelection, 
+  FilterRowsSelection 
+} from "@/lib/firebase/types";
 
 /**
  * Evaluates whether a single applicant field value satisfies a given filter condition.

@@ -1,4 +1,5 @@
 import type { Timestamp } from "firebase/firestore";
+import type { SortingState } from "@tanstack/react-table";
 
 export type ApplicantMajor =
   | "computerScience"
@@ -395,6 +396,7 @@ export interface DevConfig {
   VerificationConfig?: VerificationConfig;
   TicketsConfig?: TicketsConfig;
 }
+
 export interface ContestQuestion {
   username: string;
   email: string;
@@ -403,4 +405,55 @@ export interface ContestQuestion {
   lastname: string;
   preferredname: string;
   phonenumber: string;
+}
+
+/** QUERY TYPES */
+export interface FirebaseQuery {
+  id: string;
+  description?: string;
+  selectedColumns: string[];
+  filterSelections: FilterRowsSelection[];
+  groupBySelection?: GroupBySelection;
+  sorting: SortingState;
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+  isPublic: boolean;
+  tags?: string[];
+}
+
+export type FilterCondition = "matches" | "does_not_match" | "equals" | "not_equals" | "greater_than" | "less_than";
+
+export type AggregationFunction = "COUNT" | "SUM" | "AVERAGE" | "MIN" | "MAX";
+
+export type ApplicantFieldValue = string | number | boolean | Date | null | Record<string, boolean> | undefined;
+
+export interface GroupBySelection {
+  groupByColumn: string;
+  aggregationFunction: string;
+  aggregationColumn: string;
+}
+
+export interface FilterRowsSelection {
+  id: string;
+  filterColumn: string;
+  filterCondition: string;
+  filterValue: string;
+  logicalOperator?: 'AND' | 'OR';
+}
+
+export interface SavedQueryCategory {
+  id: string;
+  name: string;
+  description?: string;
+  queries: FirebaseQuery[];
+}
+
+export interface QueryTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  query: Partial<FirebaseQuery>;
+  isSystemTemplate: boolean;
 }

@@ -2,6 +2,7 @@ import { Loading } from "@/components/ui/loading";
 import { checkAdminClaim } from "@/lib/firebase/auth";
 import { auth } from "@/lib/firebase/client";
 import type { User } from "firebase/auth";
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
 export interface AuthContextType {
@@ -15,6 +16,7 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const setAdmin = httpsCallable<void, { isAdmin: boolean }>(getFunctions(), "setAdmin");
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
@@ -26,7 +28,13 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
         const isAdmin = await checkAdminClaim(currentUser);
         if (!isAdmin) {
           // User does not have requisite permissions
-          setUser(null);
+          const result = await setAdmin();
+          if (result.data.isAdmin) {
+            await currentUser.getIdToken(true);
+            setUser(currentUser);
+          } else {
+            setUser(null);
+          }
         } else {
           // User is authorized
           setUser(currentUser);
@@ -36,7 +44,7 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [setAdmin]);
 
   const value = {
     isAuthenticated: !!user,
