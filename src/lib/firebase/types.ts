@@ -432,7 +432,8 @@ export interface LivesiteSettings {
   rsvpBy?: string;
   sendAcceptancesBy?: string;
   submissionsOpen?: boolean;
-=======
+}
+
 /** QUERY TYPES */
 export interface FirebaseQuery {
   id: string;
