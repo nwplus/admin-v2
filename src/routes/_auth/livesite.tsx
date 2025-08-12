@@ -15,7 +15,7 @@ function RouteComponent() {
       <h1 className="font-bold text-3xl">Livesite</h1>
       <Alert>
         <AlertDescription>
-            <p className="flex items-center"><Info className="h-4 w-4 inline mr-2" />This page is used to manage content and feature flags for the currently live hackathon, which will be displayed on Portal and the nwPlus website.</p>
+            <p className="flex items-center"><Info className="mr-2 inline h-4 w-4" />This page is used to manage content and feature flags for the currently live hackathon, which will be displayed on Portal and the nwPlus website.</p>
         </AlertDescription>
       </Alert>
       
