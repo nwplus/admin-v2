@@ -2,6 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { LivesiteSettings } from '@/components/features/livesite/livesite-settings'
 import { LivesiteSchedule } from '@/components/features/livesite/livesite-schedule'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Info } from 'lucide-react'
 
 export const Route = createFileRoute('/_auth/livesite')({
   component: RouteComponent,
@@ -11,6 +13,11 @@ function RouteComponent() {
   return (
     <div className="flex w-full flex-col gap-3">
       <h1 className="font-bold text-3xl">Livesite</h1>
+      <Alert>
+        <AlertDescription>
+            <p className="flex items-center"><Info className="h-4 w-4 inline mr-2" />This page is used to manage content and feature flags for the currently live hackathon, which will be displayed on Portal and the nwPlus website.</p>
+        </AlertDescription>
+      </Alert>
       
       <Tabs defaultValue="settings" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
