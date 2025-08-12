@@ -24,8 +24,8 @@ export const subscribeToApplicants = (hackathon: string, callback: (docs: Applic
 export const flattenApplicantData = (applicant: Applicant, hackathon?: string): FlattenedApplicant => {
 
   const [, year] = hackathon ? splitHackathon(hackathon) : [undefined, undefined];
-  const hackathonYear = year ? parseInt(year) : 2025;
-  const isLegacyFormat = hackathonYear < 2024 || hackathon == "nwHacks2024"; 
+  const hackathonYear = year ? Number.parseInt(year) : 2025;
+  const isLegacyFormat = hackathonYear < 2024 || hackathon === "nwHacks2024"; 
 
   const flattened: FlattenedApplicant = {
     // Basic Info

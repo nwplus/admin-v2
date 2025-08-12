@@ -38,11 +38,39 @@ export function EventsTable({
     }),
     columnHelper.accessor("startTime", {
       header: "Start",
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const time = info.getValue();
+        if (!time) return "";
+        try {
+          return new Date(time).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+          });
+        } catch {
+          return time;
+        }
+      },
     }),
     columnHelper.accessor("endTime", {
       header: "End",
-      cell: (info) => info.getValue(),
+      cell: (info) => {
+        const time = info.getValue();
+        if (!time) return "";
+        try {
+          return new Date(time).toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+          });
+        } catch {
+          return time;
+        }
+      },
     }),
   ];
 

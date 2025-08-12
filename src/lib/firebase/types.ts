@@ -407,6 +407,33 @@ export interface ContestQuestion {
   phonenumber: string;
 }
 
+/**
+ * Collection: /InternalWebsites/Livesite
+ * 
+ * Current active hackathon's config and settings
+ */
+export interface LivesiteSettings {
+  _id?: string;
+  activeHackathon?: string;
+  applicationDeadline?: string;
+  applicationsOpen?: boolean;
+  hackathonEnd?: string;
+  hackathonStart?: string;
+  hackathonWeekend?: string;
+  hackingEnd?: string;
+  hackingStart?: string;
+  imgUrl?: string;
+  judgingOpen?: boolean;
+  judgingReleased?: boolean;
+  lastEdited?: Timestamp;
+  lastEditedBy?: string;
+  livePortalLink?: string;
+  offWaitlistNotify?: string;
+  rsvpBy?: string;
+  sendAcceptancesBy?: string;
+  submissionsOpen?: boolean;
+}
+
 /** QUERY TYPES */
 export interface FirebaseQuery {
   id: string;
