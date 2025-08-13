@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/graphy/typo";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createFileRoute } from "@tanstack/react-router";
@@ -36,8 +36,7 @@ function StatusChangerPage() {
   const [selectedHackathon, setSelectedHackathon] = useState<string>("");
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus | "">("");
   const [emailsText, setEmailsText] = useState<string>("");
-  const [commaSeparated, setCommaSeparated] = useState<boolean>(true);
-  const [lineSeparated, setLineSeparated] = useState<boolean>(false);
+  const [separationType, setSeparationType] = useState<"comma" | "newline">("comma");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showValidation, setShowValidation] = useState<boolean>(false);
 
@@ -67,16 +66,12 @@ function StatusChangerPage() {
     const text = emailsText.trim();
     if (!text) return [] as string[];
 
-    let tokens: string[] = [];
-    if (commaSeparated) tokens = tokens.concat(text.split(","));
-    if (lineSeparated) tokens = tokens.concat(text.split(/\r?\n/));
-
-    if (!commaSeparated && !lineSeparated) {
-      tokens = text.split(/[\s,\r\n]+/);
-    }
+    const tokens = separationType === "comma" 
+      ? text.split(",")
+      : text.split(/\r?\n/);
 
     return Array.from(new Set(tokens.map((t) => t.trim()).filter(Boolean)));
-  }, [emailsText, commaSeparated, lineSeparated]);
+  }, [emailsText, separationType]);
 
   const firstInvalidEmail = useMemo(() => {
     for (const email of parsedEmails) {
@@ -156,27 +151,27 @@ function StatusChangerPage() {
                 ))}
               </SelectContent>
             </Select>
-            <div className="text-gray-500 text-xs font-medium w-[500px]">
+            <div className="w-[500px] font-medium text-gray-500 text-xs">
               Be careful: This will update the status of all selected applicants who have submitted an application, regardless of their current status.
             </div>
           </div>
 
           <div className="flex flex-col gap-3">
             <Label className="font-semibold text-xl">Enter emails:</Label>
-            <div className="flex items-center gap-6">
+            <RadioGroup value={separationType} onValueChange={(value) => setSeparationType(value as "comma" | "newline")} className="flex gap-6">
               <div className="flex items-center gap-2">
-                <Checkbox id="comma" checked={commaSeparated} onCheckedChange={(v) => setCommaSeparated(Boolean(v))} />
+                <RadioGroupItem value="comma" id="comma" />
                 <Label htmlFor="comma" className="text-gray-600">separate by comma</Label>
               </div>
               <div className="flex items-center gap-2">
-                <Checkbox id="line" checked={lineSeparated} onCheckedChange={(v) => setLineSeparated(Boolean(v))} />
-                <Label htmlFor="line" className="text-gray-600">separate by newline</Label>
+                <RadioGroupItem value="newline" id="newline" />
+                <Label htmlFor="newline" className="text-gray-600">separate by newline</Label>
               </div>
-            </div>
+            </RadioGroup>
             <Textarea
               value={emailsText}
               onChange={(e) => setEmailsText(e.target.value)}
-              placeholder="e.g. alvin.kam.33@gmail.com, heyitsme@hotmail.com..."
+              placeholder={separationType === "comma" ? "e.g. alvin.kam.33@gmail.com, heyitsme@hotmail.com..." : "e.g. alvin.kam.33@gmail.com\nheyitsme@hotmail.com\n..."}
               className="min-h-[220px] max-w-3xl"
             />
             {showValidation && firstInvalidEmail && (
