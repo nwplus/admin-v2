@@ -28,7 +28,8 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
         unsubApplicants = subscribeToApplicants(
           adminConfig?.activeHackathon,
           (applicants: Applicant[]) => {
-            setApplicants(applicants);
+            const filteredApplicants = applicants.filter((applicant) => applicant.status?.applicationStatus !== "inProgress");
+            setApplicants(filteredApplicants);
           },
         );
       } catch (error) {

@@ -1,6 +1,6 @@
 import { db } from "@/lib/firebase/client";
 import type { Applicant, HackathonDayOf } from "@/lib/firebase/types";
-import { collection, onSnapshot, query, getDocs, doc } from "firebase/firestore";
+import { collection, onSnapshot, query, getDocs } from "firebase/firestore";
 import { returnTrueKey, createStringFromSelection, splitHackathon } from "@/lib/utils";
 
 /**
