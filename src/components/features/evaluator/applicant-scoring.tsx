@@ -48,10 +48,12 @@ export function ApplicantScoring() {
       ...newMetadata,
     };
 
-    setScores((prev) => ({
-      ...prev,
+    const updatedScores = {
+      ...scores,
       [field]: newScore,
-    }));
+    };
+
+    setScores(updatedScores);
     setMetadata(newMetadata);
 
     await updateApplicant(hackathon, focusedApplicant?._id, {
@@ -60,18 +62,32 @@ export function ApplicantScoring() {
           [field]: newScore,
         },
         ...newMetadata,
-        totalScore: Object.values(scores).reduce((sum, score) => {
-          return sum + (typeof score.score === "number" ? score.score : 0);
+        totalScore: SCORING_CRITERIA.reduce((sum, criteria) => {
+          const scoreItem = updatedScores[criteria.field];
+          const scoreValue = typeof scoreItem?.score === "number" ? scoreItem.score : 0;
+          return sum + (scoreValue * criteria.weight);
         }, 0),
       },
     });
     setSaving(false);
   };
 
+  const isAllCategoriesScored = () => {
+    if (!scores || Object.keys(scores).length === 0) return false;
+    
+    return SCORING_CRITERIA.every(criteria => {
+      const score = scores[criteria.field];
+      return score && typeof score.score === "number";
+    });
+  };
+
   const markGraded = async () => {
     if (saving) return;
     if (!focusedApplicant?._id) return;
     setSaving(true);
+
+    const allCategoriesScored = isAllCategoriesScored();
+    const applicationStatus = allCategoriesScored ? "scored" : "gradinginprog";
 
     const newScore = {
       lastUpdated: Timestamp.now(),
@@ -80,7 +96,7 @@ export function ApplicantScoring() {
     await updateApplicant(hackathon, focusedApplicant?._id, {
       score: newScore,
       status: {
-        applicationStatus: "scored",
+        applicationStatus,
       },
     });
 
@@ -136,12 +152,9 @@ export function ApplicantScoring() {
         </div>
         <div className="flex flex-col gap-2 pb-1">
           <Button
-            disabled={focusedApplicant?.status?.applicationStatus === "scored"}
             onClick={markGraded}
           >
-            {focusedApplicant?.status?.applicationStatus === "scored"
-              ? "Marked graded"
-              : "Mark as graded"}
+            Save
           </Button>
           {saving || isCommentSaving ? (
             <div className="text-neutral-500 text-xs">Saving...</div>

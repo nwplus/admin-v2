@@ -26,6 +26,7 @@ export interface ScoringCriteria {
   minScore: number;
   maxScore: number;
   increments: number;
+  weight: number;
 }
 
 export const SCORING_CRITERIA: ScoringCriteria[] = [
@@ -35,6 +36,7 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     minScore: 0,
     maxScore: 5,
     increments: 1,
+    weight: 1.0,
   },
   {
     label: "Experience",
@@ -42,6 +44,7 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     minScore: 0,
     maxScore: 5,
     increments: 1,
+    weight: 1.0,
   },
   {
     label: "Response 1 Score",
@@ -49,6 +52,7 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     minScore: -1,
     maxScore: 5,
     increments: 1,
+    weight: 1.0,
   },
   {
     label: "Response 2 Score",
@@ -56,6 +60,7 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     minScore: -1,
     maxScore: 5,
     increments: 1,
+    weight: 1.0,
   },
   {
     label: "Response 3 Score",
@@ -63,6 +68,7 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     minScore: -1,
     maxScore: 5,
     increments: 1,
+    weight: 1.0,
   },
   {
     label: "Response 4 Score",
@@ -70,5 +76,6 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     minScore: -1,
     maxScore: 5,
     increments: 1,
+    weight: 1.0,
   },
 ];

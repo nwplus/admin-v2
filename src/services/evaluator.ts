@@ -75,7 +75,7 @@ export const getGradedApplicants = (hackathon: string, callback: (docs: Applican
   onSnapshot(
     query(
       collection(db, "Hackathons", hackathon, "Applicants"),
-      where("applicationStatus", "==", "scored"),
+      where("status.applicationStatus", "==", "scored"),
     ),
     (querySnapshot) => {
       const applicants = [];
@@ -240,12 +240,13 @@ export const getApplicantsToAccept = async (
     if (appStatus !== "scored") return false;
 
     // score
-    if (!applicant?.score?.totalScore) return false;
-    if (minScore !== undefined && applicant.score.totalScore < minScore) return false;
+    const totalScore = applicant?.score?.totalScore;
+    if (totalScore === undefined || totalScore === null || Number.isNaN(totalScore)) return false;
+    if (minScore !== undefined && totalScore < minScore) return false;
 
     // zscore
     let totalZScore = 0;
-    for (const [, scoreData] of Object.entries(applicant.score.scores ?? {})) {
+    for (const [, scoreData] of Object.entries(applicant.score?.scores ?? {})) {
       if (scoreData?.normalizedScore && typeof scoreData.normalizedScore === "number") {
         totalZScore += scoreData.normalizedScore;
       }
