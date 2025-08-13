@@ -12,6 +12,7 @@ import {
   Search,
   Star,
   Users,
+  BadgeCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CmdFIcon, type CustomIconComponent, HackCampIcon, NwHacksIcon } from "../graphy/icono";
@@ -62,6 +63,11 @@ const NAVIGATION: NavigationGroup[] = [
         label: "Query",
         href: "/query",
         icon: Search,
+      },
+      {
+        label: "Status Changer",
+        href: "/status-changer",
+        icon: BadgeCheck,
       },
     ],
   },

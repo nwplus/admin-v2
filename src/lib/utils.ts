@@ -78,3 +78,28 @@ export const createStringFromSelection = (
   
   return trueKeys.join(', ') + (additionalText ? `, ${additionalText}` : '');
 };
+
+/**
+ * Splits an array into chunks of the specified size.
+ * @param array - array to split
+ * @param chunkSize - size of chunks
+ * @returns an array of arrays
+ */
+export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
+  if (chunkSize <= 0) return [array];
+  const result: T[][] = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    result.push(array.slice(i, i + chunkSize));
+  }
+  return result;
+}
+
+/**
+ * Helper function to check if a string is a valid email
+ * @param value -  string to check
+ * @returns true if string is a valid email, false otherwise
+ */
+export function isValidEmail(value: string): boolean {
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  return emailRegex.test(value.trim());
+}
