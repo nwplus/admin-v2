@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { FAQ, Hackathon } from "@/lib/firebase/types";
+import type { FAQ, FAQCategory, Hackathon } from "@/lib/firebase/types";
 import type { ColumnFiltersState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { FAQDialog } from "./faq-dialog";
@@ -23,18 +23,30 @@ export function QuestionsTable({
   const [search, setSearch] = useState<string>("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [activeFaq, setActiveFaq] = useState<FAQ | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const sites = useMemo(() => {
     const allHackathonIds = questions.flatMap((question) => question.hackathonIDs || []);
     return [...new Set(allHackathonIds)].sort();
   }, [questions]);
 
-  const handleFilter = (value: string) => {
+  const categories: FAQCategory[] = ["General", "Logistics", "Teams & Projects", "Miscellaneous"];
+
+  const handleWebsiteFilter = (value: string) => {
+    const newFilters = columnFilters.filter(filter => filter.id !== "hackathonIDs");
     if (value !== "all") {
-      setColumnFilters([{ id: "hackathonIDs", value }]);
-    } else {
-      setColumnFilters([]);
+      newFilters.push({ id: "hackathonIDs", value });
     }
+    setColumnFilters(newFilters);
+  };
+
+  const handleCategoryFilter = (value: string) => {
+    setCategoryFilter(value);
+    const newFilters = columnFilters.filter(filter => filter.id !== "category");
+    if (value !== "all") {
+      newFilters.push({ id: "category", value });
+    }
+    setColumnFilters(newFilters);
   };
 
   const columnHelper = createTableColumnHelper<FAQ>();
@@ -100,7 +112,7 @@ export function QuestionsTable({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
             />
-            <Select onValueChange={handleFilter}>
+            <Select onValueChange={handleWebsiteFilter}>
               <SelectTrigger className="w-full md:w-[200px]">
                 <SelectValue placeholder="Filter by website" />
               </SelectTrigger>
@@ -109,6 +121,19 @@ export function QuestionsTable({
                 {sites.map((site) => (
                   <SelectItem key={site} value={site}>
                     {site}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select onValueChange={handleCategoryFilter} value={categoryFilter}>
+              <SelectTrigger className="w-full md:w-[200px]">
+                <SelectValue placeholder="Filter by category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
                   </SelectItem>
                 ))}
               </SelectContent>
