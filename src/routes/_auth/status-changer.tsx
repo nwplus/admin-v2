@@ -129,7 +129,7 @@ function StatusChangerPage() {
           <div className="flex flex-col gap-2">
             <Label className="font-semibold text-xl">Choose a Hackathon:</Label>
             <Select value={selectedHackathon} onValueChange={setSelectedHackathon}>
-              <SelectTrigger className="w-[210px]">
+              <SelectTrigger className="w-[250px]">
                 <SelectValue placeholder="Select hackathon..." />
               </SelectTrigger>
               <SelectContent align="start">
@@ -145,7 +145,7 @@ function StatusChangerPage() {
           <div className="flex flex-col gap-2">
             <Label className="font-semibold text-xl">Choose a Status:</Label>
             <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as ApplicationStatus)}>
-              <SelectTrigger className="w-[210px]">
+              <SelectTrigger className="w-[250px]">
                 <SelectValue placeholder="Select status..." />
               </SelectTrigger>
               <SelectContent align="start">
@@ -156,6 +156,9 @@ function StatusChangerPage() {
                 ))}
               </SelectContent>
             </Select>
+            <div className="text-gray-500 text-xs font-medium w-[500px]">
+              Be careful: This will update the status of all selected applicants who have submitted an application, regardless of their current status.
+            </div>
           </div>
 
           <div className="flex flex-col gap-3">

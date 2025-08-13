@@ -38,6 +38,7 @@ export const updateApplicantsStatusByEmails = async (
     const q = query(
       collection(db, "Hackathons", hackathon, "Applicants"),
       where("basicInfo.email", "in", emailChunk),
+      where("status.applicationStatus", "!=", "inProgress"),
     );
     const snapshot = await getDocs(q);
 
