@@ -11,11 +11,11 @@ const STATUS_LABEL: Record<
 > = {
   inProgress: {
     label: "In Progress",
-    color: "bg-blue-500",
+    color: "",
   },
   applied: {
-    label: "Applied",
-    color: "",
+    label: "Ungraded",
+    color: "bg-neutral-400",
   },
   completed: {
     label: "Completed",
@@ -26,8 +26,8 @@ const STATUS_LABEL: Record<
     color: "bg-theme",
   },
   scored: {
-    label: "Scored",
-    color: "",
+    label: "Graded",
+    color: "bg-blue-500",
   },
   rejected: {
     label: "Rejected",
@@ -35,7 +35,7 @@ const STATUS_LABEL: Record<
   },
   waitlisted: {
     label: "Waitlisted",
-    color: "",
+    color: "bg-orange-500",
   },
   acceptedNoResponseYet: {
     label: "Accepted",
