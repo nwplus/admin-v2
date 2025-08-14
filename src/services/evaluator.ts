@@ -35,16 +35,22 @@ export const getAdminFlags = async () => {
  * @returns a listener function to be called on dismount
  */
 export const subscribeToApplicants = (hackathon: string, callback: (docs: Applicant[]) => void) =>
-  onSnapshot(query(collection(db, "Hackathons", hackathon, "Applicants")), (querySnapshot) => {
-    const applicants = [];
-    for (const doc of querySnapshot.docs) {
-      applicants.push({
-        ...(doc.data() as unknown as Applicant),
-        _id: doc.id,
-      });
-    }
-    callback(applicants);
-  });
+  onSnapshot(
+    query(
+      collection(db, "Hackathons", hackathon, "Applicants"),
+      where("status.applicationStatus", "!=", "inProgress"),
+    ),
+    (querySnapshot) => {
+      const applicants = [];
+      for (const doc of querySnapshot.docs) {
+        applicants.push({
+          ...(doc.data() as unknown as Applicant),
+          _id: doc.id,
+        });
+      }
+      callback(applicants);
+    },
+  );
 
 /**
  * Utility function to handle applicant updates
