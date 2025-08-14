@@ -65,17 +65,17 @@ export function ApplicantScoring() {
         totalScore: SCORING_CRITERIA.reduce((sum, criteria) => {
           const scoreItem = updatedScores[criteria.field];
           const scoreValue = typeof scoreItem?.score === "number" ? scoreItem.score : 0;
-          return sum + (scoreValue * criteria.weight);
+          return sum + scoreValue * criteria.weight;
         }, 0),
       },
     });
     setSaving(false);
   };
 
-  const isAllCategoriesScored = () => {
+  const areAllCategoriesScored = () => {
     if (!scores || Object.keys(scores).length === 0) return false;
-    
-    return SCORING_CRITERIA.every(criteria => {
+
+    return SCORING_CRITERIA.every((criteria) => {
       const score = scores[criteria.field];
       return score && typeof score.score === "number";
     });
@@ -86,7 +86,7 @@ export function ApplicantScoring() {
     if (!focusedApplicant?._id) return;
     setSaving(true);
 
-    const allCategoriesScored = isAllCategoriesScored();
+    const allCategoriesScored = areAllCategoriesScored();
     const applicationStatus = allCategoriesScored ? "scored" : "gradinginprog";
 
     const newScore = {
@@ -151,11 +151,7 @@ export function ApplicantScoring() {
           />
         </div>
         <div className="flex flex-col gap-2 pb-1">
-          <Button
-            onClick={markGraded}
-          >
-            Save
-          </Button>
+          <Button onClick={markGraded}>Save</Button>
           {saving || isCommentSaving ? (
             <div className="text-neutral-500 text-xs">Saving...</div>
           ) : metadata?.lastUpdated || metadata?.lastUpdatedBy ? (
