@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as SigninImport } from './routes/signin'
 import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexImport } from './routes/_auth/index'
+import { Route as AuthStatusChangerImport } from './routes/_auth/status-changer'
 import { Route as AuthQueryImport } from './routes/_auth/query'
 import { Route as AuthLivesiteImport } from './routes/_auth/livesite'
 import { Route as AuthFaqImport } from './routes/_auth/faq'
@@ -42,6 +43,12 @@ const AuthRouteRoute = AuthRouteImport.update({
 const AuthIndexRoute = AuthIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthStatusChangerRoute = AuthStatusChangerImport.update({
+  id: '/status-changer',
+  path: '/status-changer',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -170,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthQueryImport
       parentRoute: typeof AuthRouteImport
     }
+    '/_auth/status-changer': {
+      id: '/_auth/status-changer'
+      path: '/status-changer'
+      fullPath: '/status-changer'
+      preLoaderRoute: typeof AuthStatusChangerImport
+      parentRoute: typeof AuthRouteImport
+    }
     '/_auth/': {
       id: '/_auth/'
       path: '/'
@@ -256,6 +270,7 @@ interface AuthRouteRouteChildren {
   AuthFaqRoute: typeof AuthFaqRoute
   AuthLivesiteRoute: typeof AuthLivesiteRoute
   AuthQueryRoute: typeof AuthQueryRoute
+  AuthStatusChangerRoute: typeof AuthStatusChangerRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthHackathonsHackathonIdRouteRoute: typeof AuthHackathonsHackathonIdRouteRouteWithChildren
 }
@@ -266,6 +281,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthFaqRoute: AuthFaqRoute,
   AuthLivesiteRoute: AuthLivesiteRoute,
   AuthQueryRoute: AuthQueryRoute,
+  AuthStatusChangerRoute: AuthStatusChangerRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthHackathonsHackathonIdRouteRoute:
     AuthHackathonsHackathonIdRouteRouteWithChildren,
@@ -283,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof AuthFaqRoute
   '/livesite': typeof AuthLivesiteRoute
   '/query': typeof AuthQueryRoute
+  '/status-changer': typeof AuthStatusChangerRoute
   '/': typeof AuthIndexRoute
   '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
@@ -299,6 +316,7 @@ export interface FileRoutesByTo {
   '/faq': typeof AuthFaqRoute
   '/livesite': typeof AuthLivesiteRoute
   '/query': typeof AuthQueryRoute
+  '/status-changer': typeof AuthStatusChangerRoute
   '/': typeof AuthIndexRoute
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
   '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
@@ -316,6 +334,7 @@ export interface FileRoutesById {
   '/_auth/faq': typeof AuthFaqRoute
   '/_auth/livesite': typeof AuthLivesiteRoute
   '/_auth/query': typeof AuthQueryRoute
+  '/_auth/status-changer': typeof AuthStatusChangerRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
   '/_auth/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
@@ -335,6 +354,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/livesite'
     | '/query'
+    | '/status-changer'
     | '/'
     | '/hackathons/$hackathonId'
     | '/hackathons/$hackathonId/application'
@@ -350,6 +370,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/livesite'
     | '/query'
+    | '/status-changer'
     | '/'
     | '/hackathons/$hackathonId/application'
     | '/hackathons/$hackathonId/rewards'
@@ -365,6 +386,7 @@ export interface FileRouteTypes {
     | '/_auth/faq'
     | '/_auth/livesite'
     | '/_auth/query'
+    | '/_auth/status-changer'
     | '/_auth/'
     | '/_auth/hackathons/$hackathonId'
     | '/_auth/hackathons/$hackathonId/application'
@@ -407,6 +429,7 @@ export const routeTree = rootRoute
         "/_auth/faq",
         "/_auth/livesite",
         "/_auth/query",
+        "/_auth/status-changer",
         "/_auth/",
         "/_auth/hackathons/$hackathonId"
       ]
@@ -432,6 +455,10 @@ export const routeTree = rootRoute
     },
     "/_auth/query": {
       "filePath": "_auth/query.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/status-changer": {
+      "filePath": "_auth/status-changer.tsx",
       "parent": "/_auth"
     },
     "/_auth/": {
