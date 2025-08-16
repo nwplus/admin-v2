@@ -18,6 +18,18 @@ export type ApplicantMajor =
   | "schoolDoesNotOfferMajors"
   | "preferNotToAnswer";
 
+export type ApplicantEducationLevel = 
+  | "Less than Secondary / High School"
+  | "Secondary / High School"
+  | "Undergraduate University (2 year - community college or similar)"
+  | "Undergraduate University (3+ years)"
+  | "Graduate University (Masters, Doctoral, Professional, etc.)"
+  | "Code School / Bootcamp"
+  | "Other Vocational / Trade Program or Apprenticeship" 
+  | "Post-Doctorate" 
+  | "I'm not currently a student" 
+  | "Prefer not to answer";
+
 export type ApplicationStatus =
   | "inProgress"
   | "applied"
@@ -154,7 +166,7 @@ export type HackathonSponsorTiers =
 export interface Applicant {
   _id: string;
   basicInfo: {
-    educationLevel: ApplicantMajor;
+    educationLevel: ApplicantEducationLevel;
     email: string;
     firstName?: string;
     lastName?: string;
@@ -164,7 +176,7 @@ export interface Applicant {
     graduation: number;
     isOfLegalAge: boolean;
     location: string; // city
-    major: string | Record<string, boolean>;
+    major: ApplicantMajor | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
     school: string; // should be typed
     ethnicity?: {

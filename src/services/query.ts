@@ -134,7 +134,7 @@ export const getAvailableColumns = (): string[] => {
         undecidedOrUndeclared: false,
         webDevOrDesign: false,
       },
-      educationLevel: "computerScience",
+      educationLevel: "Undergraduate University (3+ years)",
       graduation: 2024,
       gender: "",
       location: "",
