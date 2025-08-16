@@ -13,7 +13,9 @@ export function ApplicantList() {
 
   // using a useMemo for later when adding debounce
   const filteredApplicants = useMemo(() => {
-    return filterApplicantsBySearch(applicants || [], searchTerm);
+    return filterApplicantsBySearch(applicants || [], searchTerm).sort((a, b) =>
+      a._id.localeCompare(b._id),
+    );
   }, [applicants, searchTerm]);
 
   return (
