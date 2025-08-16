@@ -16,6 +16,7 @@ import type {
 } from "@/lib/firebase/types";
 import { useHackerApplication } from "@/providers/hacker-application-provider";
 import { updateHackerAppQuestions } from "@/services/hacker-application";
+import { Plus } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { HackerAppQuestion, SHOW_FORM_INPUT } from "./hacker-app-question";
@@ -190,7 +191,7 @@ export function HackerAppSection({
           </CardAction>
         </CardHeader>
         <CardContent className="flex flex-col gap-6">
-          {data?.map((q, i) => (
+          {data.map((q, i) => (
             <HackerAppQuestion
               key={`${q._id}_${title}`}
               index={i}
@@ -203,6 +204,14 @@ export function HackerAppSection({
               onChange={handleChangeQuestionField}
             />
           ))}
+          {!data.length && (
+            <div className="flex flex-col items-center justify-center">
+              <Button variant="outline" onClick={() => handleAddQuestion(0)}>
+                <Plus />
+                Add Question
+              </Button>
+            </div>
+          )}
         </CardContent>
         <CardFooter>
           <div className="text-sm opacity-60">
