@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import type { HackathonDayOf } from "@/lib/firebase/types";
