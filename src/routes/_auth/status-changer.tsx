@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/graphy/typo";
-import { Card } from "@/components/ui/card";
+import { Card, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -19,16 +19,9 @@ export const Route = createFileRoute("/_auth/status-changer")({
 });
 
 const APPLICATION_STATUSES: ApplicationStatus[] = [
-  "inProgress",
-  "applied",
-  "gradinginprog",
-  "waitlisted",
-  "scored",
-  "rejected",
-  "completed",
   "acceptedNoResponseYet",
-  "acceptedAndAttending",
-  "acceptedUnRSVP",
+  "waitlisted",
+  "rejected",
 ];
 
 function StatusChangerPage() {
@@ -119,10 +112,10 @@ function StatusChangerPage() {
   return (
     <div className="flex h-full w-full flex-col gap-3">
       <PageHeader>Status Changer</PageHeader>
-      <Card className="w-full p-6">
+      <Card className="w-full rounded-xl p-6">
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-2">
-            <Label className="font-semibold text-xl">Choose a Hackathon:</Label>
+            <CardTitle>Choose a Hackathon:</CardTitle>
             <Select value={selectedHackathon} onValueChange={setSelectedHackathon}>
               <SelectTrigger className="w-[250px]">
                 <SelectValue placeholder="Select hackathon..." />
@@ -138,7 +131,7 @@ function StatusChangerPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label className="font-semibold text-xl">Choose a Status:</Label>
+            <CardTitle>Choose a Status:</CardTitle>
             <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as ApplicationStatus)}>
               <SelectTrigger className="w-[250px]">
                 <SelectValue placeholder="Select status..." />
@@ -157,7 +150,7 @@ function StatusChangerPage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <Label className="font-semibold text-xl">Enter emails:</Label>
+            <CardTitle>Enter emails:</CardTitle>
             <RadioGroup value={separationType} onValueChange={(value) => setSeparationType(value as "comma" | "newline")} className="flex gap-6">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="comma" id="comma" />
