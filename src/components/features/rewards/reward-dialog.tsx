@@ -137,7 +137,9 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
         imgName: imageFile?.name || activeReward?.imgName || "",
       } as HackathonRewards;
 
-      await upsertReward(activeHackathon, rewardData, activeReward?.key);
+      const upsertedReward = await upsertReward(activeHackathon, rewardData, imageFile, activeReward?.key);
+      if (!upsertedReward) throw new Error("Error upserting a reward");
+
       form.reset(EMPTY_FORM);
       toast(`Reward successfully ${activeReward?.key ? "edited" : "created"}`);
       close();

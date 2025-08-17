@@ -44,3 +44,31 @@ export const deleteSponsorImage = async (hackathon: string, sponsorId: string) =
     console.error("Error deleting image", hackathon, sponsorId, error);
   }
 };
+
+/**
+ *
+ * @param hackathon - The hackathon for which the reward belongs to
+ * @param rewardId - The reward document's ID used for naming
+ * @param file - The image file
+ * @returns a downloadable url of the image just uploaded
+ */
+export const uploadRewardImage = async (hackathon: string, rewardId: string, file: File) => {
+  try {
+    const imageRef = ref(storage, `reward/${hackathon}/${rewardId}`); // we LIKE overwrites
+    await uploadBytes(imageRef, file);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error("Error uploading image", hackathon, rewardId, error);
+    return null;
+  }
+};
+
+export const deleteRewardImage = async (hackathon: string, rewardId: string) => {
+  try {
+    const imageRef = ref(storage, `reward/${hackathon}/${rewardId}`);
+    await deleteObject(imageRef);
+  } catch (error: unknown) {
+    if ((error as FirebaseError)?.code === "storage/object-not-found") return;
+    console.error("Error deleting image", hackathon, rewardId, error);
+  }
+};
