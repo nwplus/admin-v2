@@ -71,12 +71,7 @@ export function ApplicantList() {
   }[];
 
 
- 
-  const filterApplicantsByStatus = (applicants: Applicant[], statuses:ApplicationStatus[]) : Applicant[] => {
-    if (!statuses.length) return applicants;
-    const wanted = new Set(statuses);
-    return applicants.filter((a) => a.status?.applicationStatus && wanted.has(a.status.applicationStatus));
-   }
+
 
   // using a useMemo for later when adding debounce
   const filteredApplicants = useMemo(() => {
@@ -158,3 +153,10 @@ export const filterApplicantsBySearch = (
     return searchWords.every((word) => fields.some((field) => field.includes(word)));
   });
 };
+
+ 
+const filterApplicantsByStatus = (applicants: Applicant[], statuses:ApplicationStatus[]) : Applicant[] => {
+  if (!statuses.length) return applicants;
+  const wanted = new Set(statuses);
+  return applicants.filter((a) => a.status?.applicationStatus && wanted.has(a.status.applicationStatus));
+ }
