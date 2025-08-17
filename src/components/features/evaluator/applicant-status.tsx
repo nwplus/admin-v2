@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import type { ApplicationStatus } from "@/lib/firebase/types";
 import { cn } from "@/lib/utils";
 
-const STATUS_LABEL: Record<
+export const STATUS_LABEL: Record<
   ApplicationStatus,
   {
     label: string;
