@@ -10,6 +10,9 @@
 
 export const RESPONSE_VISIBLE_FIELDS = [
   { field: "skills.contributionRole", type: "booleanMap", label: "Role" },
+  { field: "basicInfo.educationLevel", type: "short", label: "Year Level" },
+  { field: "skills.numHackathonsAttended", type: "short", label: "Number of Hackathons Attended" },
+  { field: "firstHackathon", type: "short", label: "Is this your first hackathon?" },
   { field: "skills.longAnswers1", type: "long", label: "Long Answer 1" },
   { field: "skills.longAnswers2", type: "long", label: "Long Answer 2" },
   { field: "skills.longAnswers3", type: "long", label: "Long Answer 3" },
