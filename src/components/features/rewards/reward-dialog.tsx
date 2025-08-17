@@ -33,7 +33,6 @@ const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const EMPTY_FORM = {
   reward: "",
   blurb: "",
-  imgName: "",
   type: "" as "Reward" | "Raffle",
   prizesAvailable: "",
   requiredPoints: "",
@@ -42,7 +41,6 @@ const EMPTY_FORM = {
 const formSchema = z.object({
   reward: z.string().min(2).max(100),
   blurb: z.string().min(2).max(500),
-  imgName: z.string().min(2).max(100),
   type: z.enum(["Reward", "Raffle"]),
   prizesAvailable: z.string().max(10),
   requiredPoints: z.string().max(10),
@@ -82,7 +80,6 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
     values: {
       reward: activeReward?.reward ?? "",
       blurb: activeReward?.blurb ?? "",
-      imgName: activeReward?.imgName ?? "",
       type: activeReward?.type ?? ("" as "Reward" | "Raffle"),
       prizesAvailable: activeReward?.prizesAvailable ?? "",
       requiredPoints: activeReward?.requiredPoints ?? "",
@@ -232,19 +229,6 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
               onImageSelect={handleImageSelect}
               onImageRemove={handleImageRemove}
               altText="Reward image preview"
-            />
-            <FormField
-              control={form.control}
-              name="imgName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image name</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Type here..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
             />
             <div className="grid grid-cols-2 gap-3">
               <FormField

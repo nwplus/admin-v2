@@ -57,7 +57,11 @@ export const upsertReward = async (
 
     await runTransaction(db, async (txn) => {
       if (!id) txn.set(rewardRef, {});
-      txn.update(rewardRef, { ...reward, ...record });
+      txn.update(rewardRef, { 
+        ...reward, 
+        ...record,
+        key: rewardId
+      });
 
       if (imageFile) {
         const imageUrl = await uploadRewardImage(hackathon, rewardId, imageFile);
