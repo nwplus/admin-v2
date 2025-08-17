@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { acceptApplicants, getApplicantsToAccept } from "@/services/evaluator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,23 +24,28 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { CONTRIBUTION_ROLE_OPTIONS, YEAR_LEVEL_OPTIONS } from "./constants";
 
 const formSchema = z.object({
-  minScore: z.number().optional(),
-  minZScore: z.number().optional(),
-  minPrevHacks: z.number().optional(),
-  maxPrevHacks: z.number().optional(),
+  minScore: z.coerce.number().optional(),
+  minZScore: z.coerce.number().optional(),
+  minPrevHacks: z.coerce.number().optional(),
+  maxPrevHacks: z.coerce.number().optional(),
   contributionRoles: z.array(z.string()).optional(),
   yearLevels: z.array(z.string()).optional(),
+  minExperiencesScore: z.coerce.number().optional(),
+  maxExperiencesScore: z.coerce.number().optional(),
 });
 
-const BASE_VALUES = {
+const BASE_VALUES: z.infer<typeof formSchema> = {
   minScore: undefined,
   minZScore: undefined,
   minPrevHacks: undefined,
   maxPrevHacks: undefined,
   contributionRoles: undefined,
   yearLevels: undefined,
+  minExperiencesScore: undefined,
+  maxExperiencesScore: undefined,
 };
 
 export function AcceptDialog() {
@@ -74,6 +79,8 @@ export function AcceptDialog() {
       formData.maxPrevHacks,
       formData.yearLevels,
       formData.contributionRoles,
+      formData.minExperiencesScore,
+      formData.maxExperiencesScore,
     );
 
     setAffectedApplicantsId(applicants?.map((a) => a._id));
@@ -128,7 +135,7 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Minimum score</FormLabel>
                     <FormControl>
-                      <Input placeholder="Optional" {...field} />
+                      <Input type="number" placeholder="Optional" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -141,7 +148,7 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Minimum z-score</FormLabel>
                     <FormControl>
-                      <Input placeholder="Optional" {...field} />
+                      <Input type="number" placeholder="Optional" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -156,7 +163,7 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Minimum hackathons</FormLabel>
                     <FormControl>
-                      <Input placeholder="Optional" {...field} />
+                      <Input type="number" placeholder="Optional" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -169,7 +176,7 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Maximum hackathons</FormLabel>
                     <FormControl>
-                      <Input placeholder="Optional" {...field} />
+                      <Input type="number" placeholder="Optional" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -180,30 +187,12 @@ export function AcceptDialog() {
               control={form.control}
               name="contributionRoles"
               render={({ field }) => {
-                const contributionOptions: MultiSelectOption[] = [
-                  {
-                    label: "Designer",
-                    value: "designer",
-                  },
-                  {
-                    label: "Developer",
-                    value: "developer",
-                  },
-                  {
-                    label: "Product Manager",
-                    value: "productManager",
-                  },
-                  {
-                    label: "Other",
-                    value: "other",
-                  },
-                ];
                 return (
                   <FormItem>
                     <FormLabel>Contribution roles</FormLabel>
                     <FormControl>
                       <MultiSelect
-                        options={contributionOptions}
+                        options={CONTRIBUTION_ROLE_OPTIONS}
                         selected={field.value || []}
                         onChange={field.onChange}
                         placeholder="Select roles..."
@@ -214,6 +203,54 @@ export function AcceptDialog() {
                 );
               }}
             />
+            <FormField
+              control={form.control}
+              name="yearLevels"
+              render={({ field }) => {
+                return (
+                  <FormItem>
+                    <FormLabel>Year levels</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={YEAR_LEVEL_OPTIONS}
+                        selected={field.value || []}
+                        onChange={field.onChange}
+                        placeholder="Select year levels..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+            <div className="flex gap-4">
+              <FormField
+                control={form.control}
+                name="minExperiencesScore"
+                render={({ field }) => (
+                  <FormItem className="flex-grow">
+                    <FormLabel>Number of experiences (Min)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Optional" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="maxExperiencesScore"
+                render={({ field }) => (
+                  <FormItem className="flex-grow">
+                    <FormLabel>Number of experiences (Max)</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="Optional" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             {/* {isCalculating ? (
               <Skeleton />
             ) : (
