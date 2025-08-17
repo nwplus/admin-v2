@@ -16,8 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { MultiSelect, type MultiSelectOption } from "@/components/ui/multi-select";
-import type { ApplicantEducationLevel } from "@/lib/firebase/types";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { acceptApplicants, getApplicantsToAccept } from "@/services/evaluator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,47 +24,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
-const CONTRIBUTION_ROLE_OPTIONS: MultiSelectOption[] = [
-  {
-    label: "Designer",
-    value: "designer",
-  },
-  {
-    label: "Developer",
-    value: "developer",
-  },
-  {
-    label: "Product Manager",
-    value: "productManager",
-  },
-  {
-    label: "Other",
-    value: "other",
-  },
-];
-
-const YEAR_LEVEL_OPTIONS: Array<{ label: ApplicantEducationLevel; value: ApplicantEducationLevel }> = [
-  { label: "Less than Secondary / High School", value: "Less than Secondary / High School" },
-  { label: "Secondary / High School", value: "Secondary / High School" },
-  {
-    label: "Undergraduate University (2 year - community college or similar)",
-    value: "Undergraduate University (2 year - community college or similar)",
-  },
-  { label: "Undergraduate University (3+ years)", value: "Undergraduate University (3+ years)" },
-  {
-    label: "Graduate University (Masters, Doctoral, Professional, etc.)",
-    value: "Graduate University (Masters, Doctoral, Professional, etc.)",
-  },
-  { label: "Code School / Bootcamp", value: "Code School / Bootcamp" },
-  {
-    label: "Other Vocational / Trade Program or Apprenticeship",
-    value: "Other Vocational / Trade Program or Apprenticeship",
-  },
-  { label: "Post-Doctorate", value: "Post-Doctorate" },
-  { label: "I'm not currently a student", value: "I'm not currently a student" },
-  { label: "Prefer not to answer", value: "Prefer not to answer" },
-];
+import { CONTRIBUTION_ROLE_OPTIONS, YEAR_LEVEL_OPTIONS } from "./constants";
 
 const formSchema = z.object({
   minScore: z.coerce.number().optional(),
