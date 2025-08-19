@@ -316,3 +316,29 @@ export const acceptApplicants = async (hackathon: string, acceptIds: string[]) =
     throw error;
   }
 };
+
+/**
+ * Subscribe to long-answer questions in real-time
+ * @param hackathon - The hackathon collection of the applicants to query
+ * @param onUpdate - Callback with array of { formInput, description }
+ * @returns unsubscribe function
+ */
+export const subscribeLongAnswerQuestions = (
+  hackathon: string,
+  onUpdate: (questions: { formInput: string; description: string }[]) => void,
+) => {
+  const trimmedHackathon = hackathon.slice(0, -4);
+  const q = query(
+    collection(db, "HackerAppQuestions", trimmedHackathon, "Skills"),
+    where("formInput", ">=", "longAnswers"),
+    where("formInput", "<", "longAnswers\uf8ff"),
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const questions = snapshot.docs.map((doc) => ({
+      formInput: doc.data().formInput,
+      description: doc.data().title,
+    }));
+    onUpdate(questions);
+  });
+};

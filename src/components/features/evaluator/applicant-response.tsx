@@ -5,7 +5,7 @@ import { RESPONSE_VISIBLE_FIELDS } from "./constants";
 import { Response, type ResponseType } from "./response";
 
 export function ApplicantResponse() {
-  const { focusedApplicant } = useEvaluator();
+  const { focusedApplicant, questionLabels } = useEvaluator();
 
   if (!focusedApplicant) {
     return (
@@ -26,9 +26,18 @@ export function ApplicantResponse() {
         {RESPONSE_VISIBLE_FIELDS.map((fieldConfig) => (
           <Response
             key={fieldConfig.field}
-            label={fieldConfig.label}
+            label={questionLabels[fieldConfig.field] || fieldConfig.label}
             type={fieldConfig.type as ResponseType}
-            response={getNestedValue(focusedApplicant, fieldConfig.field)}
+            response={
+              fieldConfig.field === "firstHackathon"
+                ? getNestedValue(focusedApplicant, "skills.numHackathonsAttended") === "0"
+                  ? "Yes"
+                  : getNestedValue(focusedApplicant, "skills.numHackathonsAttended") === "" ||
+                      getNestedValue(focusedApplicant, "skills.numHackathonsAttended") === undefined
+                    ? "N/A"
+                    : "No"
+                : getNestedValue(focusedApplicant, fieldConfig.field)
+            }
             userId={focusedApplicant?._id}
           />
         ))}
