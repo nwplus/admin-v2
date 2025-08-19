@@ -71,18 +71,24 @@ const LinkField = ({ href }: { href?: string }) => {
     toast("Copied link to clipboard!");
   };
 
+  const hasLink = Boolean(href);
+
   return (
     <div className="relative flex items-center gap-2">
       <a
-        href={href}
+        href={hasLink ? href : undefined}
         target="_blank"
         rel="noreferrer noopener"
-        className={cn(buttonVariants({ variant: "outline" }), "flex-grow justify-between")}
+        className={cn(
+          buttonVariants({ variant: "outline" }),
+          "flex-grow justify-between",
+          !hasLink && "pointer-events-none cursor-not-allowed opacity-50",
+        )}
       >
-        <div className="flex-1 truncate">Open link in new tab</div>
-        <ExternalLink />
+        <div className="flex-1 truncate">{hasLink ? "Open link in new tab" : "No response"}</div>
+        {hasLink && <ExternalLink />}
       </a>
-      <Button size="icon" variant="outline" onClick={handleClipboard}>
+      <Button size="icon" variant="outline" onClick={handleClipboard} disabled={!hasLink}>
         <Link />
       </Button>
     </div>
