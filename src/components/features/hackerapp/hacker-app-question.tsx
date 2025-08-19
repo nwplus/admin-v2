@@ -290,7 +290,10 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
         <Editor
           padding={12}
           initialContent={question?.content}
-          onContentChange={(value) => onChange(index, "content", value)}
+          onContentChange={(value) =>
+            // console.log(value)
+            onChange(index, "content", value)
+          }
           placeholder="Your heart-stirring, tear-jerking, shirt-tearing, inspirational message here..."
           className="rounded-md border-1 border-input shadow-xs"
         />

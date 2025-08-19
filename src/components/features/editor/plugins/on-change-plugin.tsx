@@ -1,7 +1,7 @@
 // import debounce from "lodash/debounce";
 // import type { EditorState } from "lexical";
 import {
-  $convertFromMarkdownString,
+  // $convertFromMarkdownString,
   $convertToMarkdownString,
   TRANSFORMERS,
 } from "@lexical/markdown";
@@ -10,7 +10,7 @@ import { useEffect } from "react";
 
 export function OnChangePlugin({
   onChange,
-  debounceTime = 250,
+  // debounceTime = 250,
 }: {
   onChange: (arg0: string) => void;
   debounceTime?: number;
