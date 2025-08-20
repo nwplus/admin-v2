@@ -16,55 +16,9 @@ export function ApplicantList() {
   const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
 
 
-  // Experimenting with meta filters to group multiple statuses and match the applicant card colored status bubble
-
-  // type MetaFilter =
-  // | "Accepted:any"
-  // | "Grading:any"
-  // | "InProgress:any"
-  // | "Completed"
-  // | "Rejected"
-  // | "Waitlisted"
-  // | "Ungraded"
-  // | "Graded"; 
-
-  // const META_MAP: Record  <MetaFilter, ApplicationStatus[]> = {
-  //   "Accepted:any": [
-  //     "acceptedNoResponseYet",
-  //     "acceptedAndAttending",
-  //     "acceptedUnRSVP",
-  //   ],
-  //   "Waitlisted": ["waitlisted"],
-  //   "Rejected": ["rejected"],
-  //   "Graded" : ["scored"],
-  //   "Grading:any": ["gradinginprog"],
-  //   "Ungraded": ["applied"],
-  //   "InProgress:any": ["inProgress"],
-  //   "Completed": ["completed"],
-  // };
-
-  // const applicationStatuses = [
-  //   {label: "Accepted", value: "Accepted:any" as const},
-  //   {label: "Grading", value: "Grading:any" as const},
-  //   {label: "In Progress", value: "InProgress:any" as const},
-  //   {label: "Completed", value: "Completed" as const},
-  //   {label: "Rejected", value: "Rejected" as const},
-  //   {label: "Waitlisted", value: "Waitlisted" as const},
-  //   {label: "Ungraded", value: "Ungraded" as const},
-  //   {label: "Graded", value: "Graded" as const},
-  // ];
-
   const applicationStatuses = [  
-    "inProgress",
-    "applied",
     "gradinginprog",
-    "waitlisted",
-    "scored",
-    "rejected",
-    "completed",
-    "acceptedNoResponseYet",
-    "acceptedAndAttending",
-    "acceptedUnRSVP",
+    "scored"
   ].map((status) => ({ label: status, value: status })) as {
     label: string;
     value: ApplicationStatus;
