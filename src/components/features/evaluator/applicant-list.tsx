@@ -8,24 +8,18 @@ import { AcceptDialog } from "./accept-dialog";
 import { ApplicantEntry } from "./applicant-entry";
 import { CalculateDialog } from "./calculate-dialog";
 import type { ApplicationStatus } from "@/lib/firebase/types";
+import { STATUS_LABEL } from "@/components/features/evaluator/applicant-status";
 
+const EVALUATOR_STATUSES: ApplicationStatus[] = ["applied", "gradinginprog", "scored"];  
+const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({  
+  label: STATUS_LABEL[status]?.label || status,  
+  value: status,  
+}));  
 
 export function ApplicantList() {
   const { applicants, focusedApplicant, setFocusedApplicant } = useEvaluator();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
-
-
-  const applicationStatuses = [  
-    "gradinginprog",
-    "scored"
-  ].map((status) => ({ label: status, value: status })) as {
-    label: string;
-    value: ApplicationStatus;
-  }[];
-
-
-
 
   // using a useMemo for later when adding debounce
   const filteredApplicants = useMemo(() => {
@@ -43,7 +37,7 @@ export function ApplicantList() {
         <div className="flex items-center justify-between">
           <CardTitle className="pb-2">Applicant list</CardTitle>
           <MultiSelect
-            options={applicationStatuses}
+            options={APPLICATION_STATUS_OPTIONS}
             selected={selectedStatuses}
             onChange={(vals) => setSelectedStatuses(vals as ApplicationStatus[])}
             placeholder="Filter by..."
