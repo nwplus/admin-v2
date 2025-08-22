@@ -1,20 +1,20 @@
+import { STATUS_LABEL } from "@/components/features/evaluator/applicant-status";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
 import type { Applicant } from "@/lib/firebase/types";
+import type { ApplicationStatus } from "@/lib/firebase/types";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { useMemo, useState } from "react";
 import { AcceptDialog } from "./accept-dialog";
 import { ApplicantEntry } from "./applicant-entry";
 import { CalculateDialog } from "./calculate-dialog";
-import type { ApplicationStatus } from "@/lib/firebase/types";
-import { STATUS_LABEL } from "@/components/features/evaluator/applicant-status";
 
-const EVALUATOR_STATUSES: ApplicationStatus[] = ["applied", "gradinginprog", "scored"];  
-const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({  
-  label: STATUS_LABEL[status]?.label || status,  
-  value: status,  
-}));  
+const EVALUATOR_STATUSES: ApplicationStatus[] = ["applied", "gradinginprog", "scored"];
+const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({
+  label: STATUS_LABEL[status]?.label || status,
+  value: status,
+}));
 
 export function ApplicantList() {
   const { applicants, focusedApplicant, setFocusedApplicant } = useEvaluator();
@@ -25,12 +25,9 @@ export function ApplicantList() {
   const filteredApplicants = useMemo(() => {
     let list = applicants || [];
     list = filterApplicantsByStatus(list, selectedStatuses);
-    return filterApplicantsBySearch(list, searchTerm).sort((a, b) =>
-      a._id.localeCompare(b._id),
-    );
+    return filterApplicantsBySearch(list, searchTerm).sort((a, b) => a._id.localeCompare(b._id));
   }, [applicants, searchTerm, selectedStatuses]);
 
- 
   return (
     <Card className="sticky top-[2vh] max-h-[96vh] rounded-xl">
       <CardHeader>
@@ -42,7 +39,7 @@ export function ApplicantList() {
             onChange={(vals) => setSelectedStatuses(vals as ApplicationStatus[])}
             placeholder="Filter by..."
             className="w-42"
-            />
+          />
         </div>
 
         <Input
@@ -102,9 +99,13 @@ export const filterApplicantsBySearch = (
   });
 };
 
- 
-const filterApplicantsByStatus = (applicants: Applicant[], statuses:ApplicationStatus[]) : Applicant[] => {
+const filterApplicantsByStatus = (
+  applicants: Applicant[],
+  statuses: ApplicationStatus[],
+): Applicant[] => {
   if (!statuses.length) return applicants;
   const wanted = new Set(statuses);
-  return applicants.filter((a) => a.status?.applicationStatus && wanted.has(a.status.applicationStatus));
- }
+  return applicants.filter(
+    (a) => a.status?.applicationStatus && wanted.has(a.status.applicationStatus),
+  );
+};

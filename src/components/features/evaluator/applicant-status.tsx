@@ -26,7 +26,7 @@ export const STATUS_LABEL: Record<
     color: "bg-theme",
   },
   scored: {
-    label: "Scored",
+    label: "Graded",
     color: "bg-blue-500",
   },
   rejected: {
