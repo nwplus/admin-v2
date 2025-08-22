@@ -1,27 +1,47 @@
+import { STATUS_LABEL } from "@/components/features/evaluator/applicant-status";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { MultiSelect } from "@/components/ui/multi-select";
 import type { Applicant } from "@/lib/firebase/types";
+import type { ApplicationStatus } from "@/lib/firebase/types";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { useMemo, useState } from "react";
 import { AcceptDialog } from "./accept-dialog";
 import { ApplicantEntry } from "./applicant-entry";
 import { CalculateDialog } from "./calculate-dialog";
 
+const EVALUATOR_STATUSES: ApplicationStatus[] = ["applied", "gradinginprog", "scored"];
+const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({
+  label: STATUS_LABEL[status]?.label || status,
+  value: status,
+}));
+
 export function ApplicantList() {
   const { applicants, focusedApplicant, setFocusedApplicant } = useEvaluator();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
 
   // using a useMemo for later when adding debounce
   const filteredApplicants = useMemo(() => {
-    return filterApplicantsBySearch(applicants || [], searchTerm).sort((a, b) =>
-      a._id.localeCompare(b._id),
-    );
-  }, [applicants, searchTerm]);
+    let list = applicants || [];
+    list = filterApplicantsByStatus(list, selectedStatuses);
+    return filterApplicantsBySearch(list, searchTerm).sort((a, b) => a._id.localeCompare(b._id));
+  }, [applicants, searchTerm, selectedStatuses]);
 
   return (
     <Card className="sticky top-[2vh] max-h-[96vh] rounded-xl">
       <CardHeader>
-        <CardTitle className="pb-2">Applicant list</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="pb-2">Applicant list</CardTitle>
+          <MultiSelect
+            options={APPLICATION_STATUS_OPTIONS}
+            selected={selectedStatuses}
+            onChange={(vals) => setSelectedStatuses(vals as ApplicationStatus[])}
+            placeholder="Filter by..."
+            className="w-42"
+          />
+        </div>
+
         <Input
           value={searchTerm ?? ""}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -77,4 +97,15 @@ export const filterApplicantsBySearch = (
     // Check if all search words match at least one field
     return searchWords.every((word) => fields.some((field) => field.includes(word)));
   });
+};
+
+const filterApplicantsByStatus = (
+  applicants: Applicant[],
+  statuses: ApplicationStatus[],
+): Applicant[] => {
+  if (!statuses.length) return applicants;
+  const wanted = new Set(statuses);
+  return applicants.filter(
+    (a) => a.status?.applicationStatus && wanted.has(a.status.applicationStatus),
+  );
 };
