@@ -9,7 +9,7 @@ import {
   doc,
   onSnapshot,
   query,
-  runTransaction,
+  setDoc,
 } from "firebase/firestore";
 
 /**
@@ -55,21 +55,22 @@ export const upsertReward = async (
       lastmodBy: auth.currentUser?.email ?? "",
     };
 
-    await runTransaction(db, async (txn) => {
-      if (!id) txn.set(rewardRef, {});
-      txn.update(rewardRef, { 
-        ...reward, 
-        ...record,
-        key: rewardId
-      });
-
-      if (imageFile) {
-        const imageUrl = await uploadRewardImage(hackathon, rewardId, imageFile);
-        txn.update(rewardRef, {
-          imgURL: imageUrl,
-        });
+    // Upload image first
+    let imageUrl = reward.imgURL;
+    if (imageFile) {
+      const uploadedUrl = await uploadRewardImage(hackathon, rewardId, imageFile);
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
       }
-    });
+    }
+
+    // Update document with all data
+    await setDoc(rewardRef, {
+      ...reward,
+      ...record,
+      key: rewardId,
+      ...(imageUrl && { imgURL: imageUrl }),
+    }, { merge: true });
 
     return rewardRef;
   } catch (error) {

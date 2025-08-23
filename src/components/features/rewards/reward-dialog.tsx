@@ -108,7 +108,7 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
 
   const handleImageRemove = () => {
     setImageFile(null);
-    setImagePreview(activeReward?.imgURL ?? null);
+    setImagePreview(null);
     setImageError(null);
   };
 
@@ -122,7 +122,7 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (loading) return;
 
-    if (mode === "new" && !imageFile) {
+    if (!imageFile) {
       setImageError("Please select an image");
       return;
     }
@@ -134,7 +134,12 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
         imgName: imageFile?.name || activeReward?.imgName || "",
       } as HackathonRewards;
 
-      const upsertedReward = await upsertReward(activeHackathon, rewardData, imageFile, activeReward?.key);
+      const upsertedReward = await upsertReward(
+        activeHackathon, 
+        rewardData, 
+        imageFile, 
+        activeReward?.key
+      );
       if (!upsertedReward) throw new Error("Error upserting a reward");
 
       form.reset(EMPTY_FORM);
