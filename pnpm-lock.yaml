@@ -129,8 +129,8 @@ importers:
         specifier: ^11.8.1
         version: 11.8.1
       lexical:
-        specifier: ^0.32.0
-        version: 0.32.0
+        specifier: ^0.34.0
+        version: 0.34.0
       lucide-react:
         specifier: ^0.476.0
         version: 0.476.0(react@19.1.0)
@@ -2151,9 +2151,6 @@ packages:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
-
-  lexical@0.32.0:
-    resolution: {integrity: sha512-B+NIE/Z0Lqa9uL6M2W1p6YVGExvHVX50fxzS6/ZnQJskkbBxdt6+7Ifgli2wAltTqKWBe7qf+YlFjHIP0u5ffw==}
 
   lexical@0.34.0:
     resolution: {integrity: sha512-oqQ87i49oGRt8u9qIXow+fWeqN6luRMtYAa1GAx1l9AaR3A8Tfrgnmj2+13ej6CMPK6JunKaUXbd+7FDy+s8XQ==}
@@ -4867,8 +4864,6 @@ snapshots:
   jsesc@3.1.0: {}
 
   json5@2.2.3: {}
-
-  lexical@0.32.0: {}
 
   lexical@0.34.0: {}
 

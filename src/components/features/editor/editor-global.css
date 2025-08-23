@@ -7,7 +7,7 @@
 .editor-placeholder {
   overflow: hidden;
   position: absolute;
-  top: 0px;
+  top: 45px;
   left: 0px;
   font-size: 1rem;
   color: var(--color-neutral-500);
