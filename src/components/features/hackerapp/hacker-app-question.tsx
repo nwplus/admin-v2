@@ -18,7 +18,7 @@ import type {
   HackerApplicationQuestionType,
 } from "@/lib/firebase/types";
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronUp, Plus, Trash, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Trash } from "lucide-react";
 import { type ReactNode, memo, useEffect } from "react";
 import { Editor } from "../editor";
 
