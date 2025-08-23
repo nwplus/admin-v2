@@ -32,6 +32,7 @@ const HackerApplicationProvider = ({
   const [welcome, setWelcome] = useState<HackerApplicationQuestion[]>([]);
 
   useEffect(() => {
+    setIsLoading(true);
     const unsubscribe = subscribeToHackerAppQuestions(activeHackathonName, (data) => {
       setBasicInfo(data.BasicInfo);
       setQuestionnaire(data.Questionnaire);

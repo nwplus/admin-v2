@@ -21,16 +21,18 @@ export function RewardsTable({
       // _id column is hidden by default
       header: "id",
     }),
-    columnHelper.accessor("lastmod", {
-      header: "Modified",
+    columnHelper.accessor("imgURL", {
+      header: "Image",
+      size: 96,
       cell: (info) => {
-        const timestamp = info.getValue();
-        return timestamp?.toDate().toLocaleString();
+        const imageUrl = info.getValue();
+        return (
+          <img
+            src={imageUrl}
+            className="aspect-square w-16 rounded-md bg-theme-light object-contain p-4 shadow-md"
+          />
+        );
       },
-    }),
-    columnHelper.accessor("lastmodBy", {
-      header: "Modified by",
-      cell: (info) => info.getValue(),
     }),
     columnHelper.accessor("reward", {
       header: "Name",
@@ -44,14 +46,6 @@ export function RewardsTable({
       header: "Blurb",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("imgName", {
-      header: "Image",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("imgURL", {
-      header: "Image URL",
-      cell: (info) => info.getValue(),
-    }),
     columnHelper.accessor("prizesAvailable", {
       header: "Available prizes",
       cell: (info) => info.getValue(),
@@ -59,6 +53,17 @@ export function RewardsTable({
     columnHelper.accessor("requiredPoints", {
       header: "Required points",
       cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("lastmodBy", {
+      header: "Modified by",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("lastmod", {
+      header: "Modified",
+      cell: (info) => {
+        const timestamp = info.getValue();
+        return timestamp?.toDate().toLocaleString();
+      },
     }),
   ];
 
