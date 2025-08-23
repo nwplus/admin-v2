@@ -9,6 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -22,16 +23,16 @@ import type { HackathonRewards } from "@/lib/firebase/types";
 import { useHackathon } from "@/providers/hackathon-provider";
 import { deleteReward, upsertReward } from "@/services/rewards";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+const MAX_FILE_SIZE = 5000000;
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const EMPTY_FORM = {
   reward: "",
   blurb: "",
-  imgName: "",
-  imgURL: "",
   type: "" as "Reward" | "Raffle",
   prizesAvailable: "",
   requiredPoints: "",
@@ -40,12 +41,18 @@ const EMPTY_FORM = {
 const formSchema = z.object({
   reward: z.string().min(2).max(100),
   blurb: z.string().min(2).max(500),
-  imgName: z.string().min(2).max(100),
-  imgURL: z.string().url(),
   type: z.enum(["Reward", "Raffle"]),
   prizesAvailable: z.string().max(10),
   requiredPoints: z.string().max(10),
 });
+
+const imageSchema = z
+  .instanceof(File)
+  .refine((file) => file.size <= MAX_FILE_SIZE, "Max image size is 5MB.")
+  .refine(
+    (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+    "Only .jpg, .jpeg, .png formats are supported.",
+  );
 
 interface RewardDialogProps {
   open: boolean;
@@ -58,27 +65,98 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
   const mode: "edit" | "new" = activeReward ? "edit" : "new";
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [imageRemoved, setImageRemoved] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (activeReward?.imgURL) {
+      setImagePreview(activeReward?.imgURL);
+      setImageRemoved(false);
+    }
+  }, [activeReward]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     values: {
       reward: activeReward?.reward ?? "",
       blurb: activeReward?.blurb ?? "",
-      imgName: activeReward?.imgName ?? "",
-      imgURL: activeReward?.imgURL ?? "",
       type: activeReward?.type ?? ("" as "Reward" | "Raffle"),
       prizesAvailable: activeReward?.prizesAvailable ?? "",
       requiredPoints: activeReward?.requiredPoints ?? "",
     },
   });
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validation = imageSchema.safeParse(file);
+    if (!validation.success) {
+      setImageError(validation.error.errors[0].message);
+      return;
+    }
+
+    setImageError(null);
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageRemove = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setImageError(null);
+    setImageRemoved(true);
+  };
+
+  const close = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setImageError(null);
+    setImageRemoved(false);
+    onClose();
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (loading) return;
+
+    if (!imageFile && (!activeReward?.imgURL || imageRemoved)) {
+      setImageError("Please select an image");
+      return;
+    }
+
     setLoading(true);
-    await upsertReward(activeHackathon, values as unknown as HackathonRewards, activeReward?.key);
-    form.reset(EMPTY_FORM);
-    toast(`Reward successfully ${activeReward?.key ? "edited" : "created"}`);
-    setLoading(false);
-    onClose();
+    try {
+      const rewardData: HackathonRewards = {
+        ...values,
+        imgName: imageFile?.name || activeReward?.imgName || "",
+      } as HackathonRewards;
+
+      const upsertedReward = await upsertReward(
+        activeHackathon, 
+        rewardData, 
+        imageFile, 
+        activeReward?.key
+      );
+      if (!upsertedReward) throw new Error("Error upserting a reward");
+
+      form.reset(EMPTY_FORM);
+      toast(`Reward successfully ${activeReward?.key ? "edited" : "created"}`);
+      close();
+    } catch (error) {
+      console.error("Error upserting a reward", error);
+      toast(
+        `Something went wrong ${activeReward?.key ? "editing" : "creating"} this reward`,
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onDelete = async () => {
@@ -89,11 +167,16 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
     form.reset(EMPTY_FORM);
     toast("Reward successfully deleted.");
     setLoading(false);
-    onClose();
+    close();
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => onClose()}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(state) => {
+        if (!state) close();
+      }}
+    >
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Rewards</DialogTitle>
@@ -148,31 +231,13 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="imgName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image name</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Type here..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="imgURL"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Image URL</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Type here..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+            <ImageUpload
+              label="Image"
+              imagePreview={imagePreview}
+              imageError={imageError}
+              onImageSelect={handleImageSelect}
+              onImageRemove={handleImageRemove}
+              altText="Reward image preview"
             />
             <div className="grid grid-cols-2 gap-3">
               <FormField

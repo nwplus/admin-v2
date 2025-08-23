@@ -9,8 +9,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -26,8 +26,7 @@ import {
   upsertHackathonSponsorWithImage,
 } from "@/services/sponsors";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageIcon, Upload, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -79,7 +78,6 @@ export function SponsorDialog({ open, activeSponsor, onClose }: SponsorDialogPro
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (activeSponsor?.imgURL) {
@@ -192,55 +190,14 @@ export function SponsorDialog({ open, activeSponsor, onClose }: SponsorDialogPro
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div key={imagePreview} className="space-y-2">
-              <Label>Logo</Label>
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0">
-                  {imagePreview ? (
-                    <div className="relative">
-                      <img
-                        src={imagePreview}
-                        alt="Sponsor logo preview"
-                        className="aspect-square h-24 w-24 flex-grow rounded-md bg-theme-light object-contain p-4 shadow-md"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="-top-2 -right-2 absolute h-6 w-6 rounded-full p-0"
-                        onClick={handleImageRemove}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex h-24 w-24 items-center justify-center rounded-md border-2 border-gray-300 border-dashed bg-gray-50">
-                      <ImageIcon className="h-8 w-8 text-gray-400" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-grow space-y-2">
-                  <Input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={ACCEPTED_IMAGE_TYPES.join(",")}
-                    onChange={handleImageSelect}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full"
-                  >
-                    <Upload className="mr-2 h-4 w-4" />
-                    {imagePreview ? "Change Image" : "Upload Image"}
-                  </Button>
-                  <p className="text-neutral-500 text-sm">Max 5MB. Supports JPG, PNG formats.</p>
-                  {imageError && <p className="text-red-600 text-sm">{imageError}</p>}
-                </div>
-              </div>
-            </div>
+            <ImageUpload
+              label="Logo"
+              imagePreview={imagePreview}
+              imageError={imageError}
+              onImageSelect={handleImageSelect}
+              onImageRemove={handleImageRemove}
+              altText="Sponsor logo preview"
+            />
             <FormField
               control={form.control}
               name="name"
