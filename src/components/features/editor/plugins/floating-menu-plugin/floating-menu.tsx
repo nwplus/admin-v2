@@ -105,7 +105,7 @@ export const FloatingMenu = forwardRef<HTMLDivElement, FloatingMenuProps>(
         <Button
           aria-label="Format text as bold"
           size="icon"
-          variant="ghost"
+          variant={state.isBold ? "secondary" : "ghost"}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, "bold");
           }}
@@ -115,7 +115,7 @@ export const FloatingMenu = forwardRef<HTMLDivElement, FloatingMenuProps>(
         <Button
           aria-label="Format text as italics"
           size="icon"
-          variant="ghost"
+          variant={state.isItalic ? "secondary" : "ghost"}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, "italic");
           }}
@@ -125,7 +125,7 @@ export const FloatingMenu = forwardRef<HTMLDivElement, FloatingMenuProps>(
         <Button
           aria-label="Format text to underlined"
           size="icon"
-          variant="ghost"
+          variant={state.isUnderline ? "secondary" : "ghost"}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, "underline");
           }}
@@ -135,7 +135,7 @@ export const FloatingMenu = forwardRef<HTMLDivElement, FloatingMenuProps>(
         <Button
           aria-label="Format text with a strikethrough"
           size="icon"
-          variant="ghost"
+          variant={state.isStrikethrough ? "secondary" : "ghost"}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, "strikethrough");
           }}
@@ -145,7 +145,7 @@ export const FloatingMenu = forwardRef<HTMLDivElement, FloatingMenuProps>(
         <Button
           aria-label="Format text with inline code"
           size="icon"
-          variant="ghost"
+          variant={state.isCode ? "secondary" : "ghost"}
           onClick={() => {
             editor.dispatchCommand(FORMAT_TEXT_COMMAND, "code");
           }}
@@ -156,7 +156,7 @@ export const FloatingMenu = forwardRef<HTMLDivElement, FloatingMenuProps>(
         <Button
           aria-label="Format an unordered list"
           size="icon"
-          variant="ghost"
+          variant={state.isUL ? "secondary" : "ghost"}
           onClick={() => {
             if (state.isUL) {
               editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
@@ -168,9 +168,9 @@ export const FloatingMenu = forwardRef<HTMLDivElement, FloatingMenuProps>(
           <List />
         </Button>
         <Button
-          aria-label="Format an orderd list"
+          aria-label="Format an ordered list"
           size="icon"
-          variant="ghost"
+          variant={state.isOL ? "secondary" : "ghost"}
           onClick={() => {
             if (state.isOL) {
               editor.dispatchCommand(REMOVE_LIST_COMMAND, undefined);
