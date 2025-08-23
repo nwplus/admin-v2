@@ -68,10 +68,12 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [imageRemoved, setImageRemoved] = useState<boolean>(false);
 
   useEffect(() => {
     if (activeReward?.imgURL) {
       setImagePreview(activeReward?.imgURL);
+      setImageRemoved(false);
     }
   }, [activeReward]);
 
@@ -110,19 +112,21 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
     setImageFile(null);
     setImagePreview(null);
     setImageError(null);
+    setImageRemoved(true);
   };
 
   const close = () => {
     setImageFile(null);
     setImagePreview(null);
     setImageError(null);
+    setImageRemoved(false);
     onClose();
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (loading) return;
 
-    if (!imageFile) {
+    if (!imageFile && (!activeReward?.imgURL || imageRemoved)) {
       setImageError("Please select an image");
       return;
     }
