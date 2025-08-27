@@ -13,8 +13,6 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { DefaultNodes } from "./nodes/default-nodes";
 import CodeHighlightPlugin from "./plugins/code-highlight-plugin";
-import { FloatingMenuPlugin } from "./plugins/floating-menu-plugin";
-import { HighlighterPlugin } from "./plugins/highlighter-plugin";
 import { OnChangePlugin } from "./plugins/on-change-plugin";
 import { StaticMenuPlugin } from "./plugins/static-menu-plugin";
 import { theme } from "./theme";
@@ -34,14 +32,10 @@ const MATCHERS = [
       length: fullMatch.length,
       text: fullMatch,
       url: fullMatch.startsWith("http") ? fullMatch : `https://${fullMatch}`,
-      // attributes: { rel: 'noreferrer', target: '_blank' }, // Optional link attributes
     };
   },
 ];
 
-// Catch any errors that occur during Lexical updates and log them
-// or throw them as needed. If you don't throw them, Lexical will
-// try to recover gracefully without losing user data.
 function onError(error: unknown) {
   throw error;
 }
@@ -99,16 +93,12 @@ export function Editor({
         />
         <TabIndentationPlugin />
         <HistoryPlugin />
-        <HighlighterPlugin />
         <MarkdownShortcutPlugin />
         <ListPlugin />
         <LinkPlugin />
         <CodeHighlightPlugin />
         <AutoLinkPlugin matchers={MATCHERS} />
         <ClickableLinkPlugin />
-        {!readOnly && <FloatingMenuPlugin />}
-
-        {/* Editing */}
         {onContentChange && !readOnly && <OnChangePlugin onChange={onContentChange} />}
       </LexicalComposer>
     </div>

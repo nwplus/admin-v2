@@ -19,7 +19,6 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
-    "@floating-ui/dom": "^1.7.1",
     "@hookform/resolvers": "^5.0.1",
     "@lexical/code": "^0.34.0",
     "@lexical/hashtag": "^0.34.0",

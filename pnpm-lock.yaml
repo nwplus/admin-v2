@@ -11,9 +11,6 @@ importers:
       '@faker-js/faker':
         specifier: ^9.6.0
         version: 9.8.0
-      '@floating-ui/dom':
-        specifier: ^1.7.1
-        version: 1.7.1
       '@hookform/resolvers':
         specifier: ^5.0.1
         version: 5.0.1(react-hook-form@7.57.0(react@19.1.0))
