@@ -50,6 +50,7 @@ export const subscribeToHackerAppQuestions = (
     Welcome: [],
   };
   const unsubscribers: (() => void)[] = [];
+  const loadedSections = new Set<string>();
 
   for (const section of sections) {
     const unsubscribe = onSnapshot(
@@ -59,8 +60,8 @@ export const subscribeToHackerAppQuestions = (
           _id: doc.id,
           ...doc.data(),
         }));
-
-        if (Object.keys(data).length === sections.length) {
+        loadedSections.add(section);
+        if (loadedSections.size === sections.length) {
           callback(data);
         }
       },
