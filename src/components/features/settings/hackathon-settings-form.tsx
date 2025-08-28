@@ -1,5 +1,5 @@
 import { subscribeToHackathonConfig, updateHackathonConfig } from '@/services/hackathon-settings'
-import type { HackathonConfig } from '@/lib/firebase/types'
+import type { HackathonConfig, HackathonConfigMap, HackathonBooleanMap, WaiversAndFormsMap, NotionLinksMap } from '@/lib/firebase/types'
 import { splitHackathon, formatTimestamp } from '@/lib/utils'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -87,24 +87,24 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
       processedValue = value ? new Date(value).toISOString() : ''
     }
     
-    const currentValue = editedConfig[field] as any
+    const currentValue = editedConfig[field]
     const isMapField = typeof currentValue === 'object' && currentValue !== null && !Array.isArray(currentValue)
     
     if (nestedField) {
-      const hackathonValue = currentValue?.[hackathonType] || {}
+      const hackathonValue = (currentValue as HackathonConfigMap | WaiversAndFormsMap | NotionLinksMap)?.[hackathonType] || {}
       const updatedMap = {
-        ...currentValue,
+        ...(currentValue as object),
         [hackathonType]: {
           ...hackathonValue,
           [nestedField]: processedValue
         }
       }
-      setEditedConfig({ ...editedConfig, [field]: updatedMap })
+      setEditedConfig({ ...editedConfig, [field]: updatedMap as unknown as typeof currentValue })
     } else if (isMapField) {
-      const updatedMap = { ...currentValue, [hackathonType]: processedValue }
-      setEditedConfig({ ...editedConfig, [field]: updatedMap })
+      const updatedMap = { ...(currentValue as object), [hackathonType]: processedValue }
+      setEditedConfig({ ...editedConfig, [field]: updatedMap as unknown as typeof currentValue })
     } else {
-      setEditedConfig({ ...editedConfig, [field]: processedValue })
+      setEditedConfig({ ...editedConfig, [field]: processedValue as unknown as typeof currentValue })
     }
   }
 
@@ -124,30 +124,31 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
    * @returns value of the field or empty string if not found
    */
   const getValue = (field: keyof HackathonConfig, nestedField?: string): string => {
-    const value = currentConfig?.[field] as any
+    const value = currentConfig?.[field]
     const isMapField = typeof value === 'object' && value !== null && !Array.isArray(value)
     
     if (nestedField) {
-      return value?.[hackathonType]?.[nestedField] ?? ''
-    } else if (isMapField) {
-      return value[hackathonType] ?? ''
-    } else {
-      return value ?? ''
+      // Need to cast to corresponding maps to avoid type errors
+      const hackathonValue = (value as WaiversAndFormsMap | NotionLinksMap)?.[hackathonType]
+      return hackathonValue?.[nestedField as keyof typeof hackathonValue] ?? ''
     }
+    if (isMapField) {
+      return (value as HackathonConfigMap)[hackathonType] ?? ''
+    }
+    return (value as string) ?? ''
   }
 
   /**
    * Generic getter for boolean values corresponding to toggle fields
    */
   const getBooleanValue = (field: keyof HackathonConfig): boolean => {
-    const value = currentConfig?.[field] as any
+    const value = currentConfig?.[field]
     const isMapField = typeof value === 'object' && value !== null && !Array.isArray(value)
     
     if (isMapField) {
-      return value[hackathonType] ?? false
-    } else {
-      return value ?? false
+      return (value as HackathonBooleanMap)[hackathonType] ?? false
     }
+    return typeof value === 'boolean' ? value : false
   }
 
   
