@@ -26,6 +26,21 @@ export const splitHackathon = (hackathonId: string): [string, string | undefined
   return [hackathonId, undefined];
 };
 
+
+
+/**
+ * Formats a Firebase timestamp object for display
+ */
+export const formatTimestamp = (timestamp?: { seconds?: number } | null): string => {
+  if (!timestamp) return 'Not set';
+  if (timestamp.seconds) {
+    return new Date(timestamp.seconds * 1000).toLocaleString();
+  }
+  return timestamp.toString();
+};
+
+
+
 /**
  * Helper function to check if a string can be convertable to a date
  * @param value - the string to check if is valid
