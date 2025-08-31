@@ -1,19 +1,26 @@
 import { db } from "@/lib/firebase/client";
 import type { Applicant, HackathonDayOf } from "@/lib/firebase/types";
-import { collection, onSnapshot, query, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, query, getDocs, where } from "firebase/firestore";
 import { returnTrueKey, createStringFromSelection, splitHackathon } from "@/lib/utils";
 
 /**
  * Utility function that returns Applicants collection realtime data for a specific hackathon
+ * Does not include in progress applications
  * @param hackathon - The hackathon collection of the applicants to query
  * @param callback - The function used to ingest the data
  * @returns a listener function to be called on dismount
  */
 export const subscribeToApplicants = (hackathon: string, callback: (docs: Applicant[]) => void) =>
-  onSnapshot(query(collection(db, "Hackathons", hackathon, "Applicants")), (querySnapshot) => {
-    const docs = querySnapshot.docs.map((doc) => ({ _id: doc.id, ...doc.data() } as Applicant));
-    callback(docs);
-  });
+  onSnapshot(
+    query(
+      collection(db, "Hackathons", hackathon, "Applicants"),
+      where("status.applicationStatus", "!=", "inProgress")
+    ),
+    (querySnapshot) => {
+      const docs = querySnapshot.docs.map((doc) => ({ _id: doc.id, ...doc.data() } as Applicant));
+      callback(docs);
+    }
+  );
 
 /**
  * Utility function to flatten applicant data for table display
