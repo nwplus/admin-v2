@@ -42,16 +42,6 @@ export default function AddDiscordQuestions() {
       <h1 className="line-height-10 mb-5 font-bold text-2xl">Add Discord Questions</h1>
 
       <div className="flex gap-7">
-        <div>
-          <Label className="font-bold text-black text-lg">Sponsor</Label>
-          <p className="mb-2 text-black text-sm">Use official sponsor name</p>
-          <Input
-            className="border-2 border-gray-300 text-black focus-visible:border-gray-300"
-            onChange={(e) => setSponsor(e.target.value)}
-            value={sponsor}
-          />
-        </div>
-
         <div className="w-[40%]">
           <Label className="font-bold text-black text-lg">Question</Label>
           <p className="mb-2 text-black text-sm">What is the question?</p>
