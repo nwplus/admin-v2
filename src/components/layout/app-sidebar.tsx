@@ -8,8 +8,8 @@ import {
   FileText,
   HelpCircle,
   type LucideIcon,
-  Monitor,
   Search,
+  Settings,
   Star,
   Users,
   BadgeCheck,
@@ -39,11 +39,6 @@ export type NavigationGroup = {
 const NAVIGATION: NavigationGroup[] = [
   {
     content: [
-      {
-        label: "Livesite",
-        href: "/livesite",
-        icon: Monitor,
-      },
       {
         label: "FAQ",
         href: "/faq",
@@ -120,6 +115,11 @@ export const generateHackathonNavigation = (hackathons: Hackathon[]) => {
           label: "Application",
           href: `/hackathons/${hackathon._id}/application`,
           icon: FileText,
+        },
+        {
+          label: "Settings",
+          href: `/hackathons/${hackathon._id}/settings`,
+          icon: Settings,
         },
       ],
     }));

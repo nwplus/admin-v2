@@ -7,7 +7,7 @@
 .editor-placeholder {
   overflow: hidden;
   position: absolute;
-  top: 0px;
+  top: 45px;
   left: 0px;
   font-size: 1rem;
   color: var(--color-neutral-500);
@@ -16,7 +16,12 @@
   font-size: var(--text-sm);
 }
 
-/* Theme/node */
+/* NODE STYLES */
+
+.editor-link {
+  color: var(--color-blue-600);
+}
+
 .ltr {
   text-align: left;
 }
@@ -30,36 +35,72 @@
   font-size: var(--text-sm);
 }
 
+.editor-code {
+  font-family: monospace;
+  font-size: var(--text-xs);
+  padding: calc(var(--spacing) * 3);
+  background-color: rgba(0, 0, 0, 0.05);
+  display: block;
+  border-radius: var(--radius-sm);
+}
+
+.editor-tokenAttr {
+  color: var(--color-purple-700);
+}
+
+/* TEXT FORMATTING STYLES */
+
 .editor-textCode {
   font-family: monospace;
-  font-size: var(--text-sm);
-  /* background-color: hsl(var(--ui-20)); */
+  font-size: var(--text-xs);
+  padding: 0.1rem;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 .editor-textStrikethrough {
   text-decoration: line-through;
-  font-size: var(--text-sm);
 }
+.editor-textUnderline {
+  text-decoration: underline;
+}
+.editor-textUnderlineStrikethrough {
+  text-decoration: line-through underline;
+}
+.editor-textItalic {
+  font-style: italic;
+}
+
+/* LIST STYLES */
 
 .editor-list-ul {
   display: block;
   list-style-type: disc;
-  margin-top: 1em;
-  margin-bottom: 1 em;
+  margin-top: calc(var(--spacing) * 2);
+  margin-bottom: calc(var(--spacing) * 2);
   margin-left: 0;
   margin-right: 0;
-  padding-left: 40px;
+  padding-left: calc(var(--spacing) * 4);
   font-size: var(--text-sm);
 }
 .editor-list-ol {
   display: block;
   list-style-type: decimal;
-  margin-top: 1em;
-  margin-bottom: 1em;
+  margin-top: calc(var(--spacing) * 2);
+  margin-bottom: calc(var(--spacing) * 2);
   margin-left: 0;
   margin-right: 0;
-  padding-left: 40px;
+  padding-left: calc(var(--spacing) * 4);
   font-size: var(--text-sm);
 }
+
+.editor-nested-listitem {
+  list-style-type: none;
+}
+.editor-nested-listitem > .editor-list-ul,
+.editor-nested-listitem > .editor-list-ol {
+  margin-top: var(--spacing);
+}
+
+/* TYPOGRAPHY STYLES */
 
 .editor-heading-h1 {
   font-size: 1.8rem;

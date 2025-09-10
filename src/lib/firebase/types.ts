@@ -420,9 +420,9 @@ export interface ContestQuestion {
 }
 
 /**
- * Collection: /InternalWebsites/Livesite
+ * Collection: /InternalWebsites/Portal
  * 
- * Current active hackathon's config and settings
+ * Current year's hackathons configs
  */
 export interface LivesiteSettings {
   _id?: string;
@@ -495,4 +495,68 @@ export interface QueryTemplate {
   category: string;
   query: Partial<FirebaseQuery>;
   isSystemTemplate: boolean;
+}
+
+/**
+ * Collection: /InternalWebsites/Portal
+ * 
+ * Data model for per hackathon configuration
+ */
+export type HackathonType = 'cmd-f' | 'hackcamp' | 'nwhacks';
+
+export interface HackathonConfigMap {
+  'cmd-f': string;
+  hackcamp: string;
+  nwhacks: string;
+}
+
+export interface HackathonBooleanMap {
+  'cmd-f': boolean;
+  hackcamp: boolean;
+  nwhacks: boolean;
+}
+
+export interface WaiversAndForms {
+  covid: string;
+  media: string;
+  nwMentorship: string;
+  releaseLiability: string;
+}
+
+export interface NotionLinks {
+  preHackathonWorkshops: string;
+}
+
+export interface WaiversAndFormsMap {
+  'cmd-f': WaiversAndForms;
+  hackcamp: WaiversAndForms;
+  nwhacks: WaiversAndForms;
+}
+
+export interface NotionLinksMap {
+  'cmd-f': NotionLinks;
+  hackcamp: NotionLinks;
+  nwhacks: NotionLinks;
+}
+
+export interface HackathonConfig {
+  _id?: string;
+  applicationDeadline: HackathonConfigMap;
+  applicationsOpen: HackathonBooleanMap;
+  hackathonEnd: HackathonConfigMap;
+  hackathonStart: HackathonConfigMap;
+  hackathonWeekend: HackathonConfigMap;
+  hackingEnd: HackathonConfigMap;
+  hackingStart: HackathonConfigMap;
+  judgingOpen: HackathonBooleanMap;
+  judgingReleased: HackathonBooleanMap;
+  lastEdited: Timestamp;
+  lastEditedBy: string;
+  notionLinks: NotionLinksMap;
+  offWaitlistNotify: HackathonConfigMap;
+  portalLive: HackathonBooleanMap;
+  rsvpBy: HackathonConfigMap;
+  sendAcceptancesBy: HackathonConfigMap;
+  submissionsOpen: HackathonBooleanMap;
+  waiversAndForms: WaiversAndFormsMap;
 }

@@ -208,7 +208,7 @@ export function HackerAppSection({
             <div className="flex flex-col items-center justify-center">
               <Button variant="outline" onClick={() => handleAddQuestion(0)}>
                 <Plus />
-                Add Question
+                Add question
               </Button>
             </div>
           )}
