@@ -214,8 +214,12 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
               <Field>
                 <Label>Form input field</Label>
                 <Select
-                  onValueChange={(v) => onChange(index, "formInput", v)}
+                  onValueChange={(v) => {
+                    if (question.formInput) return;
+                    onChange(index, "formInput", v);
+                  }}
                   defaultValue={question.formInput}
+                  disabled={Boolean(question.formInput)}
                 >
                   <SelectTrigger className="w-full bg-background">
                     <SelectValue placeholder="Select a type" />
