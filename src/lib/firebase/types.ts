@@ -316,7 +316,8 @@ export type HackerApplicationQuestionFormInputField =
   | "preferredName"
   | "pronouns"
   | "race"
-  | "jobPosition";
+  | "jobPosition"
+  | "connectPlus";
 export interface HackerApplicationQuestion {
   _id?: string; // internal
   title?: string;

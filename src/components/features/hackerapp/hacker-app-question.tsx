@@ -64,6 +64,7 @@ const FORM_INPUT_OPTIONS: HackerApplicationQuestionFormInputField[] = [
   "pronouns",
   "race",
   "jobPosition",
+  "connectPlus",
 ];
 
 export const SHOW_FORM_INPUT: HackerApplicationQuestionType[] = [
