@@ -34,6 +34,16 @@ const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "Major",
   "Country",
 ];
+
+// Question types that if selected, bricks the select field and locks in the value
+const QUESTION_TYPES_IMMUTABLE: HackerApplicationQuestionType[] = [
+  "Portfolio",
+  "Full Legal Name",
+  "School",
+  "Major",
+  "Country",
+];
+
 // TODO: reorganize type and form input type?
 const FORM_INPUT_OPTIONS: HackerApplicationQuestionFormInputField[] = [
   "academicYear",
@@ -192,7 +202,20 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
         </Field>
         <Field>
           <Label>Question type</Label>
-          <Select onValueChange={(v) => onChange(index, "type", v)} defaultValue={question.type}>
+          <Select
+            onValueChange={(v) => {
+              if (
+                question.type &&
+                QUESTION_TYPES_IMMUTABLE.includes(question.type)
+              )
+                return;
+              onChange(index, "type", v);
+            }}
+            defaultValue={question.type}
+            disabled={
+              question.type && QUESTION_TYPES_IMMUTABLE.includes(question.type)
+            }
+          >
             <SelectTrigger className="w-full bg-background">
               <SelectValue placeholder="Select a type" />
             </SelectTrigger>
