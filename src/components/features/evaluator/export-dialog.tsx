@@ -6,6 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { getAllResumes } from "@/lib/firebase/storage";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { flattenApplicantData } from "@/services/query";
 import { FileDownIcon } from "lucide-react";
@@ -66,7 +67,23 @@ export function ExportDialog() {
       setLoading(false);
     }
   };
-  const handleResumes = () => {};
+
+  const handleResumes = async () => {
+    if (loading) return;
+    setLoading(true);
+
+    try {
+      toast("Starting resume download. This may take a few moments...");
+      await getAllResumes(applicants, hackathon);
+      toast("Successfully downloaded resumes ZIP file.");
+    } catch (error) {
+      console.error("Error downloading resumes:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      toast(`Error downloading resumes: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Dialog>
