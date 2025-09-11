@@ -1,4 +1,9 @@
-import type { HackerApplicationQuestion, HackerApplicationSections } from "@/lib/firebase/types";
+import type {
+  HackerApplicationQuestion,
+  HackerApplicationQuestionFormInputField,
+  HackerApplicationQuestionType,
+  HackerApplicationSections,
+} from "@/lib/firebase/types";
 import { useHackerApplication } from "@/providers/hacker-application-provider";
 import { updateHackerAppSectionQuestions } from "@/services/hacker-application";
 import { type SetStateAction, useCallback, useMemo, useRef, useState } from "react";
@@ -11,6 +16,11 @@ export type HackerApplicationFormQuestions = {
   Questionnaire: HackerApplicationQuestion[];
   Skills: HackerApplicationQuestion[];
   Welcome: HackerApplicationQuestion[];
+};
+
+export type UsedFieldsRegistry = {
+  formInput: Set<HackerApplicationQuestionFormInputField>;
+  questionType: Set<HackerApplicationQuestionType>;
 };
 
 const sections = [
@@ -85,6 +95,23 @@ export function HackerAppMain() {
   // Saving occurs on this level, so keep a local copy of the form
   const [draft, setDraft] = useState<HackerApplicationFormQuestions>(formData);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const usedFieldsRegistry: UsedFieldsRegistry = useMemo(() => {
+    const allQuestions = Object.values(draft).flat() as HackerApplicationQuestion[];
+
+    const allQuestionTypes = allQuestions
+      .map((q) => q.type)
+      .filter((t): t is HackerApplicationQuestionType => t !== undefined);
+
+    const allFormInputs = allQuestions
+      .map((q) => q.formInput)
+      .filter((f): f is HackerApplicationQuestionFormInputField => f !== undefined);
+
+    return {
+      questionType: new Set(allQuestionTypes),
+      formInput: new Set(allFormInputs),
+    };
+  }, [draft]);
 
   const isSectionUpdated = useMemo(
     () => (section: HackerApplicationSections) => {
@@ -230,6 +257,7 @@ export function HackerAppMain() {
           onSave={() => handleSave(id)}
           isSaving={isSaving}
           isSectionUpdated={isSectionUpdated(id)}
+          usedFieldsRegistry={usedFieldsRegistry}
         />
       ))}
     </div>

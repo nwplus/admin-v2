@@ -15,6 +15,7 @@ import type {
   HackerApplicationSections,
 } from "@/lib/firebase/types";
 import { Plus } from "lucide-react";
+import type { UsedFieldsRegistry } from "./hacker-app-main";
 import { HackerAppQuestion } from "./hacker-app-question";
 
 interface HackerAppSectionProps {
@@ -34,6 +35,7 @@ interface HackerAppSectionProps {
   onSave: () => void;
   isSaving: boolean;
   isSectionUpdated: boolean;
+  usedFieldsRegistry: UsedFieldsRegistry;
 }
 
 export function HackerAppSection({
@@ -49,6 +51,7 @@ export function HackerAppSection({
   onSave,
   isSaving,
   isSectionUpdated,
+  usedFieldsRegistry,
   ...props
 }: HackerAppSectionProps & React.ComponentProps<"div">) {
   return (
@@ -86,6 +89,7 @@ export function HackerAppSection({
               onMove={onMoveQuestion}
               onRemove={onRemoveQuestion}
               onChange={onChangeQuestionField}
+              usedFieldsRegistry={usedFieldsRegistry}
             />
           ))}
           {!data.length && (

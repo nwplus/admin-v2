@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Plus, Trash } from "lucide-react";
 import { type ReactNode, memo, useEffect } from "react";
 import { Editor } from "../editor";
+import type { UsedFieldsRegistry } from "./hacker-app-main";
 
 const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "Long Answer",
@@ -36,7 +37,7 @@ const QUESTION_TYPES: HackerApplicationQuestionType[] = [
 ];
 
 // Question types that if selected, bricks the select field and locks in the value
-const QUESTION_TYPES_IMMUTABLE: HackerApplicationQuestionType[] = [
+const QUESTION_TYPES_UNIQUE: HackerApplicationQuestionType[] = [
   "Portfolio",
   "Full Legal Name",
   "School",
@@ -90,6 +91,7 @@ interface HackerAppQuestionProps {
     field: keyof HackerApplicationQuestion,
     value: string | boolean | string[],
   ) => void;
+  usedFieldsRegistry: UsedFieldsRegistry;
 }
 
 export const HackerAppQuestion = memo(function HackerAppQuestion({
@@ -101,6 +103,7 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
   onMove,
   onRemove,
   onChange,
+  usedFieldsRegistry,
 }: HackerAppQuestionProps) {
   /**
    * Helper function to properly modify options array before sending it up
@@ -132,6 +135,13 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
       onChange(index, "options", options.slice(0, -1));
     }
   }, [index, question.options, onChange]);
+
+  const usableQuestionTypes = QUESTION_TYPES?.filter(
+    (qt) => !QUESTION_TYPES_UNIQUE.includes(qt) || !usedFieldsRegistry.questionType.has(qt),
+  );
+  const usableFormInputs = FORM_INPUT_OPTIONS?.filter(
+    (fi) => !usedFieldsRegistry.formInput.has(fi),
+  );
 
   return !isContent ? (
     <div className="relative flex flex-col gap-3">
@@ -205,27 +215,23 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
           <Label>Question type</Label>
           <Select
             onValueChange={(v) => {
-              if (
-                question.type &&
-                QUESTION_TYPES_IMMUTABLE.includes(question.type)
-              )
-                return;
+              if (question.type && QUESTION_TYPES_UNIQUE.includes(question.type)) return;
               onChange(index, "type", v);
             }}
             defaultValue={question.type}
-            disabled={
-              question.type && QUESTION_TYPES_IMMUTABLE.includes(question.type)
-            }
+            disabled={question.type && QUESTION_TYPES_UNIQUE.includes(question.type)}
           >
             <SelectTrigger className="w-full bg-background">
               <SelectValue placeholder="Select a type" />
             </SelectTrigger>
             <SelectContent>
-              {QUESTION_TYPES?.map((q) => (
-                <SelectItem key={q} value={q}>
-                  {q}
-                </SelectItem>
-              ))}
+              {usableQuestionTypes
+                .concat(question.type as HackerApplicationQuestionType)
+                ?.map((q) => (
+                  <SelectItem key={q} value={q}>
+                    {q}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </Field>
@@ -249,11 +255,13 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {FORM_INPUT_OPTIONS?.map((q) => (
-                      <SelectItem key={q} value={q}>
-                        {q}
-                      </SelectItem>
-                    ))}
+                    {usableFormInputs
+                      .concat(question.formInput as HackerApplicationQuestionFormInputField)
+                      ?.map((q) => (
+                        <SelectItem key={q} value={q}>
+                          {q}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </Field>
