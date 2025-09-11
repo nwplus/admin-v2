@@ -86,11 +86,16 @@ export function HackerAppMain() {
   const [draft, setDraft] = useState<HackerApplicationFormQuestions>(formData);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  const isSectionUpdated = useCallback(
-    (section: HackerApplicationSections) => {
+  const isSectionUpdated = useMemo(
+    () => (section: HackerApplicationSections) => {
       const dbSection = cleanSectionData(formData[section]);
       const draftSection = cleanSectionData(draft[section]);
-      return JSON.stringify(dbSection) !== JSON.stringify(draftSection);
+
+      // Compare sections without _id fields since they're database-specific
+      const dbSectionWithoutIds = dbSection.map(({ _id, ...question }) => question);
+      const draftSectionWithoutIds = draftSection.map(({ _id, ...question }) => question);
+
+      return JSON.stringify(dbSectionWithoutIds) !== JSON.stringify(draftSectionWithoutIds);
     },
     [formData, draft],
   );
@@ -183,7 +188,6 @@ export function HackerAppMain() {
     if (isSaving) return;
 
     if (!validateSectionData(cleanSectionData(draft[section]))) {
-      console.log(cleanSectionData(draft[section]));
       toast("Please make sure all Form Input values have been selected");
       return;
     }
@@ -206,29 +210,27 @@ export function HackerAppMain() {
   return (
     <div ref={containerRef} className="flex w-full flex-col gap-3 ">
       {sections.map(({ id, title, description }) => (
-        <>
-          <HackerAppSection
-            key={id}
-            section={id}
-            title={title}
-            description={description}
-            data={draft[id as HackerApplicationSections]}
-            metadata={metadata?.[id]}
-            onRemoveQuestion={(index: number) => handleRemoveQuestion(id, index)}
-            onAddQuestion={(index: number) => handleAddQuestion(id, index)}
-            onMoveQuestion={(fromIndex: number, toIndex: number) =>
-              handleMoveQuestion(id, fromIndex, toIndex)
-            }
-            onChangeQuestionField={(
-              index: number,
-              field: keyof HackerApplicationQuestion,
-              value: string | boolean | string[],
-            ) => handleChangeQuestionField(id, index, field, value)}
-            onSave={() => handleSave(id)}
-            isSaving={isSaving}
-            isSectionUpdated={isSectionUpdated(id)}
-          />
-        </>
+        <HackerAppSection
+          key={id}
+          section={id}
+          title={title}
+          description={description}
+          data={draft[id as HackerApplicationSections]}
+          metadata={metadata?.[id]}
+          onRemoveQuestion={(index: number) => handleRemoveQuestion(id, index)}
+          onAddQuestion={(index: number) => handleAddQuestion(id, index)}
+          onMoveQuestion={(fromIndex: number, toIndex: number) =>
+            handleMoveQuestion(id, fromIndex, toIndex)
+          }
+          onChangeQuestionField={(
+            index: number,
+            field: keyof HackerApplicationQuestion,
+            value: string | boolean | string[],
+          ) => handleChangeQuestionField(id, index, field, value)}
+          onSave={() => handleSave(id)}
+          isSaving={isSaving}
+          isSectionUpdated={isSectionUpdated(id)}
+        />
       ))}
     </div>
   );
