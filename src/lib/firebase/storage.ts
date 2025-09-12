@@ -81,7 +81,7 @@ export const deleteRewardImage = async (hackathon: string, rewardId: string) => 
  * @param hackathonName - Name of the hackathon for the ZIP filename
  * @returns Promise that resolves when download is complete
  */
-export const getAllResumes = async (
+export const getAllApplicantResumes = async (
   applicants: Applicant[],
   hackathonName: string,
 ): Promise<void> => {
@@ -140,21 +140,7 @@ export const getAllResumes = async (
       }
 
       const resume = await response.blob();
-
-      // Try to determine file extension from the URL or Content-Type
-      let extension = "pdf"; // Default to PDF
-      const contentType = response.headers.get("content-type");
-      const urlPath = url.split("?")[0]; // Remove query parameters
-      const urlExtension = urlPath.split(".").pop()?.toLowerCase();
-
-      if (urlExtension && ["pdf", "doc", "docx"].includes(urlExtension)) {
-        extension = urlExtension;
-      } else if (contentType?.includes("pdf")) {
-        extension = "pdf";
-      } else if (contentType?.includes("word")) {
-        extension = "docx";
-      }
-
+      const extension = "pdf"; // Default to PDF
       zip.file(`${name}_${id}.${extension}`, resume, { binary: true });
     } catch (error) {
       console.error(`Failed to download resume for ${name} (${id}):`, error);
