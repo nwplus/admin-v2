@@ -142,6 +142,10 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
   const usableFormInputs = FORM_INPUT_OPTIONS?.filter(
     (fi) => !usedFieldsRegistry.formInput.has(fi),
   );
+  const isQuestionTypeDisabled = Boolean(
+    question.type && QUESTION_TYPES_UNIQUE.includes(question.type),
+  );
+  const isFormInputDisabled = Boolean(question.formInput);
 
   return !isContent ? (
     <div className="relative flex flex-col gap-3">
@@ -215,23 +219,25 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
           <Label>Question type</Label>
           <Select
             onValueChange={(v) => {
-              if (question.type && QUESTION_TYPES_UNIQUE.includes(question.type)) return;
+              if (isQuestionTypeDisabled) return;
               onChange(index, "type", v);
             }}
             defaultValue={question.type}
-            disabled={question.type && QUESTION_TYPES_UNIQUE.includes(question.type)}
+            disabled={isQuestionTypeDisabled}
           >
             <SelectTrigger className="w-full bg-background">
               <SelectValue placeholder="Select a type" />
             </SelectTrigger>
             <SelectContent>
-              {usableQuestionTypes
-                .concat(question.type as HackerApplicationQuestionType)
-                ?.map((q) => (
+              {isQuestionTypeDisabled ? (
+                <SelectItem value={question.type as string}>{question.type}</SelectItem>
+              ) : (
+                usableQuestionTypes?.map((q) => (
                   <SelectItem key={q} value={q}>
                     {q}
                   </SelectItem>
-                ))}
+                ))
+              )}
             </SelectContent>
           </Select>
         </Field>
@@ -245,23 +251,27 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
                 <Label>Form input field</Label>
                 <Select
                   onValueChange={(v) => {
-                    if (question.formInput) return;
+                    if (isFormInputDisabled) return;
                     onChange(index, "formInput", v);
                   }}
                   defaultValue={question.formInput}
-                  disabled={Boolean(question.formInput)}
+                  disabled={isFormInputDisabled}
                 >
                   <SelectTrigger className="w-full bg-background">
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {usableFormInputs
-                      .concat(question.formInput as HackerApplicationQuestionFormInputField)
-                      ?.map((q) => (
+                    {isFormInputDisabled ? (
+                      <SelectItem value={question.formInput as string}>
+                        {question.formInput}
+                      </SelectItem>
+                    ) : (
+                      usableFormInputs?.map((q) => (
                         <SelectItem key={q} value={q}>
                           {q}
                         </SelectItem>
-                      ))}
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </Field>
