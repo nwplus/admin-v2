@@ -10,28 +10,28 @@ import { toast } from "sonner";
 export default function AddMembers() {
   const [emails, setEmails] = useState<string>("");
   const server = useFactotum().server;
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(["Mentor"]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(["mentor"]);
 
   const availableRoles = [
     {
       label: "Mentor",
-      value: "Mentor",
+      value: "mentor",
     },
     {
       label: "Sponsor",
-      value: "Sponsor",
+      value: "sponsor",
     },
     {
       label: "Volunteer",
-      value: "Volunteer",
+      value: "volunteer",
     },
     {
       label: "Photographer",
-      value: "Photographer",
+      value: "photographer",
     },
     {
       label: "Organizer",
-      value: "Organizer",
+      value: "organizer",
     },
   ];
 
