@@ -40,9 +40,15 @@ export default function AddMembers() {
       .split("\n")
       .map((e) => e.trim())
       .filter((e) => e.length > 0);
+    
+    if (emailList.length === 0 || selectedRoles.length === 0) {
+      toast.error("You must select at least one role and provide at least one email");
+      return;
+    }
+
     try {
       await addParticipants(emailList, selectedRoles, server);
-      toast("Participants added successfully");
+      toast.success("Participants added successfully");
     } catch (err) {
       toast.error("Failed to add participants");
       console.error(err);
