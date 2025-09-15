@@ -109,7 +109,11 @@ export function HackerAppSection({
    */
   const handleAddQuestion = useCallback(
     (index: number) =>
-      setData((data) => [...data.slice(0, index + 1), EMPTY_QUESTION, ...data.slice(index + 1)]),
+      setData((data) => [
+        ...data.slice(0, index + 1),
+        { _id: crypto.randomUUID(), ...EMPTY_QUESTION },
+        ...data.slice(index + 1),
+      ]),
     [],
   );
 
