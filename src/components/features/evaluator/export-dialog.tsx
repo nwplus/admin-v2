@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { getAllApplicantResumes } from "@/lib/firebase/storage";
 import { useEvaluator } from "@/providers/evaluator-provider";
-import { flattenApplicantData } from "@/services/query";
+import { exportApplicantsAsCSV } from "@/services/evaluator";
 import { FileDownIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 export function ExportDialog() {
@@ -40,43 +40,6 @@ export function ExportDialog() {
     }
   };
 
-  const getCSV = useCallback(() => {
-    if (applicants.length === 0) {
-      return;
-    }
-
-    // Flatten the applicant data for CSV export
-    const flattenedData = applicants.map((applicant) => flattenApplicantData(applicant, hackathon));
-    const headers = Object.keys(flattenedData[0]);
-    const csvContent = [
-      headers.join(","),
-      ...flattenedData.map((row) =>
-        headers
-          .map((header) => {
-            const value = row[header];
-            if (typeof value === "string" && (value.includes(",") || value.includes('"'))) {
-              return `"${value.replace(/"/g, '""')}"`;
-            }
-            return value;
-          })
-          .join(","),
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `${hackathon}_applicants_${new Date().toISOString().split("T")[0]}.csv`,
-    );
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [applicants, hackathon]);
-
   return (
     <Dialog>
       <DialogTrigger>
@@ -94,7 +57,7 @@ export function ExportDialog() {
             disabled={loading}
             onClick={() =>
               handleExport(
-                getCSV,
+                () => exportApplicantsAsCSV(applicants, hackathon),
                 "Successfully downloaded CSV",
                 "An error occured while downloading CSV",
               )

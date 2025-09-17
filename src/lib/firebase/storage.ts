@@ -76,28 +76,25 @@ export const deleteRewardImage = async (hackathon: string, rewardId: string) => 
 };
 
 /**
- * Downloads all applicant resumes and packages them in a ZIP file
+ * Filters applicants who have resumes and agreed to share with sponsors
  * @param applicants - Array of applicant objects
- * @param hackathonName - Name of the hackathon for the ZIP filename
- * @returns Promise that resolves when download is complete
+ * @returns Filtered array of applicants
  */
-export const getAllApplicantResumes = async (
-  applicants: Applicant[],
-  hackathonName: string,
-): Promise<void> => {
-  // Filter applicants who have agreed to share with sponsors and have resumes
-  const sharableApps = applicants.filter((applicant) => {
+const filterShareableApplicants = (applicants: Applicant[]): Applicant[] => {
+  return applicants.filter((applicant) => {
     const hasResume = applicant.skills?.resume && applicant.skills.resume.trim() !== "";
     const shareWithSponsors = applicant.termsAndConditions?.shareWithSponsors;
     return hasResume && shareWithSponsors;
   });
+};
 
-  if (sharableApps.length === 0) {
-    throw new Error("No applicants with resumes found who agreed to share with sponsors");
-  }
-
-  // Extract names and IDs
-  const namesAndIds = sharableApps.map((applicant) => {
+/**
+ * Extracts and sanitizes applicant names with their IDs
+ * @param applicants - Array of applicant objects
+ * @returns Array of objects with id and sanitized name
+ */
+const extractApplicantNamesAndIds = (applicants: Applicant[]) => {
+  return applicants.map((applicant) => {
     const firstName =
       applicant.basicInfo?.firstName || applicant.basicInfo?.legalFirstName || "Unknown";
     const lastName = applicant.basicInfo?.lastName || applicant.basicInfo?.legalLastName || "User";
@@ -106,8 +103,14 @@ export const getAllApplicantResumes = async (
       name: `${firstName} ${lastName}`.replace(/[^a-zA-Z0-9\s]/g, ""), // Sanitize filename
     };
   });
+};
 
-  // Get resume URLs for all applicants
+/**
+ * Fetches resume URLs for applicants
+ * @param namesAndIds - Array of objects with id and name
+ * @returns Promise that resolves to array of objects with id, name, and url
+ */
+const fetchResumeUrls = async (namesAndIds: { id: string; name: string }[]) => {
   const urlPromises = namesAndIds.map(async (info) => {
     try {
       const url = await getApplicantResume(info.id);
@@ -119,17 +122,21 @@ export const getAllApplicantResumes = async (
   });
 
   const appUrls = await Promise.all(urlPromises);
+  return appUrls.filter((app) => app.url !== null);
+};
 
-  // Filter out applicants where we couldn't get URLs
-  const validUrls = appUrls.filter((app) => app.url !== null);
-
-  if (validUrls.length === 0) {
-    throw new Error("Could not retrieve any resume URLs");
-  }
-
+/**
+ * Creates a ZIP file with all valid resume URLs and triggers download
+ * @param validUrls - Array of objects with url, name, and id
+ * @param hackathonName - Name of the hackathon for the filename
+ * @returns Promise that resolves when download is complete
+ */
+const createAndDownloadResumeZip = async (
+  validUrls: { url: string | undefined; name: string; id: string }[],
+  hackathonName: string,
+): Promise<void> => {
   const zip = new JSZip();
 
-  // Download and add resumes to ZIP
   const zipPromises = validUrls.map(async ({ url, name, id }) => {
     try {
       if (!url) return;
@@ -148,11 +155,9 @@ export const getAllApplicantResumes = async (
   });
 
   await Promise.all(zipPromises);
-
-  // Generate and trigger download
   const finishedZip = await zip.generateAsync({ type: "blob" });
 
-  // Create download link
+  // Trigger download
   const link = document.createElement("a");
   const url = URL.createObjectURL(finishedZip);
   link.setAttribute("href", url);
@@ -164,7 +169,36 @@ export const getAllApplicantResumes = async (
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-
-  // Clean up the object URL
   URL.revokeObjectURL(url);
+};
+
+/**
+ * Downloads all applicant resumes and packages them in a ZIP file
+ * @param applicants - Array of applicant objects
+ * @param hackathonName - Name of the hackathon for the ZIP filename
+ * @returns Promise that resolves when download is complete
+ */
+export const getAllApplicantResumes = async (
+  applicants: Applicant[],
+  hackathonName: string,
+): Promise<void> => {
+  // Filter applicants who have agreed to share with sponsors and have resumes
+  const sharableApps = filterShareableApplicants(applicants);
+
+  if (sharableApps.length === 0) {
+    throw new Error("No applicants with resumes found who agreed to share with sponsors");
+  }
+
+  // Extract names and IDs
+  const namesAndIds = extractApplicantNamesAndIds(sharableApps);
+
+  // Get resume URLs for all applicants
+  const validUrls = await fetchResumeUrls(namesAndIds);
+
+  if (validUrls.length === 0) {
+    throw new Error("Could not retrieve any resume URLs");
+  }
+
+  // Create ZIP file with all resumes and trigger download
+  await createAndDownloadResumeZip(validUrls, hackathonName);
 };

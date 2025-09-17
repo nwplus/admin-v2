@@ -1,5 +1,6 @@
 import { db } from "@/lib/firebase/client";
 import type { Applicant, ApplicantContribution, InternalWebsitesCMS } from "@/lib/firebase/types";
+import { flattenApplicantData } from "@/services/query";
 import {
   type Timestamp,
   collection,
@@ -69,6 +70,53 @@ export const updateApplicant = async (hackathon: string, applicantId: string, up
   } catch (err) {
     console.error("Error updating applicant: ", err);
   }
+};
+
+/**
+ * Utility function to export applicant data as CSV
+ * @param applicants - Array of applicant objects
+ * @param hackathonName - Name of the hackathon for the filename
+ * @returns void - triggers CSV download
+ */
+export const exportApplicantsAsCSV = (applicants: Applicant[], hackathonName: string): void => {
+  if (applicants.length === 0) {
+    return;
+  }
+
+  // Flatten the applicant data for CSV export
+  const flattenedData = applicants.map((applicant) =>
+    flattenApplicantData(applicant, hackathonName),
+  );
+  const headers = Object.keys(flattenedData[0]);
+  const csvContent = [
+    headers.join(","),
+    ...flattenedData.map((row) =>
+      headers
+        .map((header) => {
+          const value = row[header];
+          if (typeof value === "string" && (value.includes(",") || value.includes('"'))) {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return value;
+        })
+        .join(","),
+    ),
+  ].join("\n");
+
+  // Create and trigger download
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute(
+    "download",
+    `${hackathonName}_applicants_${new Date().toISOString().split("T")[0]}.csv`,
+  );
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 /**
