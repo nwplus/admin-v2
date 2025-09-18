@@ -35,9 +35,6 @@ export function QuestionTable() {
       header: "Modified by",
       cell: (info) => info.getValue(),
     }),
-    columnHelper.accessor("sponsor", {
-      header: "Sponsor",
-    }),
     columnHelper.accessor("question", {
       header: "Question",
     }),
