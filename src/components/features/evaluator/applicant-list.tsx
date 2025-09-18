@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import { AcceptDialog } from "./accept-dialog";
 import { ApplicantEntry } from "./applicant-entry";
 import { CalculateDialog } from "./calculate-dialog";
+import { ExportDialog } from "./export-dialog";
 
 const EVALUATOR_STATUSES: ApplicationStatus[] = ["applied", "gradinginprog", "scored"];
 const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({
@@ -33,13 +34,16 @@ export function ApplicantList() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="pb-2">Applicant list</CardTitle>
-          <MultiSelect
-            options={APPLICATION_STATUS_OPTIONS}
-            selected={selectedStatuses}
-            onChange={(vals) => setSelectedStatuses(vals as ApplicationStatus[])}
-            placeholder="Filter by..."
-            className="w-42"
-          />
+          <div className="flex items-center gap-2">
+            <MultiSelect
+              options={APPLICATION_STATUS_OPTIONS}
+              selected={selectedStatuses}
+              onChange={(vals) => setSelectedStatuses(vals as ApplicationStatus[])}
+              placeholder="Filter by..."
+              className="w-32"
+            />
+            <ExportDialog />
+          </div>
         </div>
 
         <Input
