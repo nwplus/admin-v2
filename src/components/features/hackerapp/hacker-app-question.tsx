@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Plus, Trash } from "lucide-react";
 import { type ReactNode, memo, useEffect } from "react";
 import { Editor } from "../editor";
+import type { UsedFieldsRegistry } from "./hacker-app-main";
 
 const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "Long Answer",
@@ -34,6 +35,16 @@ const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "Major",
   "Country",
 ];
+
+// Question types that if selected, bricks the select field and locks in the value
+const QUESTION_TYPES_UNIQUE: HackerApplicationQuestionType[] = [
+  "Portfolio",
+  "Full Legal Name",
+  "School",
+  "Major",
+  "Country",
+];
+
 // TODO: reorganize type and form input type?
 const FORM_INPUT_OPTIONS: HackerApplicationQuestionFormInputField[] = [
   "academicYear",
@@ -54,6 +65,7 @@ const FORM_INPUT_OPTIONS: HackerApplicationQuestionFormInputField[] = [
   "pronouns",
   "race",
   "jobPosition",
+  "connectPlus",
 ];
 
 export const SHOW_FORM_INPUT: HackerApplicationQuestionType[] = [
@@ -79,6 +91,7 @@ interface HackerAppQuestionProps {
     field: keyof HackerApplicationQuestion,
     value: string | boolean | string[],
   ) => void;
+  usedFieldsRegistry: UsedFieldsRegistry;
 }
 
 export const HackerAppQuestion = memo(function HackerAppQuestion({
@@ -90,6 +103,7 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
   onMove,
   onRemove,
   onChange,
+  usedFieldsRegistry,
 }: HackerAppQuestionProps) {
   /**
    * Helper function to properly modify options array before sending it up
@@ -121,6 +135,17 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
       onChange(index, "options", options.slice(0, -1));
     }
   }, [index, question.options, onChange]);
+
+  const usableQuestionTypes = QUESTION_TYPES?.filter(
+    (qt) => !QUESTION_TYPES_UNIQUE.includes(qt) || !usedFieldsRegistry.questionType.has(qt),
+  );
+  const usableFormInputs = FORM_INPUT_OPTIONS?.filter(
+    (fi) => !usedFieldsRegistry.formInput.has(fi),
+  );
+  const isQuestionTypeDisabled = Boolean(
+    question.type && QUESTION_TYPES_UNIQUE.includes(question.type),
+  );
+  const isFormInputDisabled = Boolean(question.formInput);
 
   return !isContent ? (
     <div className="relative flex flex-col gap-3">
@@ -192,16 +217,27 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
         </Field>
         <Field>
           <Label>Question type</Label>
-          <Select onValueChange={(v) => onChange(index, "type", v)} defaultValue={question.type}>
+          <Select
+            onValueChange={(v) => {
+              if (isQuestionTypeDisabled) return;
+              onChange(index, "type", v);
+            }}
+            defaultValue={question.type}
+            disabled={isQuestionTypeDisabled}
+          >
             <SelectTrigger className="w-full bg-background">
               <SelectValue placeholder="Select a type" />
             </SelectTrigger>
             <SelectContent>
-              {QUESTION_TYPES?.map((q) => (
-                <SelectItem key={q} value={q}>
-                  {q}
-                </SelectItem>
-              ))}
+              {isQuestionTypeDisabled ? (
+                <SelectItem value={question.type as string}>{question.type}</SelectItem>
+              ) : (
+                usableQuestionTypes?.map((q) => (
+                  <SelectItem key={q} value={q}>
+                    {q}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </Field>
@@ -214,18 +250,28 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
               <Field>
                 <Label>Form input field</Label>
                 <Select
-                  onValueChange={(v) => onChange(index, "formInput", v)}
+                  onValueChange={(v) => {
+                    if (isFormInputDisabled) return;
+                    onChange(index, "formInput", v);
+                  }}
                   defaultValue={question.formInput}
+                  disabled={isFormInputDisabled}
                 >
                   <SelectTrigger className="w-full bg-background">
                     <SelectValue placeholder="Select a type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {FORM_INPUT_OPTIONS?.map((q) => (
-                      <SelectItem key={q} value={q}>
-                        {q}
+                    {isFormInputDisabled ? (
+                      <SelectItem value={question.formInput as string}>
+                        {question.formInput}
                       </SelectItem>
-                    ))}
+                    ) : (
+                      usableFormInputs?.map((q) => (
+                        <SelectItem key={q} value={q}>
+                          {q}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </Field>

@@ -82,7 +82,7 @@ export const subscribeToHackerAppQuestions = (
  * @param section - which section the question belongs to
  * @param questions - an array of questions to insert
  */
-export const updateHackerAppQuestions = async (
+export const updateHackerAppSectionQuestions = async (
   hackathonName: string,
   section: HackerApplicationSections,
   questions: HackerApplicationQuestion[],
