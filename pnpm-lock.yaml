@@ -2178,7 +2178,6 @@ packages:
 
   jszip@3.10.1:
     resolution: {integrity: sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==}
-
   lexical@0.34.0:
     resolution: {integrity: sha512-oqQ87i49oGRt8u9qIXow+fWeqN6luRMtYAa1GAx1l9AaR3A8Tfrgnmj2+13ej6CMPK6JunKaUXbd+7FDy+s8XQ==}
 
@@ -4936,7 +4935,7 @@ snapshots:
       setimmediate: 1.0.5
 
   lexical@0.34.0: {}
-
+  
   lib0@0.2.114:
     dependencies:
       isomorphic.js: 0.2.5
