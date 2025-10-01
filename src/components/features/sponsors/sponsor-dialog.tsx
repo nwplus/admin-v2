@@ -51,7 +51,7 @@ const SPONSOR_TIERS: { value: HackathonSponsorTiers; label: string }[] = [
 
 const formSchema = z.object({
   name: z.string().min(2).max(250),
-  blurb: z.string().min(2).max(500),
+  blurb: z.string().max(500).optional(),
   link: z.string().url("Please enter a valid URL"),
   tier: z.string().min(1, "Please select a tier"),
 });
