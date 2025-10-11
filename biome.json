@@ -24,7 +24,8 @@
       "recommended": true,
       "nursery": {
         "useSortedClasses": {
-          "level": "error",
+          "level": "warn",
+          "fix": "safe",
           "options": {
             "attributes": ["classList"],
             "functions": ["clsx", "cva", "tw", "cn"]
@@ -44,6 +45,12 @@
         "useArrayLiterals": "off"
       },
       "style": {
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["kebab-case"]
+          }
+        },
         "noInferrableTypes": "error",
         "noNamespace": "off",
         "useAsConstAssertion": "error",
@@ -73,11 +80,6 @@
       "quoteStyle": "double",
       "attributePosition": "auto",
       "bracketSpacing": true
-    }
-  },
-  "graphql": {
-    "formatter": {
-      "enabled": true
     }
   },
   "overrides": [
@@ -110,6 +112,16 @@
             "noRedeclare": "off",
             "noUnsafeNegation": "off",
             "useGetterReturn": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["src/routes/**/*"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
           }
         }
       }
