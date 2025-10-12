@@ -1,6 +1,14 @@
 import { db } from "@/lib/firebase/client";
 import type { GeneralConfig, TicketsConfig, VerificationConfig } from "@/lib/firebase/types";
-import { type DocumentReference, addDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import {
+  type DocumentReference,
+  addDoc,
+  doc,
+  onSnapshot,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore";
 
 // Returns a list of guild names
@@ -90,20 +98,24 @@ export const updateVerificationConfig = async (
 //Function to add participants
 export const addParticipants = async (emails: string[], roles: string[], server: string) => {
   await Promise.all(
-    emails.map((email) =>
-      addDoc(
-        collection(
-          db,
-          "ExternalProjects",
-          "Factotum",
-          "guilds",
-          server,
-          "command-data",
-          "verification",
-          "other-attendees",
-        ),
-        { email, roles },
-      ),
-    ),
+    emails.map(async (email) => {
+      const participantsRef = collection(
+        db,
+        "ExternalProjects",
+        "Factotum",
+        "guilds",
+        server,
+        "command-data",
+        "verification",
+        "other-attendees",
+      );
+      const q = query(participantsRef, where("email", "==", email));
+      const querySnapshot = await getDocs(q);
+      if (querySnapshot.empty) {
+        addDoc(participantsRef, { email, roles });
+      } else {
+        updateDoc(querySnapshot.docs[0].ref, { roles });
+      }
+    }),
   );
 };
