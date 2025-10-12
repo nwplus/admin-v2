@@ -72,7 +72,7 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
     portfolio: applicant.skills?.portfolio || "",
     resume: applicant.skills?.resume || "",
 
-    firstTimeHacker: applicant.skills?.numHackathonsAttended === 0 || false,
+    firstTimeHacker: applicant.skills?.numHackathonsAttended === "0" || false,
     
     // Engagement source
     engagementSource: isLegacyFormat
