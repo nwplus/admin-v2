@@ -114,7 +114,9 @@ export const addParticipants = async (emails: string[], roles: string[], server:
       if (querySnapshot.empty) {
         addDoc(participantsRef, { email, roles });
       } else {
-        updateDoc(querySnapshot.docs[0].ref, { roles });
+        updateDoc(querySnapshot.docs[0].ref, {
+          roles: [...new Set([...querySnapshot.docs[0].data().roles, ...roles])],
+        });
       }
     }),
   );
