@@ -229,7 +229,7 @@ export interface Applicant {
     linkedin?: string;
     portfolio?: string;
     resume?: string;
-    numHackathonsAttended?: number;
+    numHackathonsAttended?: string;
     contributionRole?: ApplicantContribution;
   };
   status?: {
