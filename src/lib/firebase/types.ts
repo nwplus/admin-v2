@@ -217,6 +217,7 @@ export interface Applicant {
     lastUpdatedBy?: string;
     scores?: Record<string, ApplicantScoreItem>;
     totalScore?: number;
+    totalZScore?: number;
   };
   questionnaire?: {
     engagementSource?: string | Record<string, boolean>;

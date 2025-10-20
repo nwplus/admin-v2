@@ -86,6 +86,7 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
     
     // Score info
     totalScore: applicant.score?.totalScore || 0,
+    totalZScore: applicant.score?.totalZScore || "-",
     scoreComment: applicant.score?.comment || "",
     
     // Day-of info
@@ -245,6 +246,7 @@ export interface FlattenedApplicant {
   
   // Score info
   totalScore: number;
+  totalZScore: number;
   scoreComment: string;
   
   // Day-of info
