@@ -31,7 +31,7 @@ export function ApplicantScoring() {
       lastUpdated: focusedApplicant?.score?.lastUpdated,
       lastUpdatedBy: focusedApplicant?.score?.lastUpdatedBy,
     });
-  }, [focusedApplicant?.score]);
+  }, [focusedApplicant?._id]);
 
   const handleScoreChange = async (field: string, value: number) => {
     if (saving) return;
