@@ -29,14 +29,7 @@ export function ApplicantResponse() {
             label={questionLabels[fieldConfig.field] || fieldConfig.label}
             type={fieldConfig.type as ResponseType}
             response={
-              fieldConfig.field === "firstHackathon"
-                ? getNestedValue(focusedApplicant, "skills.numHackathonsAttended") === "0"
-                  ? "Yes"
-                  : getNestedValue(focusedApplicant, "skills.numHackathonsAttended") === "" ||
-                      getNestedValue(focusedApplicant, "skills.numHackathonsAttended") === undefined
-                    ? "N/A"
-                    : "No"
-                : getNestedValue(focusedApplicant, fieldConfig.field)
+              getNestedValue(focusedApplicant, fieldConfig.field)
             }
             userId={focusedApplicant?._id}
           />
