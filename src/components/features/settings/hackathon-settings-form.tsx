@@ -12,6 +12,8 @@ import type {
 } from "@/lib/firebase/types";
 import { formatTimestamp, splitHackathon } from "@/lib/utils";
 import { subscribeToHackathonConfig, updateHackathonConfig } from "@/services/hackathon-settings";
+import { format } from "date-fns/format";
+import { parseISO } from "date-fns/parseISO";
 import { Pencil, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -97,7 +99,7 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
       typeof value === "string" &&
       ["hackathonStart", "hackathonEnd", "hackingStart", "hackingEnd"].includes(field)
     ) {
-      processedValue = value ? new Date(value).toISOString() : "";
+      processedValue = value ? new Date(`${value}:00`).toISOString() : "";
     }
 
     const currentValue = editedConfig[field];
@@ -134,7 +136,7 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
    * Convert ISO string to datetime-local format for HTML input
    */
   const toDateTimeLocalFormat = (isoString: string): string => {
-    return isoString ? new Date(isoString).toISOString().slice(0, 16) : "";
+    return isoString ? format(parseISO(isoString), "yyyy-MM-dd'T'HH:mm") : "";
   };
 
   /**
