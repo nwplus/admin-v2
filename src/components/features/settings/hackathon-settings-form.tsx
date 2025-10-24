@@ -1,6 +1,4 @@
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -62,8 +60,53 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
     setIsEditing(true);
   };
 
+  /**
+   * Validates that start times are before end times for both hackathon and hacking periods
+   */
+  const validateTimeRanges = (
+    config: HackathonConfig,
+  ): { isValid: boolean; errorMessage?: string } => {
+    const hackathonStart = (config.hackathonStart as HackathonConfigMap)[hackathonType];
+    const hackathonEnd = (config.hackathonEnd as HackathonConfigMap)[hackathonType];
+    const hackingStart = (config.hackingStart as HackathonConfigMap)[hackathonType];
+    const hackingEnd = (config.hackingEnd as HackathonConfigMap)[hackathonType];
+
+    if (!hackathonStart || !hackathonEnd || !hackingStart || !hackingEnd) {
+      return { isValid: false, errorMessage: "Event timeline must be filled in" };
+    }
+
+    const hackathonStartTime = new Date(hackathonStart);
+    const hackathonEndTime = new Date(hackathonEnd);
+    const hackingStartTime = new Date(hackingStart);
+    const hackingEndTime = new Date(hackingEnd);
+
+    // Validate hackathon start < hackathon end
+    if (hackathonStartTime >= hackathonEndTime) {
+      return {
+        isValid: false,
+        errorMessage: "Hackathon start time must be before hackathon end time",
+      };
+    }
+
+    // Validate hacking start < hacking end
+    if (hackingStartTime >= hackingEndTime) {
+      return {
+        isValid: false,
+        errorMessage: "Hacking start time must be before hacking end time",
+      };
+    }
+
+    return { isValid: true };
+  };
+
   const handleSave = async () => {
     if (!editedConfig) return;
+
+    const validation = validateTimeRanges(editedConfig);
+    if (!validation.isValid) {
+      toast.error(validation.errorMessage || "Invalid time configuration");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -305,6 +348,7 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
+          </div>
 
           <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
@@ -356,6 +400,7 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
+          </div>
 
           <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
@@ -395,6 +440,7 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
+          </div>
 
           <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
@@ -414,6 +460,7 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
+          </div>
 
           <div className="flex gap-8 pt-8">
             <div className="w-48 flex-shrink-0">
