@@ -289,8 +289,7 @@ export const getApplicantsToAccept = async (
   if (applicants?.length === 0) return [];
 
   return applicants.filter((applicant: Applicant) => {
-    if (!applicant?.status) return false;
-    const appStatus = applicant.status.applicationStatus;
+    const appStatus = applicant?.status?.applicationStatus;
     if (appStatus !== "scored") return false;
 
     // score
@@ -336,10 +335,14 @@ export const getApplicantsToAccept = async (
     }
 
     // range for # of experiences
-    const numExperiences = applicant.score?.scores?.NumExperiences.score;
+    const numExperiences = applicant.score?.scores?.NumExperiences?.score;
     if (
-      (minExperiencesScore !== undefined && Number(numExperiences) < Number(minExperiencesScore)) ||
-      (maxExperiencesScore !== undefined && Number(numExperiences) > Number(maxExperiencesScore))
+      (numExperiences !== undefined &&
+        minExperiencesScore !== undefined &&
+        Number(numExperiences) < Number(minExperiencesScore)) ||
+      (numExperiences !== undefined &&
+        maxExperiencesScore !== undefined &&
+        Number(numExperiences) > Number(maxExperiencesScore))
     ) {
       return false;
     }
