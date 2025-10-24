@@ -1,4 +1,6 @@
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -303,7 +305,6 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
-          </div>
 
           <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
@@ -355,7 +356,6 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
-          </div>
 
           <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
@@ -395,7 +395,6 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
-          </div>
 
           <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">
@@ -415,7 +414,6 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
             </div>
-          </div>
 
           <div className="flex gap-8 pt-8">
             <div className="w-48 flex-shrink-0">
