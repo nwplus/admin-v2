@@ -39,7 +39,7 @@ export function ApplicantEntry({ index, score, status, isActive, onSelect }: App
       <div className="flex flex-col items-start gap-0.5">
         <div>Applicant {index}</div>
         <div className="font-medium">
-          Score: {score?.totalScore ?? 0} / Normalized: {normalizedScore}
+          Score: {score?.totalScore ?? 0} / Normalized: {score?.totalZScore ?? "-"}
         </div>
       </div>
       {status?.applicationStatus && <ApplicantStatus status={status?.applicationStatus} />}

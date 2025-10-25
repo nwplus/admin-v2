@@ -1,5 +1,5 @@
-import type { Timestamp } from "firebase/firestore";
 import type { SortingState } from "@tanstack/react-table";
+import type { Timestamp } from "firebase/firestore";
 
 export type ApplicantMajor =
   | "computerScience"
@@ -18,16 +18,16 @@ export type ApplicantMajor =
   | "schoolDoesNotOfferMajors"
   | "preferNotToAnswer";
 
-export type ApplicantEducationLevel = 
+export type ApplicantEducationLevel =
   | "Less than Secondary / High School"
   | "Secondary / High School"
   | "Undergraduate University (2 year - community college or similar)"
   | "Undergraduate University (3+ years)"
   | "Graduate University (Masters, Doctoral, Professional, etc.)"
   | "Code School / Bootcamp"
-  | "Other Vocational / Trade Program or Apprenticeship" 
-  | "Post-Doctorate" 
-  | "I'm not currently a student" 
+  | "Other Vocational / Trade Program or Apprenticeship"
+  | "Post-Doctorate"
+  | "I'm not currently a student"
   | "Prefer not to answer";
 
 export type ApplicationStatus =
@@ -217,6 +217,7 @@ export interface Applicant {
     lastUpdatedBy?: string;
     scores?: Record<string, ApplicantScoreItem>;
     totalScore?: number;
+    totalZScore?: number;
   };
   questionnaire?: {
     engagementSource?: string | Record<string, boolean>;
@@ -422,7 +423,7 @@ export interface ContestQuestion {
 
 /**
  * Collection: /InternalWebsites/Portal
- * 
+ *
  * Current year's hackathons configs
  */
 export interface LivesiteSettings {
@@ -462,11 +463,24 @@ export interface FirebaseQuery {
   tags?: string[];
 }
 
-export type FilterCondition = "matches" | "does_not_match" | "equals" | "not_equals" | "greater_than" | "less_than";
+export type FilterCondition =
+  | "matches"
+  | "does_not_match"
+  | "equals"
+  | "not_equals"
+  | "greater_than"
+  | "less_than";
 
 export type AggregationFunction = "COUNT" | "SUM" | "AVERAGE" | "MIN" | "MAX";
 
-export type ApplicantFieldValue = string | number | boolean | Date | null | Record<string, boolean> | undefined;
+export type ApplicantFieldValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | null
+  | Record<string, boolean>
+  | undefined;
 
 export interface GroupBySelection {
   groupByColumn: string;
@@ -479,7 +493,7 @@ export interface FilterRowsSelection {
   filterColumn: string;
   filterCondition: string;
   filterValue: string;
-  logicalOperator?: 'AND' | 'OR';
+  logicalOperator?: "AND" | "OR";
 }
 
 export interface SavedQueryCategory {
@@ -500,19 +514,19 @@ export interface QueryTemplate {
 
 /**
  * Collection: /InternalWebsites/Portal
- * 
+ *
  * Data model for per hackathon configuration
  */
-export type HackathonType = 'cmd-f' | 'hackcamp' | 'nwhacks';
+export type HackathonType = "cmd-f" | "hackcamp" | "nwhacks";
 
 export interface HackathonConfigMap {
-  'cmd-f': string;
+  "cmd-f": string;
   hackcamp: string;
   nwhacks: string;
 }
 
 export interface HackathonBooleanMap {
-  'cmd-f': boolean;
+  "cmd-f": boolean;
   hackcamp: boolean;
   nwhacks: boolean;
 }
@@ -528,16 +542,32 @@ export interface NotionLinks {
   preHackathonWorkshops: string;
 }
 
+export interface HackathonTheme {
+  portalGradient: string[];
+  primary: string;
+  primaryForeground: string;
+  secondary: string;
+  secondaryForeground: string;
+  tertiary: string;
+  tertiaryForeground: string;
+}
+
 export interface WaiversAndFormsMap {
-  'cmd-f': WaiversAndForms;
+  "cmd-f": WaiversAndForms;
   hackcamp: WaiversAndForms;
   nwhacks: WaiversAndForms;
 }
 
 export interface NotionLinksMap {
-  'cmd-f': NotionLinks;
+  "cmd-f": NotionLinks;
   hackcamp: NotionLinks;
   nwhacks: NotionLinks;
+}
+
+export interface HackathonThemeMap {
+  "cmd-f": HackathonTheme;
+  hackcamp: HackathonTheme;
+  nwhacks: HackathonTheme;
 }
 
 export interface HackathonConfig {
@@ -560,4 +590,5 @@ export interface HackathonConfig {
   sendAcceptancesBy: HackathonConfigMap;
   submissionsOpen: HackathonBooleanMap;
   waiversAndForms: WaiversAndFormsMap;
+  hackathonTheme: HackathonThemeMap;
 }
