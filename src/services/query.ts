@@ -92,6 +92,7 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
 
     
     // Score info
+    resumeScore: applicant.score?.scores?.ResumeScore?.score || 0,
     totalScore: applicant.score?.totalScore || 0,
     totalZScore: applicant.score?.totalZScore || -Infinity,
     scoreComment: applicant.score?.comment || "",
@@ -252,6 +253,7 @@ export interface FlattenedApplicant {
   shareWithnwPlus: boolean;
   
   // Score info
+  resumeScore: number;
   totalScore: number;
   totalZScore: number;
   scoreComment: string;
