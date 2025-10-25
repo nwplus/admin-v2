@@ -232,6 +232,9 @@ export const updateNormalizedScores = async (
       updates[`score.scores.${questionName}.normalizedScore`] = normalizedScore;
     }
 
+    const total = Object.values(questions).reduce((sum, z) => sum + (typeof z === "number" ? z : 0), 0);
+    updates["score.totalZScore"] = Math.round(total * 100) / 100;
+
     const applicantRef = doc(db, "Hackathons", hackathon, "Applicants", applicantId);
     return updateDoc(applicantRef, updates);
   });
@@ -298,13 +301,8 @@ export const getApplicantsToAccept = async (
     if (minScore !== undefined && totalScore < minScore) return false;
 
     // zscore
-    let totalZScore = 0;
-    for (const [, scoreData] of Object.entries(applicant.score?.scores ?? {})) {
-      if (scoreData?.normalizedScore && typeof scoreData.normalizedScore === "number") {
-        totalZScore += scoreData.normalizedScore;
-      }
-    }
-
+    const totalZScore = applicant?.score?.totalZScore;
+    if (totalZScore === undefined || totalZScore === null || Number.isNaN(totalZScore)) return false;
     if (minZScore !== undefined && totalZScore < minZScore) return false;
 
     // range of hackathons attended
