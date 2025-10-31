@@ -19,11 +19,7 @@ export const updateApplicantsStatusByEmails = async (
   applicationStatus: ApplicationStatus,
 ): Promise<UpdateStatusResult> => {
   const normalized = Array.from(
-    new Set(
-      emails
-        .map((e) => e.trim().toLowerCase())
-        .filter((e) => e.length > 0),
-    ),
+    new Set(emails.map((e) => e.trim().toLowerCase()).filter((e) => e.length > 0)),
   );
 
   if (normalized.length === 0) {
@@ -41,10 +37,10 @@ export const updateApplicantsStatusByEmails = async (
       where("status.applicationStatus", "!=", "inProgress"),
     );
     const snapshot = await getDocs(q);
-    
-    const docs = snapshot.docs.map((d) => ({ id: d.id, email: String(d.data()?.basicInfo?.email || "").toLowerCase() }));
-    console.log(docs)
-    
+    const docs = snapshot.docs.map((d) => ({
+      id: d.id,
+      email: String(d.data()?.basicInfo?.email || "").toLowerCase(),
+    }));
     for (const { id, email } of docs) {
       matchedEmails.push(email);
       const ref = doc(db, "Hackathons", hackathon, "Applicants", id);
@@ -56,4 +52,4 @@ export const updateApplicantsStatusByEmails = async (
   const notFoundEmails = normalized.filter((e) => !matchedEmails.includes(e));
 
   return { updatedCount, matchedEmails, notFoundEmails };
-}; 
+};

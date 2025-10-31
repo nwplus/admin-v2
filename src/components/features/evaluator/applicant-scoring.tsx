@@ -84,28 +84,6 @@ export function ApplicantScoring() {
     });
   };
 
-  const markGraded = async () => {
-    if (saving) return;
-    if (!focusedApplicant?._id) return;
-    setSaving(true);
-
-    const allCategoriesScored = areAllCategoriesScored();
-    const applicationStatus = allCategoriesScored ? "scored" : "gradinginprog";
-
-    const newScore = {
-      lastUpdated: Timestamp.now(),
-      lastUpdatedBy: user?.email ?? "err",
-    };
-    await updateApplicant(hackathon, focusedApplicant?._id, {
-      score: newScore,
-      status: {
-        applicationStatus,
-      },
-    });
-
-    setSaving(false);
-  };
-
   const saveComment = useCallback(
     async (comment: string) => {
       if (!focusedApplicant?._id) return;
@@ -126,6 +104,33 @@ export function ApplicantScoring() {
   );
 
   const { loading: isCommentSaving } = useDebouncedSave(comment, saveComment, 500);
+
+  const saveScoring = async () => {
+    if (saving) return;
+    if (!focusedApplicant?._id) return;
+    setSaving(true);
+
+    if (!isCommentSaving) {
+      await saveComment(comment);
+    }
+
+    const allCategoriesScored = areAllCategoriesScored();
+    const applicationStatus = allCategoriesScored ? "scored" : "gradinginprog";
+
+    const newScore = {
+      lastUpdated: Timestamp.now(),
+      lastUpdatedBy: user?.email ?? "err",
+    };
+
+    await updateApplicant(hackathon, focusedApplicant?._id, {
+      score: newScore,
+      status: {
+        applicationStatus,
+      },
+    });
+
+    setSaving(false);
+  };
 
   if (!focusedApplicant) {
     return <Card className="sticky top-[2vh] max-h-[96vh]" />;
@@ -154,7 +159,7 @@ export function ApplicantScoring() {
           />
         </div>
         <div className="flex flex-col gap-2 pb-1">
-          <Button onClick={markGraded}>Mark graded</Button>
+          <Button onClick={saveScoring}>Save</Button>
           {saving || isCommentSaving ? (
             <div className="text-neutral-500 text-xs">Saving...</div>
           ) : metadata?.lastUpdated || metadata?.lastUpdatedBy ? (
