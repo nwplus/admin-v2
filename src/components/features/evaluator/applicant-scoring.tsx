@@ -48,10 +48,13 @@ export function ApplicantScoring() {
       ...newMetadata,
     };
 
-    const updatedScores = {
-      ...scores,
-      [field]: newScore,
-    };
+    const updatedScores = scores;
+
+    if (scores[field] === value) {
+      delete updatedScores[field];
+    } else {
+      updatedScores[field] = newScore;
+    }
 
     setScores(updatedScores);
     setMetadata(newMetadata);

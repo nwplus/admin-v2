@@ -41,9 +41,10 @@ export const updateApplicantsStatusByEmails = async (
       where("status.applicationStatus", "!=", "inProgress"),
     );
     const snapshot = await getDocs(q);
-
+    
     const docs = snapshot.docs.map((d) => ({ id: d.id, email: String(d.data()?.basicInfo?.email || "").toLowerCase() }));
-
+    console.log(docs)
+    
     for (const { id, email } of docs) {
       matchedEmails.push(email);
       const ref = doc(db, "Hackathons", hackathon, "Applicants", id);
