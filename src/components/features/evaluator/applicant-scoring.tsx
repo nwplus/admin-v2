@@ -50,7 +50,7 @@ export function ApplicantScoring() {
 
     const updatedScores = scores;
 
-    if (scores[field] === value) {
+    if (scores[field]?.score === value) {
       delete updatedScores[field];
     } else {
       updatedScores[field] = newScore;
@@ -154,7 +154,7 @@ export function ApplicantScoring() {
           />
         </div>
         <div className="flex flex-col gap-2 pb-1">
-          <Button onClick={markGraded}>Save</Button>
+          <Button onClick={markGraded}>Mark graded</Button>
           {saving || isCommentSaving ? (
             <div className="text-neutral-500 text-xs">Saving...</div>
           ) : metadata?.lastUpdated || metadata?.lastUpdatedBy ? (
