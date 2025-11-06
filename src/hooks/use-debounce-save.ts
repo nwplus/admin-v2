@@ -14,7 +14,7 @@ export const useDebouncedSave = <T>(
     }
 
     timeoutRef.current = setTimeout(async () => {
-      if (value) {
+      if (value === "" || value) {
         setLoading(true);
         try {
           await saveFunction(value);

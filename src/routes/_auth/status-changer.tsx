@@ -20,6 +20,7 @@ export const Route = createFileRoute("/_auth/status-changer")({
 
 const APPLICATION_STATUSES: ApplicationStatus[] = [
   "acceptedNoResponseYet",
+  "acceptedUnRSVP",
   "waitlisted",
   "rejected",
 ];
