@@ -34,6 +34,15 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
   const hackathonYear = year ? Number.parseInt(year) : 2025;
   const isLegacyFormat = hackathonYear < 2024 || hackathon === "nwHacks2024"; 
 
+  const computedIsOfLegalAge = (applicant: Applicant) => {
+    const rawAge = applicant.basicInfo?.ageByHackathon
+    if (rawAge == "<=16") return false
+    if (rawAge == ">24") return true
+
+    const numericAge = typeof rawAge === "number" ? rawAge : Number(rawAge)
+    return numericAge >= 19
+  }
+
   const flattened: FlattenedApplicant = {
     // Basic Info
     firstName: applicant.basicInfo?.legalFirstName || applicant.basicInfo?.firstName || "",
@@ -55,7 +64,7 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
           applicant.basicInfo?.gender as Record<string, boolean> | undefined,
           ''
         ),
-    isOfLegalAge: applicant.basicInfo?.isOfLegalAge || false,
+    isOfLegalAge: computedIsOfLegalAge(applicant),
     culturalBackground: returnTrueKey(applicant.basicInfo?.ethnicity || applicant.basicInfo?.culturalBackground),
     dietaryRestriction: createStringFromSelection(
       applicant.basicInfo?.dietaryRestriction,
@@ -148,6 +157,7 @@ export const getAvailableColumns = (): string[] => {
       gender: "",
       location: "",
       isOfLegalAge: true,
+      ageByHackathon: "0",
       ethnicity: {
         asian: false,
         black: false,
