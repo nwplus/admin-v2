@@ -10,9 +10,13 @@ import { toast } from "sonner";
 export default function AddMembers() {
   const [emails, setEmails] = useState<string>("");
   const server = useFactotum().server;
-  const [selectedRoles, setSelectedRoles] = useState<string[]>(["mentor"]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(["hacker"]);
 
   const availableRoles = [
+    {
+      label: "Hacker",
+      value: "hacker",
+    },
     {
       label: "Mentor",
       value: "mentor",
@@ -40,7 +44,7 @@ export default function AddMembers() {
       .split("\n")
       .map((e) => e.trim())
       .filter((e) => e.length > 0);
-    
+
     if (emailList.length === 0 || selectedRoles.length === 0) {
       toast.error("You must select at least one role and provide at least one email");
       return;
