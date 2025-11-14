@@ -175,7 +175,7 @@ export interface Applicant {
     gender: string | Record<string, boolean>;
     graduation: number;
     isOfLegalAge: boolean;
-    ageByHackathon: number;
+    ageByHackathon: string;
     location: string; // city
     major: ApplicantMajor | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
