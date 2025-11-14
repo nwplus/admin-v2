@@ -55,7 +55,7 @@ export const flattenApplicantData = (applicant: Applicant, hackathon?: string): 
           applicant.basicInfo?.gender as Record<string, boolean> | undefined,
           ''
         ),
-    isOfLegalAge: applicant.basicInfo?.isOfLegalAge || false,
+    isOfLegalAge: applicant.basicInfo?.ageByHackathon as number >= 19,
     culturalBackground: returnTrueKey(applicant.basicInfo?.ethnicity || applicant.basicInfo?.culturalBackground),
     dietaryRestriction: createStringFromSelection(
       applicant.basicInfo?.dietaryRestriction,
@@ -148,6 +148,7 @@ export const getAvailableColumns = (): string[] => {
       gender: "",
       location: "",
       isOfLegalAge: true,
+      ageByHackathon: 0,
       ethnicity: {
         asian: false,
         black: false,
