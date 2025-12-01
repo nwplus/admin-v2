@@ -319,7 +319,8 @@ export type HackerApplicationQuestionFormInputField =
   | "pronouns"
   | "race"
   | "jobPosition"
-  | "connectPlus";
+  | "connectPlus"
+  | "travellingToHackathon";
 export interface HackerApplicationQuestion {
   _id?: string; // internal
   title?: string;
