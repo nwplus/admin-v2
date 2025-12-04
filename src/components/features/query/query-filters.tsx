@@ -60,9 +60,12 @@ export function QueryFilters({ availableColumns }: QueryFiltersProps) {
       columnTypes[col] === "string" ||
       applicants[0]?.[col] instanceof Date
     );
+    //updated groupable to only allow numeric types(day1Breakfast,.. etc.)
     const groupable = columns.filter(col => {
       const val = applicants[0]?.[col];
-      return typeof val === "string" || typeof val === "boolean";
+      return typeof val === "string" ||
+      typeof val === "boolean" ||
+      typeof val === "number";
     });
     
     return { sumAvgColumns: sumAvg, minMaxColumns: minMax, groupableColumns: groupable };
