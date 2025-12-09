@@ -249,6 +249,7 @@ export interface Applicant {
       breakfast?: Timestamp[];
       lunch?: Timestamp[];
       dinner?: Timestamp[];
+      snack?: Timestamp[];
     };
     day2?: {
       breakfast?: Timestamp[];

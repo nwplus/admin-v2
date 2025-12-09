@@ -1,10 +1,10 @@
 import { MultiSelect } from "@/components/ui/multi-select";
-import { Menu, Filter, ArrowUpDown, Group } from "lucide-react";
-import { GroupBy } from "./popovers/group-by";
-import { FilterRows } from "./popovers/filter-rows";
-import { SortBy } from "./popovers/sort-by";
 import { useQuery } from "@/providers/query-provider";
+import { ArrowUpDown, Filter, Group, Menu } from "lucide-react";
 import { useMemo } from "react";
+import { FilterRows } from "./popovers/filter-rows";
+import { GroupBy } from "./popovers/group-by";
+import { SortBy } from "./popovers/sort-by";
 
 interface QueryFiltersProps {
   availableColumns: string[];
@@ -37,34 +37,31 @@ export function QueryFilters({ availableColumns }: QueryFiltersProps) {
     value: column,
   }));
 
-
   const columns = applicants[0] ? Object.keys(applicants[0]) : [];
-  
-  const columnTypes = useMemo(() => {
-    return Object.fromEntries(
-      columns.map(col => [col, typeof applicants[0]?.[col]])
-    );
-  }, [columns, applicants]);
 
+  const columnTypes = useMemo(() => {
+    return Object.fromEntries(columns.map((col) => [col, typeof applicants[0]?.[col]]));
+  }, [columns, applicants]);
 
   /**
    * Definitions to determine which columns are groupable and aggreagtable.
    * For example, SUM/AVG can only be applied to numeric columns.
    */
   const countColumns = columns;
-  
+
   const { sumAvgColumns, minMaxColumns, groupableColumns } = useMemo(() => {
-    const sumAvg = columns.filter(col => columnTypes[col] === "number");
-    const minMax = columns.filter(col =>
-      columnTypes[col] === "number" ||
-      columnTypes[col] === "string" ||
-      applicants[0]?.[col] instanceof Date
+    const sumAvg = columns.filter((col) => columnTypes[col] === "number");
+    const minMax = columns.filter(
+      (col) =>
+        columnTypes[col] === "number" ||
+        columnTypes[col] === "string" ||
+        applicants[0]?.[col] instanceof Date,
     );
-    const groupable = columns.filter(col => {
+    const groupable = columns.filter((col) => {
       const val = applicants[0]?.[col];
-      return typeof val === "string" || typeof val === "boolean";
+      return typeof val === "string" || typeof val === "boolean" || typeof val === "number";
     });
-    
+
     return { sumAvgColumns: sumAvg, minMaxColumns: minMax, groupableColumns: groupable };
   }, [columns, columnTypes, applicants]);
 
@@ -120,7 +117,6 @@ export function QueryFilters({ availableColumns }: QueryFiltersProps) {
             onRemoveFilter={onFilterRemove}
             onFilterOperatorChange={onFilterOperatorChange}
           />
-          
         </div>
 
         <div className="flex flex-col gap-2">
