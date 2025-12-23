@@ -307,6 +307,15 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                   disabled={!isEditing}
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="rsvpOpen">RSVP Open</Label>
+                <Switch
+                  id="rsvpOpen"
+                  checked={getBooleanValue("rsvpOpen")}
+                  onCheckedChange={(checked) => handleFieldChange("rsvpOpen", checked)}
+                  disabled={!isEditing}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="applicationDeadline">Application Deadline</Label>
                 <Input
@@ -457,6 +466,24 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                   }
                   disabled={!isEditing}
                   placeholder="Enter Notion link for pre-hackathon workshops"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="hackerPackageIFrame">Hacker Package IFrame</Label>
+                <div className="text-muted-foreground text-sm">
+                  <p>1. Publish the hacker package</p>
+                  <p>2. Click site settings → Publish tab → Embed this page</p>
+                  <p>3. Disable "Show page header"</p>
+                  <p>4. Copy code</p>
+                </div>
+                <Input
+                  id="hackerPackageIFrame"
+                  value={getValue("notionLinks", "hackerPackageIFrame")}
+                  onChange={(e) =>
+                    handleFieldChange("notionLinks", e.target.value, "hackerPackageIFrame")
+                  }
+                  disabled={!isEditing}
+                  placeholder="Enter Notion embed code for hacker package"
                 />
               </div>
             </div>
