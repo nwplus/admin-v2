@@ -1,5 +1,5 @@
-import type { ApplicantEducationLevel } from "@/lib/firebase/types";
 import type { MultiSelectOption } from "@/components/ui/multi-select";
+import type { ApplicantEducationLevel } from "@/lib/firebase/types";
 
 /**
  * ====================================================================
@@ -39,7 +39,7 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     label: "Resume",
     field: "ResumeScore",
     minScore: 0,
-    maxScore: 1,
+    maxScore: 6,
     increments: 1,
     weight: 1.0,
   },
@@ -52,7 +52,7 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
   //   weight: 1.0,
   // },
   {
-    label: "Response 1 Score",
+    label: "Q1 Score",
     field: "ResponseOneScore",
     minScore: 0,
     maxScore: 4,
@@ -60,18 +60,18 @@ export const SCORING_CRITERIA: ScoringCriteria[] = [
     weight: 1.0,
   },
   {
-    label: "Response 2 Score",
+    label: "Q2 Score",
     field: "ResponseTwoScore",
     minScore: 0,
-    maxScore: 4,
+    maxScore: 6,
     increments: 1,
     weight: 1.0,
   },
   {
-    label: "Response 3 Score",
+    label: "Q3 Score",
     field: "ResponseThreeScore",
     minScore: 0,
-    maxScore: 4,
+    maxScore: 1,
     increments: 1,
     weight: 1.0,
   },
@@ -104,7 +104,10 @@ export const CONTRIBUTION_ROLE_OPTIONS: MultiSelectOption[] = [
   },
 ];
 
-export const YEAR_LEVEL_OPTIONS: Array<{ label: ApplicantEducationLevel; value: ApplicantEducationLevel }> = [
+export const YEAR_LEVEL_OPTIONS: Array<{
+  label: ApplicantEducationLevel;
+  value: ApplicantEducationLevel;
+}> = [
   { label: "Less than Secondary / High School", value: "Less than Secondary / High School" },
   { label: "Secondary / High School", value: "Secondary / High School" },
   {
