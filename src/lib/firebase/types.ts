@@ -249,6 +249,7 @@ export interface Applicant {
       breakfast?: Timestamp[];
       lunch?: Timestamp[];
       dinner?: Timestamp[];
+      snack?: Timestamp[];
     };
     day2?: {
       breakfast?: Timestamp[];
@@ -541,6 +542,7 @@ export interface WaiversAndForms {
 }
 
 export interface NotionLinks {
+  hackerPackageIFrame: string;
   preHackathonWorkshops: string;
 }
 
@@ -589,6 +591,7 @@ export interface HackathonConfig {
   offWaitlistNotify: HackathonConfigMap;
   portalLive: HackathonBooleanMap;
   rsvpBy: HackathonConfigMap;
+  rsvpOpen: HackathonBooleanMap;
   sendAcceptancesBy: HackathonConfigMap;
   submissionsOpen: HackathonBooleanMap;
   waiversAndForms: WaiversAndFormsMap;
