@@ -37,6 +37,10 @@ export const STATUS_LABEL: Record<
     label: "Waitlisted",
     color: "bg-orange-500",
   },
+  pendingWaitlist: {
+    label: "Pending Waitlist",
+    color: "bg-yellow-500",
+  },
   acceptedNoResponseYet: {
     label: "Accepted",
     color: "bg-green-500",
