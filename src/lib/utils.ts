@@ -26,8 +26,6 @@ export const splitHackathon = (hackathonId: string): [string, string | undefined
   return [hackathonId, undefined];
 };
 
-
-
 /**
  * Formats a Firebase timestamp object for display
  */
@@ -38,8 +36,6 @@ export const formatTimestamp = (timestamp?: { seconds?: number } | null): string
   }
   return timestamp.toString();
 };
-
-
 
 /**
  * Helper function to check if a string can be convertable to a date
@@ -117,4 +113,15 @@ export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
 export function isValidEmail(value: string): boolean {
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   return emailRegex.test(value.trim());
+}
+
+/**
+ * Parse hackathon ID (e.g. "nwHacks2026", "cmd-f2021", "HackCamp2025")
+ * into base hackathon type/slug
+ */
+export function getHackathonType(hackathonId: string): "cmd-f" | "hackcamp" | "nwhacks" {
+  const lower = hackathonId.toLowerCase();
+  if (lower.includes("cmd-f") || lower.includes("cmdf")) return "cmd-f";
+  if (lower.includes("hackcamp")) return "hackcamp";
+  return "nwhacks";
 }

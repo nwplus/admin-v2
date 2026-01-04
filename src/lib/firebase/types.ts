@@ -597,3 +597,23 @@ export interface HackathonConfig {
   waiversAndForms: WaiversAndFormsMap;
   hackathonTheme: HackathonThemeMap;
 }
+
+/**
+ * Collection: /Stamps
+ *
+ * Record of valid, hackathon-agnostic stamps.
+ */
+export interface Stamp {
+  _id?: string;
+  name: string;
+  description: string;
+  imgURL?: string;
+  imgName?: string;
+  hackathon?: string; // for stamps unlockable in specific hackathons
+  criteria?: FilterRowsSelection[];
+  isHidden: boolean;
+  isQRUnlockable: boolean;
+  qrURL?: string;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
+}

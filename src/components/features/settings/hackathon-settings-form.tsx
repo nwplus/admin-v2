@@ -18,21 +18,6 @@ import { Pencil, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface HackathonSettingsFormProps {
-  hackathonId: string;
-}
-
-/**
- * Converts hackathonId to the correct HackathonType for the data model
- */
-const getHackathonTypeFromId = (id: string): "cmd-f" | "hackcamp" | "nwhacks" => {
-  const lowerName = id.toLowerCase();
-  if (lowerName.includes("cmd-f")) return "cmd-f";
-  if (lowerName.includes("hackcamp")) return "hackcamp";
-  if (lowerName.includes("nwhacks")) return "nwhacks";
-  return "nwhacks"; // Default fallback
-};
-
 /**
  * Settings form for a specific hackathon
  */
