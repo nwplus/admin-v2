@@ -340,7 +340,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                   <div className="space-y-0.5">
                     <FormLabel>Hidden Stamp</FormLabel>
                     <FormDescription>
-                      If enabled, this stamp won't be visible until unlocked (secret stamp).
+                      If enabled, hackers will not see this stamp until unlocked.
                     </FormDescription>
                   </div>
                   <FormControl>

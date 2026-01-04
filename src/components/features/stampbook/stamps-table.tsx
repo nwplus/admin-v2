@@ -68,7 +68,7 @@ export function StampsTable({
             <span>Hidden</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1 text-green-600">
+          <div className="flex items-center gap-1 text-gray-500">
             <Eye className="h-4 w-4" />
             <span>Visible</span>
           </div>
