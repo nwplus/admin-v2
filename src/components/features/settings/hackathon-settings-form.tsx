@@ -10,7 +10,7 @@ import type {
   NotionLinksMap,
   WaiversAndFormsMap,
 } from "@/lib/firebase/types";
-import { formatTimestamp, splitHackathon } from "@/lib/utils";
+import { formatTimestamp, getHackathonType, splitHackathon } from "@/lib/utils";
 import { subscribeToHackathonConfig, updateHackathonConfig } from "@/services/hackathon-settings";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
@@ -21,14 +21,14 @@ import { toast } from "sonner";
 /**
  * Settings form for a specific hackathon
  */
-export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProps) {
+export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) {
   const [config, setConfig] = useState<HackathonConfig | null>(null);
   const [editedConfig, setEditedConfig] = useState<HackathonConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const hackathonType = getHackathonTypeFromId(hackathonId);
+  const hackathonType = getHackathonType(hackathonId);
 
   useEffect(() => {
     const unsubscribe = subscribeToHackathonConfig((data) => {
