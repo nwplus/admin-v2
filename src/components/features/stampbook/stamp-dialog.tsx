@@ -383,8 +383,9 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                     variant="outline"
                     size="sm"
                     onClick={() => {
+                      if (!activeStamp?.qrURL) return;
                       const link = document.createElement("a");
-                      link.href = activeStamp.qrURL!;
+                      link.href = activeStamp.qrURL;
                       link.download = `stamp-qr-${activeStamp.name?.replace(/\s+/g, "-").toLowerCase() || activeStamp._id}.png`;
                       link.click();
                     }}
