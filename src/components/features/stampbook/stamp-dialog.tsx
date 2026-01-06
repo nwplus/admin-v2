@@ -42,6 +42,7 @@ const EMPTY_FORM = {
   description: "",
   hackathon: "",
   isHidden: false,
+  isTitle: false,
   isQRUnlockable: false,
 };
 
@@ -50,6 +51,7 @@ const formSchema = z.object({
   description: z.string().min(2, "Description must be at least 2 characters").max(500),
   hackathon: z.string().optional(),
   isHidden: z.boolean(),
+  isTitle: z.boolean(),
   isQRUnlockable: z.boolean(),
 });
 
@@ -126,6 +128,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       description: activeStamp?.description ?? "",
       hackathon: activeStamp?.hackathon ?? "",
       isHidden: activeStamp?.isHidden ?? false,
+      isTitle: activeStamp?.isTitle ?? false,
       isQRUnlockable: activeStamp?.isQRUnlockable ?? false,
     },
   });
@@ -179,6 +182,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
         name: values.name,
         description: values.description,
         isHidden: values.isHidden,
+        isTitle: values.isTitle,
         isQRUnlockable: values.isQRUnlockable,
         imgName: imageFile?.name || activeStamp?.imgName || "",
       };
@@ -339,8 +343,27 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                   <div className="space-y-0.5">
                     <FormLabel>Hidden Stamp</FormLabel>
-                    <FormDescription>
+                    <FormDescription className="text-xs">
                       If enabled, hackers will not see this stamp until unlocked.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isTitle"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Title Stamp</FormLabel>
+                    <FormDescription className="text-xs">
+                      Displayed first on the stampbook page. Only one stamp per hackathon can be the
+                      title stamp.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -357,7 +380,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                   <div className="space-y-0.5">
                     <FormLabel>QR Unlockable</FormLabel>
-                    <FormDescription>
+                    <FormDescription className="text-xs">
                       If enabled, a QR code will be generated that hackers can scan to unlock this
                       stamp.
                     </FormDescription>

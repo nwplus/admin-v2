@@ -612,6 +612,7 @@ export interface Stamp {
   hackathon?: string; // for stamps unlockable in specific hackathons
   criteria?: FilterRowsSelection[];
   isHidden: boolean;
+  isTitle?: boolean;
   isQRUnlockable: boolean;
   qrURL?: string;
   lastModified?: Timestamp;
