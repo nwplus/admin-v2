@@ -337,6 +337,16 @@ export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProp
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="waitlistSignupDeadline">Waitlist Signup By</Label>
+                <Input
+                  id="waitlistSignupDeadline"
+                  value={getValue("waitlistSignupDeadline")}
+                  onChange={(e) => handleFieldChange("waitlistSignupDeadline", e.target.value)}
+                  disabled={!isEditing}
+                  placeholder="e.g., March 2nd at 11:59 PM (Pacific Time)"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="offWaitlistNotify">Off Waitlist Notify</Label>
                 <Input
                   id="offWaitlistNotify"
