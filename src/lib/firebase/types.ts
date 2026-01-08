@@ -181,6 +181,20 @@ export interface Applicant {
     major: ApplicantMajor | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
     school: string; // should be typed
+    travellingToHackathon: string;
+    // demographic fields
+    academicYear?: string;
+    canadianStatus?: string;
+    countryOfResidence?: string;
+    disability?: string;
+    haveTransExperience?: string;
+    indigenousIdentification?: string;
+    jobPosition?: string;
+    // consent/check fields
+    marketingFeatureCheck?: boolean;
+    mediaConsentCheck?: boolean;
+    safewalkCheck?: boolean;
+    sponsorEmailConsentCheck?: boolean;
     ethnicity?: {
       asian: boolean;
       black: boolean;

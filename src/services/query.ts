@@ -68,6 +68,7 @@ export const flattenApplicantData = (
             "",
           ),
     isOfLegalAge: computedIsOfLegalAge(applicant),
+    travellingToHackathon: applicant.basicInfo?.travellingToHackathon || "",
     culturalBackground: returnTrueKey(
       applicant.basicInfo?.ethnicity || applicant.basicInfo?.culturalBackground,
     ),
@@ -77,6 +78,17 @@ export const flattenApplicantData = (
         ? `other: ${applicant.basicInfo.otherDietaryRestriction}`
         : "",
     ),
+    academicYear: applicant.basicInfo?.academicYear || "",
+    canadianStatus: applicant.basicInfo?.canadianStatus || "",
+    countryOfResidence: applicant.basicInfo?.countryOfResidence || "",
+    disability: applicant.basicInfo?.disability || "",
+    haveTransExperience: applicant.basicInfo?.haveTransExperience || "",
+    indigenousIdentification: applicant.basicInfo?.indigenousIdentification || "",
+    jobPosition: applicant.basicInfo?.jobPosition || "",
+    marketingFeatureCheck: applicant.basicInfo?.marketingFeatureCheck || false,
+    mediaConsentCheck: applicant.basicInfo?.mediaConsentCheck || false,
+    safewalkCheck: applicant.basicInfo?.safewalkCheck || false,
+    sponsorEmailConsentCheck: applicant.basicInfo?.sponsorEmailConsentCheck || false,
 
     // Application Status
     applicationStatus: applicant.status?.applicationStatus || "",
@@ -175,7 +187,7 @@ export const getAvailableColumns = (): string[] => {
         other: false,
         preferNot: false,
       },
-
+      travellingToHackathon: "",
       dietaryRestriction: {
         celiacDisease: false,
         halal: false,
@@ -196,6 +208,17 @@ export const getAvailableColumns = (): string[] => {
         other: false,
         preferNot: false,
       },
+      academicYear: "",
+      canadianStatus: "",
+      countryOfResidence: "",
+      disability: "",
+      haveTransExperience: "",
+      indigenousIdentification: "",
+      jobPosition: "",
+      marketingFeatureCheck: false,
+      mediaConsentCheck: false,
+      safewalkCheck: false,
+      sponsorEmailConsentCheck: false,
     },
     status: {
       applicationStatus: "inProgress",
@@ -244,8 +267,20 @@ export interface FlattenedApplicant {
   graduation: string | number;
   gender: string;
   isOfLegalAge: boolean;
+  travellingToHackathon: string;
   culturalBackground: string;
   dietaryRestriction: string;
+  academicYear: string;
+  canadianStatus: string;
+  countryOfResidence: string;
+  disability: string;
+  haveTransExperience: string;
+  indigenousIdentification: string;
+  jobPosition: string;
+  marketingFeatureCheck: boolean;
+  mediaConsentCheck: boolean;
+  safewalkCheck: boolean;
+  sponsorEmailConsentCheck: boolean;
 
   // Application Status
   applicationStatus: string;
