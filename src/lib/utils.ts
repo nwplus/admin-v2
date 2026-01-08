@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { HackathonType } from "./firebase/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -119,7 +120,7 @@ export function isValidEmail(value: string): boolean {
  * Parse hackathon ID (e.g. "nwHacks2026", "cmd-f2021", "HackCamp2025")
  * into base hackathon type/slug
  */
-export function getHackathonType(hackathonId: string): "cmd-f" | "hackcamp" | "nwhacks" {
+export function getHackathonType(hackathonId: string): HackathonType {
   const lower = hackathonId.toLowerCase();
   if (lower.includes("cmd-f") || lower.includes("cmdf")) return "cmd-f";
   if (lower.includes("hackcamp")) return "hackcamp";

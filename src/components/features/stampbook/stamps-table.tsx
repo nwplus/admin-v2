@@ -81,7 +81,7 @@ export function StampsTable({
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="flex items-center gap-1">
-              QR
+              Has QR
               <HelpCircle className="h-3 w-3 text-gray-400" />
             </span>
           </TooltipTrigger>
@@ -105,7 +105,7 @@ export function StampsTable({
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="flex items-center gap-1">
-              Criteria
+              Has Criteria
               <HelpCircle className="h-3 w-3 text-gray-400" />
             </span>
           </TooltipTrigger>
@@ -129,7 +129,7 @@ export function StampsTable({
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="flex items-center gap-1">
-              Event
+              Check-in 
               <HelpCircle className="h-3 w-3 text-gray-400" />
             </span>
           </TooltipTrigger>

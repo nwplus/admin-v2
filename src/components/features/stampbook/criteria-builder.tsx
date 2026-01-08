@@ -134,7 +134,7 @@ export function CriteriaBuilder({ criteria, onChange }: CriteriaBuilderProps) {
       <Label>Unlock Criteria (optional)</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div className="flex items-center gap-2">
+        <div className="relative flex items-center gap-2">
             <Button type="button" variant="outline" className="w-full justify-between font-normal">
               <span>
                 {criteria.length > 0 ? (
@@ -146,21 +146,23 @@ export function CriteriaBuilder({ criteria, onChange }: CriteriaBuilderProps) {
                 )}
               </span>
             </Button>
-            {criteria.length > 0 && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Badge variant="secondary" className="cursor-pointer">
-                    {criteria.length}
-                  </Badge>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="space-y-1">
-                    <p className="font-medium">Unlock Criteria:</p>
-                    <div className="font-mono text-xs">{getFilterLogicDisplay()}</div>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            )}
+            <div className="absolute right-2">
+              {criteria.length > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant="secondary" className="cursor-pointer">
+                      {criteria.length}
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="space-y-1">
+                      <p className="font-medium">Unlock Criteria:</p>
+                      <div className="font-mono text-xs">{getFilterLogicDisplay()}</div>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-fit">
