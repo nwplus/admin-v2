@@ -68,6 +68,7 @@ export const flattenApplicantData = (
             "",
           ),
     isOfLegalAge: computedIsOfLegalAge(applicant),
+    travellingToHackathon: applicant.basicInfo?.travellingToHackathon || "",
     culturalBackground: returnTrueKey(
       applicant.basicInfo?.ethnicity || applicant.basicInfo?.culturalBackground,
     ),
@@ -170,7 +171,7 @@ export const getAvailableColumns = (): string[] => {
         other: false,
         preferNot: false,
       },
-
+      travellingToHackathon: "",
       dietaryRestriction: {
         celiacDisease: false,
         halal: false,
@@ -239,6 +240,7 @@ export interface FlattenedApplicant {
   graduation: string | number;
   gender: string;
   isOfLegalAge: boolean;
+  travellingToHackathon: string;
   culturalBackground: string;
   dietaryRestriction: string;
 

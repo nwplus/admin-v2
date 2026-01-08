@@ -180,6 +180,7 @@ export interface Applicant {
     major: ApplicantMajor | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
     school: string; // should be typed
+    travellingToHackathon: string;
     ethnicity?: {
       asian: boolean;
       black: boolean;
