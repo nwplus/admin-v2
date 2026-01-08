@@ -212,6 +212,7 @@ export interface Applicant {
       vegan: boolean;
       vegetarian: boolean;
     };
+    otherDietaryRestriction?: string;
   };
   score?: {
     comment?: string;

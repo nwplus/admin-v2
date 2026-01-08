@@ -71,7 +71,12 @@ export const flattenApplicantData = (
     culturalBackground: returnTrueKey(
       applicant.basicInfo?.ethnicity || applicant.basicInfo?.culturalBackground,
     ),
-    dietaryRestriction: createStringFromSelection(applicant.basicInfo?.dietaryRestriction, ""),
+    dietaryRestriction: createStringFromSelection(
+      applicant.basicInfo?.dietaryRestriction,
+      applicant.basicInfo?.otherDietaryRestriction
+        ? `other: ${applicant.basicInfo.otherDietaryRestriction}`
+        : "",
+    ),
 
     // Application Status
     applicationStatus: applicant.status?.applicationStatus || "",
