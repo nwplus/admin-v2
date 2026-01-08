@@ -35,6 +35,7 @@ export type ApplicationStatus =
   | "applied"
   | "gradinginprog"
   | "waitlisted"
+  | "pendingWaitlist"
   | "scored"
   | "rejected"
   | "completed"
@@ -225,6 +226,7 @@ export interface Applicant {
       vegan: boolean;
       vegetarian: boolean;
     };
+    otherDietaryRestriction?: string;
   };
   score?: {
     comment?: string;
@@ -610,4 +612,26 @@ export interface HackathonConfig {
   submissionsOpen: HackathonBooleanMap;
   waiversAndForms: WaiversAndFormsMap;
   hackathonTheme: HackathonThemeMap;
+}
+
+/**
+ * Collection: /Stamps
+ *
+ * Record of valid, hackathon-agnostic stamps.
+ */
+export interface Stamp {
+  _id?: string;
+  name: string;
+  description: string;
+  imgURL?: string;
+  imgName?: string;
+  hackathon?: string; // for stamps unlockable in specific hackathons
+  criteria?: FilterRowsSelection[];
+  isHidden: boolean;
+  isTitle?: boolean;
+  isQRUnlockable?: boolean;
+  isEventUnlockable?: boolean;
+  qrURL?: string;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
 }

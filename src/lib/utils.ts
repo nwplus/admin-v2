@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { HackathonType } from "./firebase/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -26,20 +27,16 @@ export const splitHackathon = (hackathonId: string): [string, string | undefined
   return [hackathonId, undefined];
 };
 
-
-
 /**
  * Formats a Firebase timestamp object for display
  */
 export const formatTimestamp = (timestamp?: { seconds?: number } | null): string => {
-  if (!timestamp) return 'Not set';
+  if (!timestamp) return "Not set";
   if (timestamp.seconds) {
     return new Date(timestamp.seconds * 1000).toLocaleString();
   }
   return timestamp.toString();
 };
-
-
 
 /**
  * Helper function to check if a string can be convertable to a date
@@ -66,9 +63,9 @@ export const isValidISODateString = (value?: string): value is string => {
  * @returns the key of the first true value
  */
 export const returnTrueKey = (booleanMap: Record<string, boolean> | undefined): string => {
-  if (!booleanMap) return '';
+  if (!booleanMap) return "";
   const trueKey = Object.entries(booleanMap).find(([_, value]) => value)?.[0];
-  return trueKey || '';
+  return trueKey || "";
 };
 
 /**
@@ -79,19 +76,24 @@ export const returnTrueKey = (booleanMap: Record<string, boolean> | undefined): 
  * @returns a comma-separated string of selected keys
  */
 export const createStringFromSelection = (
-  selection: Record<string, boolean> | undefined, 
-  additionalText = ''
+  selection: Record<string, boolean> | undefined,
+  additionalText = "",
 ): string => {
-  if (!selection) return '';
-  
-  const trueKeys = Object.entries(selection)
+  if (!selection) return "";
+
+  let trueKeys = Object.entries(selection)
     .filter(([_, value]) => value)
     .map(([key, _]) => key);
-  
-  if (trueKeys.length === 0) return '';
+
+  if (additionalText && trueKeys.includes("other")) {
+    trueKeys = trueKeys.filter((key) => key !== "other");
+    trueKeys.push(additionalText);
+  }
+
+  if (trueKeys.length === 0) return additionalText;
   if (trueKeys.length === 1) return trueKeys[0];
-  
-  return trueKeys.join(', ') + (additionalText ? `, ${additionalText}` : '');
+
+  return trueKeys.join(", ");
 };
 
 /**
@@ -117,4 +119,15 @@ export function chunkArray<T>(array: T[], chunkSize: number): T[][] {
 export function isValidEmail(value: string): boolean {
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   return emailRegex.test(value.trim());
+}
+
+/**
+ * Parse hackathon ID (e.g. "nwHacks2026", "cmd-f2021", "HackCamp2025")
+ * into base hackathon type/slug
+ */
+export function getHackathonType(hackathonId: string): HackathonType {
+  const lower = hackathonId.toLowerCase();
+  if (lower.includes("cmd-f") || lower.includes("cmdf")) return "cmd-f";
+  if (lower.includes("hackcamp")) return "hackcamp";
+  return "nwhacks";
 }

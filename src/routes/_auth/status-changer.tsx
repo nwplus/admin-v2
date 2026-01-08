@@ -22,6 +22,7 @@ const APPLICATION_STATUSES: ApplicationStatus[] = [
   "acceptedNoResponseYet",
   "acceptedUnRSVP",
   "waitlisted",
+  "pendingWaitlist",
   "rejected",
 ];
 

@@ -10,7 +10,7 @@ import type {
   NotionLinksMap,
   WaiversAndFormsMap,
 } from "@/lib/firebase/types";
-import { formatTimestamp, splitHackathon } from "@/lib/utils";
+import { formatTimestamp, getHackathonType, splitHackathon } from "@/lib/utils";
 import { subscribeToHackathonConfig, updateHackathonConfig } from "@/services/hackathon-settings";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
@@ -18,32 +18,17 @@ import { Pencil, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface HackathonSettingsFormProps {
-  hackathonId: string;
-}
-
-/**
- * Converts hackathonId to the correct HackathonType for the data model
- */
-const getHackathonTypeFromId = (id: string): "cmd-f" | "hackcamp" | "nwhacks" => {
-  const lowerName = id.toLowerCase();
-  if (lowerName.includes("cmd-f")) return "cmd-f";
-  if (lowerName.includes("hackcamp")) return "hackcamp";
-  if (lowerName.includes("nwhacks")) return "nwhacks";
-  return "nwhacks"; // Default fallback
-};
-
 /**
  * Settings form for a specific hackathon
  */
-export function HackathonSettingsForm({ hackathonId }: HackathonSettingsFormProps) {
+export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) {
   const [config, setConfig] = useState<HackathonConfig | null>(null);
   const [editedConfig, setEditedConfig] = useState<HackathonConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const hackathonType = getHackathonTypeFromId(hackathonId);
+  const hackathonType = getHackathonType(hackathonId);
 
   useEffect(() => {
     const unsubscribe = subscribeToHackathonConfig((data) => {
