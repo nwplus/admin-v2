@@ -181,6 +181,20 @@ export interface Applicant {
     major: ApplicantMajor | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
     school: string; // should be typed
+    travellingToHackathon: string;
+    // demographic fields
+    academicYear?: string;
+    canadianStatus?: string;
+    countryOfResidence?: string;
+    disability?: string;
+    haveTransExperience?: string;
+    indigenousIdentification?: string;
+    jobPosition?: string;
+    // consent/check fields
+    marketingFeatureCheck?: boolean;
+    mediaConsentCheck?: boolean;
+    safewalkCheck?: boolean;
+    sponsorEmailConsentCheck?: boolean;
     ethnicity?: {
       asian: boolean;
       black: boolean;
@@ -598,4 +612,26 @@ export interface HackathonConfig {
   submissionsOpen: HackathonBooleanMap;
   waiversAndForms: WaiversAndFormsMap;
   hackathonTheme: HackathonThemeMap;
+}
+
+/**
+ * Collection: /Stamps
+ *
+ * Record of valid, hackathon-agnostic stamps.
+ */
+export interface Stamp {
+  _id?: string;
+  name: string;
+  description: string;
+  imgURL?: string;
+  imgName?: string;
+  hackathon?: string; // for stamps unlockable in specific hackathons
+  criteria?: FilterRowsSelection[];
+  isHidden: boolean;
+  isTitle?: boolean;
+  isQRUnlockable?: boolean;
+  isEventUnlockable?: boolean;
+  qrURL?: string;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
 }
