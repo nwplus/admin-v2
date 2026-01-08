@@ -35,6 +35,7 @@ export type ApplicationStatus =
   | "applied"
   | "gradinginprog"
   | "waitlisted"
+  | "pendingWaitlist"
   | "scored"
   | "rejected"
   | "completed"
@@ -211,6 +212,7 @@ export interface Applicant {
       vegan: boolean;
       vegetarian: boolean;
     };
+    otherDietaryRestriction?: string;
   };
   score?: {
     comment?: string;
