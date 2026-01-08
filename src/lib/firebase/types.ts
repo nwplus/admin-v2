@@ -613,7 +613,8 @@ export interface Stamp {
   criteria?: FilterRowsSelection[];
   isHidden: boolean;
   isTitle?: boolean;
-  isQRUnlockable: boolean;
+  isQRUnlockable?: boolean;
+  isEventUnlockable?: boolean;
   qrURL?: string;
   lastModified?: Timestamp;
   lastModifiedBy?: string;

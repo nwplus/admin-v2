@@ -44,6 +44,7 @@ const EMPTY_FORM = {
   isHidden: false,
   isTitle: false,
   isQRUnlockable: false,
+  isEventUnlockable: false,
 };
 
 const formSchema = z.object({
@@ -53,6 +54,7 @@ const formSchema = z.object({
   isHidden: z.boolean(),
   isTitle: z.boolean(),
   isQRUnlockable: z.boolean(),
+  isEventUnlockable: z.boolean(),
 });
 
 const imageSchema = z
@@ -130,6 +132,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       isHidden: activeStamp?.isHidden ?? false,
       isTitle: activeStamp?.isTitle ?? false,
       isQRUnlockable: activeStamp?.isQRUnlockable ?? false,
+      isEventUnlockable: activeStamp?.isEventUnlockable ?? false,
     },
   });
 
@@ -184,6 +187,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
         isHidden: values.isHidden,
         isTitle: values.isTitle,
         isQRUnlockable: values.isQRUnlockable,
+        isEventUnlockable: values.isEventUnlockable,
         imgName: imageFile?.name || activeStamp?.imgName || "",
       };
 
@@ -383,6 +387,25 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                     <FormDescription className="text-xs">
                       If enabled, a QR code will be generated that hackers can scan to unlock this
                       stamp.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isEventUnlockable"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Event Unlockable</FormLabel>
+                    <FormDescription className="text-xs">
+                      If enabled, organizers can explicitly unlock this stamp for a hacker through the
+                      check-in app.
                     </FormDescription>
                   </div>
                   <FormControl>

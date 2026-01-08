@@ -3,7 +3,8 @@ import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import type { Stamp } from "@/lib/firebase/types";
 import type { ColumnFiltersState } from "@tanstack/react-table";
-import { Check, Eye, EyeOff, QrCode, X } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Check, Eye, EyeOff, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { StampDialog } from "./stamp-dialog";
 
@@ -76,30 +77,76 @@ export function StampsTable({
       },
     }),
     columnHelper.accessor("isQRUnlockable", {
-      header: "QR",
+      header: () => (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="flex items-center gap-1">
+              QR
+              <HelpCircle className="h-3 w-3 text-gray-400" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="border-1">
+            <p className="max-w-[200px] text-xs">
+              Hackers can scan a QR code to unlock this stamp
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      ),
+      size: 50,
       cell: (info) => {
         const hasQR = info.getValue();
-        return hasQR ? (
-          <QrCode className="h-4 w-4 text-gray-400" />
-        ) : (
-          <X className="h-4 w-4 text-gray-400" />
+        return hasQR && (
+          <Check className="h-4 w-4" />
         );
       },
     }),
     columnHelper.accessor("criteria", {
-      header: "Criteria",
+      header: () => (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="flex items-center gap-1">
+              Criteria
+              <HelpCircle className="h-3 w-3 text-gray-400" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="border-1">
+            <p className="max-w-[200px] text-xs">
+              Auto-unlocks based on user data (e.g., checked in, school)
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      ),
+      size: 50,
       cell: (info) => {
         const criteria = info.getValue();
-        return criteria && criteria.length > 0 ? (
+        return criteria && criteria.length > 0 && (
           <Check className="h-4 w-4" />
-        ) : (
-          <span className="text-gray-400">-</span>
         );
       },
     }),
-    columnHelper.accessor("lastModifiedBy", {
-      header: "Modified by",
-      cell: (info) => info.getValue(),
+    columnHelper.accessor("isEventUnlockable", {
+      header: () => (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="flex items-center gap-1">
+              Event
+              <HelpCircle className="h-3 w-3 text-gray-400" />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent className="border-1">
+            <p className="max-w-[200px] text-xs">
+              Organizers can manually unlock this stamp via check-in app
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      ),
+      size: 50,
+      cell: (info) => {
+        const isEventUnlockable = info.getValue();
+        return isEventUnlockable && (
+          <Check className="h-4 w-4" />
+        );
+      },
     }),
     columnHelper.accessor("lastModified", {
       header: "Modified",
