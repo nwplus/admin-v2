@@ -38,8 +38,8 @@ export const flattenApplicantData = (
 
   const computedIsOfLegalAge = (applicant: Applicant) => {
     const rawAge = applicant.basicInfo?.ageByHackathon;
-    if (rawAge == "<=16") return false;
-    if (rawAge == ">24") return true;
+    if (rawAge === "<=16") return false;
+    if (rawAge === ">24") return true;
 
     const numericAge = typeof rawAge === "number" ? rawAge : Number(rawAge);
     return numericAge >= 19;
@@ -115,7 +115,7 @@ export const flattenApplicantData = (
     // Score info
     resumeScore: applicant.score?.scores?.ResumeScore?.score || 0,
     totalScore: applicant.score?.totalScore || 0,
-    totalZScore: applicant.score?.totalZScore || -Infinity,
+    totalZScore: applicant.score?.totalZScore || Number.NEGATIVE_INFINITY,
     scoreComment: applicant.score?.comment || "",
 
     // Day-of info
