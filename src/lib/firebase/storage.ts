@@ -76,6 +76,61 @@ export const deleteRewardImage = async (hackathon: string, rewardId: string) => 
 };
 
 /**
+ * Uploads a stamp image to storage
+ * @param stampId - The stamp document's ID used for naming
+ * @param file - The image file
+ * @returns a downloadable url of the image just uploaded
+ */
+export const uploadStampImage = async (stampId: string, file: File) => {
+  try {
+    const imageRef = ref(storage, `stampImages/${stampId}`);
+    await uploadBytes(imageRef, file);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error("Error uploading stamp image", stampId, error);
+    return null;
+  }
+};
+
+export const deleteStampImage = async (stampId: string) => {
+  try {
+    const imageRef = ref(storage, `stampImages/${stampId}`);
+    await deleteObject(imageRef);
+  } catch (error: unknown) {
+    if ((error as FirebaseError)?.code === "storage/object-not-found") return;
+    console.error("Error deleting stamp image", stampId, error);
+  }
+};
+
+/**
+ * Uploads a stamp QR code to storage. 
+ * The generated QR code points to the portal, where the logic for unlocking stamps is handled.
+ * @param stampId - The stamp document's ID used for naming
+ * @param blob - The QR code blob
+ * @returns a downloadable url of the QR just uploaded
+ */
+export const uploadStampQR = async (stampId: string, blob: Blob) => {
+  try {
+    const qrRef = ref(storage, `stampQRs/${stampId}`);
+    await uploadBytes(qrRef, blob);
+    return await getDownloadURL(qrRef);
+  } catch (error) {
+    console.error("Error uploading stamp QR", stampId, error);
+    return null;
+  }
+};
+
+export const deleteStampQR = async (stampId: string) => {
+  try {
+    const qrRef = ref(storage, `stampQRs/${stampId}`);
+    await deleteObject(qrRef);
+  } catch (error: unknown) {
+    if ((error as FirebaseError)?.code === "storage/object-not-found") return;
+    console.error("Error deleting stamp QR", stampId, error);
+  }
+};
+
+/**
  * Filters applicants who have resumes and agreed to share with sponsors
  * @param applicants - Array of applicant objects
  * @returns Filtered array of applicants

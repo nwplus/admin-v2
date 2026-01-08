@@ -15,6 +15,7 @@ import { Route as SigninImport } from './routes/signin'
 import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexImport } from './routes/_auth/index'
 import { Route as AuthStatusChangerImport } from './routes/_auth/status-changer'
+import { Route as AuthStampbookImport } from './routes/_auth/stampbook'
 import { Route as AuthQueryImport } from './routes/_auth/query'
 import { Route as AuthFaqImport } from './routes/_auth/faq'
 import { Route as AuthFactotumImport } from './routes/_auth/factotum'
@@ -49,6 +50,12 @@ const AuthIndexRoute = AuthIndexImport.update({
 const AuthStatusChangerRoute = AuthStatusChangerImport.update({
   id: '/status-changer',
   path: '/status-changer',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthStampbookRoute = AuthStampbookImport.update({
+  id: '/stampbook',
+  path: '/stampbook',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -171,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthQueryImport
       parentRoute: typeof AuthRouteImport
     }
+    '/_auth/stampbook': {
+      id: '/_auth/stampbook'
+      path: '/stampbook'
+      fullPath: '/stampbook'
+      preLoaderRoute: typeof AuthStampbookImport
+      parentRoute: typeof AuthRouteImport
+    }
     '/_auth/status-changer': {
       id: '/_auth/status-changer'
       path: '/status-changer'
@@ -273,6 +287,7 @@ interface AuthRouteRouteChildren {
   AuthFactotumRoute: typeof AuthFactotumRoute
   AuthFaqRoute: typeof AuthFaqRoute
   AuthQueryRoute: typeof AuthQueryRoute
+  AuthStampbookRoute: typeof AuthStampbookRoute
   AuthStatusChangerRoute: typeof AuthStatusChangerRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthHackathonsHackathonIdRouteRoute: typeof AuthHackathonsHackathonIdRouteRouteWithChildren
@@ -283,6 +298,7 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthFactotumRoute: AuthFactotumRoute,
   AuthFaqRoute: AuthFaqRoute,
   AuthQueryRoute: AuthQueryRoute,
+  AuthStampbookRoute: AuthStampbookRoute,
   AuthStatusChangerRoute: AuthStatusChangerRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthHackathonsHackathonIdRouteRoute:
@@ -300,6 +316,7 @@ export interface FileRoutesByFullPath {
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
   '/query': typeof AuthQueryRoute
+  '/stampbook': typeof AuthStampbookRoute
   '/status-changer': typeof AuthStatusChangerRoute
   '/': typeof AuthIndexRoute
   '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
@@ -317,6 +334,7 @@ export interface FileRoutesByTo {
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
   '/query': typeof AuthQueryRoute
+  '/stampbook': typeof AuthStampbookRoute
   '/status-changer': typeof AuthStatusChangerRoute
   '/': typeof AuthIndexRoute
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
@@ -335,6 +353,7 @@ export interface FileRoutesById {
   '/_auth/factotum': typeof AuthFactotumRoute
   '/_auth/faq': typeof AuthFaqRoute
   '/_auth/query': typeof AuthQueryRoute
+  '/_auth/stampbook': typeof AuthStampbookRoute
   '/_auth/status-changer': typeof AuthStatusChangerRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
@@ -355,6 +374,7 @@ export interface FileRouteTypes {
     | '/factotum'
     | '/faq'
     | '/query'
+    | '/stampbook'
     | '/status-changer'
     | '/'
     | '/hackathons/$hackathonId'
@@ -371,6 +391,7 @@ export interface FileRouteTypes {
     | '/factotum'
     | '/faq'
     | '/query'
+    | '/stampbook'
     | '/status-changer'
     | '/'
     | '/hackathons/$hackathonId/application'
@@ -387,6 +408,7 @@ export interface FileRouteTypes {
     | '/_auth/factotum'
     | '/_auth/faq'
     | '/_auth/query'
+    | '/_auth/stampbook'
     | '/_auth/status-changer'
     | '/_auth/'
     | '/_auth/hackathons/$hackathonId'
@@ -430,6 +452,7 @@ export const routeTree = rootRoute
         "/_auth/factotum",
         "/_auth/faq",
         "/_auth/query",
+        "/_auth/stampbook",
         "/_auth/status-changer",
         "/_auth/",
         "/_auth/hackathons/$hackathonId"
@@ -452,6 +475,10 @@ export const routeTree = rootRoute
     },
     "/_auth/query": {
       "filePath": "_auth/query.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/stampbook": {
+      "filePath": "_auth/stampbook.tsx",
       "parent": "/_auth"
     },
     "/_auth/status-changer": {

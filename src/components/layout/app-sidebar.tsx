@@ -2,6 +2,7 @@ import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { Hackathon } from "@/lib/firebase/types";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
+  BadgeCheck,
   Bot,
   Calendar,
   DollarSign,
@@ -10,9 +11,9 @@ import {
   type LucideIcon,
   Search,
   Settings,
+  Stamp,
   Star,
   Users,
-  BadgeCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { CmdFIcon, type CustomIconComponent, HackCampIcon, NwHacksIcon } from "../graphy/icono";
@@ -58,6 +59,11 @@ const NAVIGATION: NavigationGroup[] = [
         label: "Query",
         href: "/query",
         icon: Search,
+      },
+      {
+        label: "Stampbook",
+        href: "/stampbook",
+        icon: Stamp,
       },
       {
         label: "Status Changer",
