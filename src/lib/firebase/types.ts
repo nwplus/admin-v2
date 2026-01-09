@@ -612,6 +612,7 @@ export interface HackathonConfig {
   submissionsOpen: HackathonBooleanMap;
   waiversAndForms: WaiversAndFormsMap;
   hackathonTheme: HackathonThemeMap;
+  waitlistSignupDeadline: HackathonConfigMap;
 }
 
 /**
