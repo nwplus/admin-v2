@@ -322,7 +322,7 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="waitlistSignupDeadline">Waitlist Signup By</Label>
+                <Label htmlFor="waitlistSignupDeadline">Waitlist Signup Deadline</Label>
                 <Input
                   id="waitlistSignupDeadline"
                   value={getValue("waitlistSignupDeadline")}
