@@ -1,7 +1,7 @@
 import { auth, db } from "@/lib/firebase/client";
 import {
   deleteStampImage,
-  deleteStampQR,
+  deleteStampQR as deleteStampQRFromStorage,
   uploadStampImage,
   uploadStampQR,
 } from "@/lib/firebase/storage";
@@ -11,10 +11,12 @@ import {
   Timestamp,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   onSnapshot,
   query,
   runTransaction,
+  updateDoc,
 } from "firebase/firestore";
 
 /**
@@ -90,10 +92,27 @@ export const upsertStampWithImage = async (
 export const deleteStampWithImage = async (stampId: string) => {
   try {
     await deleteStampImage(stampId);
-    await deleteStampQR(stampId);
+    await deleteStampQRFromStorage(stampId);
     await deleteDoc(doc(db, "Stamps", stampId));
   } catch (error) {
     console.error("Error deleting stamp:", error);
+    throw error;
+  }
+};
+
+/**
+ * Delete a stamp's QR code from storage and remove the qrURL field from Firestore
+ * @param stampId - the ID of the stamp whose QR should be deleted
+ */
+export const deleteStampQR = async (stampId: string) => {
+  try {
+    await deleteStampQRFromStorage(stampId);
+    const stampRef = doc(db, "Stamps", stampId);
+    await updateDoc(stampRef, {
+      qrURL: deleteField(),
+    });
+  } catch (error) {
+    console.error("Error deleting stamp QR:", error);
     throw error;
   }
 };
