@@ -47,6 +47,7 @@ export const flattenApplicantData = (
 
   const flattened: FlattenedApplicant = {
     // Basic Info
+    ageByHackathon: applicant.basicInfo?.ageByHackathon || "",
     firstName: applicant.basicInfo?.legalFirstName || applicant.basicInfo?.firstName || "",
     lastName: applicant.basicInfo?.legalLastName || applicant.basicInfo?.lastName || "",
     email: applicant.basicInfo?.email || "",
@@ -266,6 +267,7 @@ export interface FlattenedApplicant {
   educationLevel: string;
   graduation: string | number;
   gender: string;
+  ageByHackathon: string;
   isOfLegalAge: boolean;
   travellingToHackathon: string;
   culturalBackground: string;
