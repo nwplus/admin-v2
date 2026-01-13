@@ -1,7 +1,9 @@
 import { auth, db } from "@/lib/firebase/client";
 import {
+  deleteLockedStampImage,
   deleteStampImage,
   deleteStampQR as deleteStampQRFromStorage,
+  uploadLockedStampImage,
   uploadStampImage,
   uploadStampQR,
 } from "@/lib/firebase/storage";
@@ -38,8 +40,9 @@ export const subscribeToStamps = (callback: (docs: Stamp[]) => void) =>
 
 /**
  * Utility function that updates or adds a stamp document, depending on if an id argument is passed
- * @param stamp - the stamp to update or insert
- * @param imageFile - optional image to upsert
+ * @param stamp - the stamp to upsert
+ * @param imageFile - optional stamp image
+ * @param lockedImageFile - optional image for stamp in locked state
  * @param qrBlob - optional QR blob to upload
  * @param id - optional existing stamp ID for updates
  * @returns the upsert stamp document ref
@@ -47,6 +50,7 @@ export const subscribeToStamps = (callback: (docs: Stamp[]) => void) =>
 export const upsertStampWithImage = async (
   stamp: Stamp,
   imageFile?: File | null,
+  lockedImageFile?: File | null,
   qrBlob?: Blob | null,
   id?: string,
 ): Promise<DocumentReference | null> => {
@@ -67,6 +71,13 @@ export const upsertStampWithImage = async (
         const imageUrl = await uploadStampImage(stampId, imageFile);
         transaction.update(stampRef, {
           imgURL: imageUrl,
+        });
+      }
+
+      if (lockedImageFile) {
+        const lockedImageUrl = await uploadLockedStampImage(stampId, lockedImageFile);
+        transaction.update(stampRef, {
+          lockedImgURL: lockedImageUrl,
         });
       }
 
@@ -92,6 +103,7 @@ export const upsertStampWithImage = async (
 export const deleteStampWithImage = async (stampId: string) => {
   try {
     await deleteStampImage(stampId);
+    await deleteLockedStampImage(stampId);
     await deleteStampQRFromStorage(stampId);
     await deleteDoc(doc(db, "Stamps", stampId));
   } catch (error) {

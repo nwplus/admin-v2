@@ -104,6 +104,10 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
 
+  const [lockedImageFile, setLockedImageFile] = useState<File | null>(null);
+  const [lockedImagePreview, setLockedImagePreview] = useState<string | null>(null);
+  const [lockedImageError, setLockedImageError] = useState<string | null>(null);
+
   const [criteria, setCriteria] = useState<FilterRowsSelection[]>([]);
 
   useEffect(() => {
@@ -116,6 +120,9 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
   useEffect(() => {
     if (activeStamp?.imgURL) {
       setImagePreview(activeStamp.imgURL);
+    }
+    if (activeStamp?.lockedImgURL) {
+      setLockedImagePreview(activeStamp.lockedImgURL);
     }
     if (activeStamp?.criteria) {
       setCriteria(activeStamp.criteria);
@@ -161,10 +168,40 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
     setImageError(null);
   };
 
+  const handleLockedImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validation = imageSchema.safeParse(file);
+    if (!validation.success) {
+      setLockedImageError(validation.error.errors[0].message);
+      return;
+    }
+
+    setLockedImageError(null);
+    setLockedImageFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setLockedImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleLockedImageRemove = () => {
+    setLockedImageFile(null);
+    setLockedImagePreview(null);
+    setLockedImageError(null);
+  };
+
   const close = () => {
     setImageFile(null);
     setImagePreview(null);
     setImageError(null);
+
+    setLockedImageFile(null);
+    setLockedImagePreview(null);
+    setLockedImageError(null);
     setCriteria([]);
     form.reset(EMPTY_FORM);
     onClose();
@@ -213,6 +250,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       const upsertedStamp = await upsertStampWithImage(
         stampData,
         imageFile,
+        lockedImageFile,
         qrBlob,
         activeStamp?._id,
       );
@@ -224,6 +262,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
         const newQrBlob = await generateQRBlob(newStampId, values.hackathon);
         await upsertStampWithImage(
           { ...stampData, isQRUnlockable: true },
+          null,
           null,
           newQrBlob,
           newStampId,
@@ -280,6 +319,15 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
               onImageSelect={handleImageSelect}
               onImageRemove={handleImageRemove}
               altText="Stamp image preview"
+            />
+
+            <ImageUpload
+              label="Locked Image"
+              imagePreview={lockedImagePreview}
+              imageError={lockedImageError}
+              onImageSelect={handleLockedImageSelect}
+              onImageRemove={handleLockedImageRemove}
+              altText="Locked stamp image preview"
             />
 
             <FormField
