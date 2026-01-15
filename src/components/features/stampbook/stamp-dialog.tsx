@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { FilterRowsSelection, Hackathon, Stamp } from "@/lib/firebase/types";
 import { getHackathonType } from "@/lib/utils";
-import { deleteStampWithImage, upsertStampWithImage } from "@/services/stamps";
+import { deleteStampQR, deleteStampWithImage, upsertStampWithImage } from "@/services/stamps";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Download, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
@@ -50,7 +50,7 @@ const EMPTY_FORM = {
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
   description: z.string().min(2, "Description must be at least 2 characters").max(500),
-  hackathon: z.string().optional(),
+  hackathon: z.string().min(1, "Please select a hackathon"),
   isHidden: z.boolean(),
   isTitle: z.boolean(),
   isQRUnlockable: z.boolean(),
@@ -75,13 +75,12 @@ const PORTAL_BASE_URL = "https://portal.nwplus.io";
 
 /**
  * Generate a QR code as a Blob
- * URL format: https://portal.nwplus.io/{hackathon}/stampbook?unlockStamp={stampId}
- * TODO: will be https://portal.nwplus.io/stampbook?unlockStamp={stampId} for global stamps now; portal currently does not support this
+ * URL format: https://portal.nwplus.io/{hackathonSlug}/stampbook?unlockStamp={stampId}
+ * hackathonSlug is one of: hackcamp, nwhacks, cmd-f
  */
-async function generateQRBlob(stampId: string, hackathonId?: string): Promise<Blob> {
-  const hackathonSlug = hackathonId ? getHackathonType(hackathonId) : undefined;
-  const path = hackathonSlug ? `/${hackathonSlug}/stampbook` : "/stampbook";
-  const qrContent = `${PORTAL_BASE_URL}${path}?unlockStamp=${stampId}`;
+async function generateQRBlob(stampId: string, hackathonId: string): Promise<Blob> {
+  const hackathonSlug = getHackathonType(hackathonId);
+  const qrContent = `${PORTAL_BASE_URL}/${hackathonSlug}/stampbook?unlockStamp=${stampId}`;
   
   const dataUrl = await QRCode.toDataURL(qrContent, {
     width: 512,
@@ -105,6 +104,10 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
 
+  const [lockedImageFile, setLockedImageFile] = useState<File | null>(null);
+  const [lockedImagePreview, setLockedImagePreview] = useState<string | null>(null);
+  const [lockedImageError, setLockedImageError] = useState<string | null>(null);
+
   const [criteria, setCriteria] = useState<FilterRowsSelection[]>([]);
 
   useEffect(() => {
@@ -117,6 +120,9 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
   useEffect(() => {
     if (activeStamp?.imgURL) {
       setImagePreview(activeStamp.imgURL);
+    }
+    if (activeStamp?.lockedImgURL) {
+      setLockedImagePreview(activeStamp.lockedImgURL);
     }
     if (activeStamp?.criteria) {
       setCriteria(activeStamp.criteria);
@@ -162,10 +168,40 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
     setImageError(null);
   };
 
+  const handleLockedImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validation = imageSchema.safeParse(file);
+    if (!validation.success) {
+      setLockedImageError(validation.error.errors[0].message);
+      return;
+    }
+
+    setLockedImageError(null);
+    setLockedImageFile(file);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setLockedImagePreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleLockedImageRemove = () => {
+    setLockedImageFile(null);
+    setLockedImagePreview(null);
+    setLockedImageError(null);
+  };
+
   const close = () => {
     setImageFile(null);
     setImagePreview(null);
     setImageError(null);
+
+    setLockedImageFile(null);
+    setLockedImagePreview(null);
+    setLockedImageError(null);
     setCriteria([]);
     form.reset(EMPTY_FORM);
     onClose();
@@ -191,27 +227,30 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
         imgName: imageFile?.name || activeStamp?.imgName || "",
       };
 
-      if (values.hackathon) {
-        stampData.hackathon = values.hackathon;
-      }
+      stampData.hackathon = values.hackathon;
       if (criteria.length > 0) {
         stampData.criteria = criteria;
       }
-
-      // Generate QR blob if isQRUnlockable is true and this is a new stamp
-      // or if it's being enabled for the first time
+      
+      // Generate QR blob if isQRUnlockable is being enabled for the first time
+      // else delete QR if isQRUnlockable is being disabled and a QR exists
       let qrBlob: Blob | null = null;
       const stampId = activeStamp?._id;
       const needsNewQR = values.isQRUnlockable && (!activeStamp || !activeStamp.isQRUnlockable);
-      const hackathonForQR = values.hackathon || undefined;
+      const needsQRDeletion = !values.isQRUnlockable && activeStamp?.isQRUnlockable && activeStamp?.qrURL;
       
       if (needsNewQR && stampId) {
-        qrBlob = await generateQRBlob(stampId, hackathonForQR);
+        qrBlob = await generateQRBlob(stampId, values.hackathon);
+      }
+
+      if (needsQRDeletion && stampId) {
+        await deleteStampQR(stampId);
       }
 
       const upsertedStamp = await upsertStampWithImage(
         stampData,
         imageFile,
+        lockedImageFile,
         qrBlob,
         activeStamp?._id,
       );
@@ -220,9 +259,10 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
 
       if (values.isQRUnlockable && !activeStamp?._id) {
         const newStampId = upsertedStamp.id;
-        const newQrBlob = await generateQRBlob(newStampId, hackathonForQR);
+        const newQrBlob = await generateQRBlob(newStampId, values.hackathon);
         await upsertStampWithImage(
           { ...stampData, isQRUnlockable: true },
+          null,
           null,
           newQrBlob,
           newStampId,
@@ -281,6 +321,15 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
               altText="Stamp image preview"
             />
 
+            <ImageUpload
+              label="Locked Image"
+              imagePreview={lockedImagePreview}
+              imageError={lockedImageError}
+              onImageSelect={handleLockedImageSelect}
+              onImageRemove={handleLockedImageRemove}
+              altText="Locked stamp image preview"
+            />
+
             <FormField
               control={form.control}
               name="name"
@@ -315,17 +364,13 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Hackathon</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(value === "__global__" ? "" : value)}
-                    value={field.value || "__global__"}
-                  >
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Global" />
+                        <SelectValue placeholder="Select a hackathon" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="__global__">Global</SelectItem>
                       {[...new Map(hackathons.map((h) => [h._id, h])).values()].map((h) => (
                         <SelectItem key={h._id} value={h._id}>
                           {h._id}
