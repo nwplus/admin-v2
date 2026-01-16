@@ -103,6 +103,33 @@ export const deleteStampImage = async (stampId: string) => {
 };
 
 /**
+ * Uploads a locked stamp image to storage (this is what the user sees before unlocking the stamp)
+ * @param stampId - The stamp document's ID used for naming
+ * @param file - The image file
+ * @returns a downloadable url of the image just uploaded
+ */
+export const uploadLockedStampImage = async (stampId: string, file: File) => {
+  try {
+    const imageRef = ref(storage, `stampImages/${stampId}_locked`);
+    await uploadBytes(imageRef, file);
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error("Error uploading locked stamp image", stampId, error);
+    return null;
+  }
+};
+
+export const deleteLockedStampImage = async (stampId: string) => {
+  try {
+    const imageRef = ref(storage, `stampImages/${stampId}_locked`);
+    await deleteObject(imageRef);
+  } catch (error: unknown) {
+    if ((error as FirebaseError)?.code === "storage/object-not-found") return;
+    console.error("Error deleting locked stamp image", stampId, error);
+  }
+};
+
+/**
  * Uploads a stamp QR code to storage. 
  * The generated QR code points to the portal, where the logic for unlocking stamps is handled.
  * @param stampId - The stamp document's ID used for naming

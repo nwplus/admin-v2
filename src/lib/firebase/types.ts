@@ -626,6 +626,7 @@ export interface Stamp {
   description: string;
   imgURL?: string;
   imgName?: string;
+  lockedImgURL?: string;
   hackathon?: string; // for stamps unlockable in specific hackathons
   criteria?: FilterRowsSelection[];
   isHidden: boolean;
