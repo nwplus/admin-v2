@@ -131,3 +131,38 @@ export function getHackathonType(hackathonId: string): HackathonType {
   if (lower.includes("hackcamp")) return "hackcamp";
   return "nwhacks";
 }
+
+/**
+ * Obfuscates an email: shows first 2 characters then replace with asterisks until '@'
+ * e.g., "nugget2026@gmail.com" -> "nu********@gmail.com"
+ */
+export function obfuscateEmail(email: string): string {
+  if (!email) return "";
+  const atIndex = email.indexOf("@");
+  if (atIndex === -1) return email;
+  if (atIndex <= 2) {
+    const asterisks = "*".repeat(Math.max(0, atIndex));
+    return asterisks + email.slice(atIndex);
+  }
+  const prefix = email.slice(0, 2);
+  const asterisks = "*".repeat(atIndex - 2);
+  const domain = email.slice(atIndex);
+  return `${prefix}${asterisks}${domain}`;
+}
+
+/**
+ * Triggers a browser download of a CSV file
+ * @param content - CSV content as string
+ * @param filename - Name for the downloaded file
+ */
+export function downloadCSV(content: string, filename: string): void {
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
