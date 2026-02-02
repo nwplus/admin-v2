@@ -27,8 +27,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
-  question: z.string().min(2).max(500),
-  answer: z.string().min(2).max(500),
+  question: z.string().min(2).max(10000),
+  answer: z.string().min(2).max(100000),
   category: z.string(),
   hackathonIDs: z.array(z.string()),
 });
