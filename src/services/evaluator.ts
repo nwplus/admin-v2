@@ -29,6 +29,18 @@ export const getAdminFlags = async () => {
   }
 };
 
+export const setAdminFlags = async (flags: Partial<InternalWebsitesCMS>) => {
+  try {
+    const adminRef = doc(db, "InternalWebsites", "CMS");
+    await setDoc(adminRef, flags, { merge: true });
+    const adminSnap = await getDoc(adminRef);
+    if (!adminSnap.exists()) throw new Error("CMS in InternalWebsites doesn't exist");
+    return adminSnap.data() as unknown as InternalWebsitesCMS;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 /**
  * Utility function that returns Applicants collection group realtime data
  * @param hackathon - The hackathon collection of the applicants to query

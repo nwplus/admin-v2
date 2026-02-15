@@ -1,5 +1,5 @@
 import { Loading } from "@/components/ui/loading";
-import type { Applicant } from "@/lib/firebase/types";
+import type { Applicant, ScoringCriteria } from "@/lib/firebase/types";
 import {
   getAdminFlags,
   subscribeLongAnswerQuestions,
@@ -11,7 +11,10 @@ export interface EvaluatorContextType {
   hackathon: string;
   applicants: Applicant[];
   focusedApplicant: Applicant | null;
+  setHackathon: React.Dispatch<React.SetStateAction<string>>;
+  setScoringCriteria: React.Dispatch<React.SetStateAction<ScoringCriteria[]>>;
   setFocusedApplicant: React.Dispatch<React.SetStateAction<Applicant | null>>;
+  scoringCriteria: ScoringCriteria[];
   questionLabels: Record<string, string>;
 }
 
@@ -22,6 +25,7 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
   const [hackathon, setHackathon] = useState<string>("");
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [focusedApplicant, setFocusedApplicant] = useState<Applicant | null>(null);
+  const [scoringCriteria, setScoringCriteria] = useState<ScoringCriteria[]>([]);
   const [questionLabels, setQuestionLabels] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -29,7 +33,10 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
     const fetchAndSubscribe = async () => {
       try {
         const adminConfig = await getAdminFlags();
-        setHackathon(adminConfig?.activeHackathon ?? "");
+        if (hackathon === "") {
+          setHackathon(adminConfig?.activeHackathon ?? "");
+        }
+        setScoringCriteria(adminConfig?.evaluator?.criteria ?? []);
         if (!adminConfig?.activeHackathon) throw new Error("No activeHackathon flag set in CMS");
         unsubApplicants = subscribeToApplicants(
           adminConfig?.activeHackathon,
@@ -45,10 +52,12 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
     };
     fetchAndSubscribe();
     return () => unsubApplicants?.();
-  }, []);
+  }, [hackathon]);
 
   useEffect(() => {
     if (!hackathon) return;
+
+    setFocusedApplicant(null);
 
     const unsubLongAnswerQuestions = subscribeLongAnswerQuestions(hackathon, (questions) => {
       const labelMap = questions.reduce(
@@ -70,6 +79,9 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
     hackathon,
     applicants,
     focusedApplicant,
+    scoringCriteria,
+    setHackathon,
+    setScoringCriteria,
     setFocusedApplicant,
     questionLabels,
   };

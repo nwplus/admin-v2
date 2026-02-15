@@ -294,10 +294,22 @@ export interface ApplicantScoreItem {
   score?: number;
 }
 
+export interface ScoringCriteria {
+  label: string;
+  field: string;
+  minScore: number;
+  maxScore: number;
+  increments: number;
+  weight: number;
+}
+
 export interface InternalWebsitesCMS {
   activeHackathon?: string;
   offUntilDate?: boolean; // not sure what this is for
   targetSite?: string;
+  evaluator: {
+    criteria: ScoringCriteria[];
+  };
 }
 
 /**

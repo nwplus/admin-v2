@@ -3,17 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebouncedSave } from "@/hooks/use-debounce-save";
-import type { ApplicantScoreItem } from "@/lib/firebase/types";
+import type { ApplicantScoreItem, ScoringCriteria } from "@/lib/firebase/types";
 import { useAuth } from "@/providers/auth-provider";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { updateApplicant } from "@/services/evaluator";
 import { Timestamp } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
-import { SCORING_CRITERIA, type ScoringCriteria } from "./constants";
 
 export function ApplicantScoring() {
   const { user } = useAuth();
-  const { hackathon, focusedApplicant } = useEvaluator();
+  const { hackathon, focusedApplicant, scoringCriteria } = useEvaluator();
 
   const [scores, setScores] = useState<Record<string, ApplicantScoreItem>>({});
   const [comment, setComment] = useState<string>("");
@@ -65,7 +64,7 @@ export function ApplicantScoring() {
           [field]: newScore,
         },
         ...newMetadata,
-        totalScore: SCORING_CRITERIA.reduce((sum, criteria) => {
+        totalScore: scoringCriteria.reduce((sum, criteria) => {
           const scoreItem = updatedScores[criteria.field];
           const scoreValue = typeof scoreItem?.score === "number" ? scoreItem.score : 0;
           return sum + scoreValue * criteria.weight;
@@ -78,7 +77,7 @@ export function ApplicantScoring() {
   const areAllCategoriesScored = () => {
     if (!scores || Object.keys(scores).length === 0) return false;
 
-    return SCORING_CRITERIA.every((criteria) => {
+    return scoringCriteria.every((criteria) => {
       const score = scores[criteria.field];
       return score && typeof score.score === "number";
     });
@@ -142,7 +141,7 @@ export function ApplicantScoring() {
         <CardTitle>Scoring</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-5 overflow-auto">
-        {SCORING_CRITERIA?.map((criteria) => (
+        {scoringCriteria?.map((criteria) => (
           <ScoringItem
             key={criteria.field}
             {...criteria}
