@@ -141,14 +141,17 @@ export function ApplicantScoring() {
         <CardTitle>Scoring</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-5 overflow-auto">
-        {scoringCriteria?.map((criteria) => (
-          <ScoringItem
-            key={criteria.field}
-            {...criteria}
-            currentScore={scores[criteria.field]}
-            onChange={handleScoreChange}
-          />
-        ))}
+        {scoringCriteria?.map(
+          (criteria) =>
+            !criteria.isDisabled && (
+              <ScoringItem
+                key={criteria.field}
+                {...criteria}
+                currentScore={scores[criteria.field]}
+                onChange={handleScoreChange}
+              />
+            ),
+        )}
         <div className="flex flex-col gap-2 pb-0.5">
           <Label>Comments</Label>
           <Textarea

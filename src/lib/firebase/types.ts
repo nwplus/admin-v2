@@ -301,6 +301,7 @@ export interface ScoringCriteria {
   maxScore: number;
   increments: number;
   weight: number;
+  isDisabled: boolean;
 }
 
 export interface InternalWebsitesCMS {
