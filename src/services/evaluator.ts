@@ -4,6 +4,7 @@ import { flattenApplicantData } from "@/services/query";
 import {
   type Timestamp,
   collection,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -12,6 +13,7 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import * as math from "mathjs";
 
@@ -30,9 +32,25 @@ export const getAdminFlags = async () => {
 };
 
 /**
+ * Utility function that merge updates the admin/CMS document
+ * @returns CMS document in Firestore
+ */
+export const setAdminFlags = async (flags: Partial<InternalWebsitesCMS>) => {
+  try {
+    const adminRef = doc(db, "InternalWebsites", "CMS");
+    await setDoc(adminRef, flags, { merge: true });
+    const adminSnap = await getDoc(adminRef);
+    if (!adminSnap.exists()) throw new Error("CMS in InternalWebsites doesn't exist");
+    return adminSnap.data() as unknown as InternalWebsitesCMS;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+/**
  * Utility function that returns Applicants collection group realtime data
- * @param hackathon - The hackathon collection of the applicants to query
- * @param callback - The function used to ingest the data
+ * @param hackathon The hackathon collection of the applicants to query
+ * @param callback The function used to ingest the data
  * @returns a listener function to be called on dismount
  */
 export const subscribeToApplicants = (hackathon: string, callback: (docs: Applicant[]) => void) =>
@@ -54,10 +72,68 @@ export const subscribeToApplicants = (hackathon: string, callback: (docs: Applic
   );
 
 /**
+ * Utility function to delete score fields from applicants in batch and deduct from their totalScore
+ * @param hackathon hackathon id
+ * @param applicantIds the array of applicants from whom the score fields should be deleted
+ * @param scoreFields the score fields to delete
+ */
+export const deleteApplicantScores = async (
+  hackathon: string,
+  applicantIds: string[],
+  scoreFields: Set<string>,
+) => {
+  if (!hackathon || applicantIds.length === 0 || scoreFields.size === 0) return;
+
+  const adminConfig = await getAdminFlags();
+  const criteriaWeights = new Map<string, number>(
+    adminConfig?.evaluator?.criteria?.map((c) => [c.field, c.weight ?? 1]) ?? [],
+  );
+
+  const batch = writeBatch(db);
+
+  for (const applicantId of applicantIds) {
+    const applicantRef = doc(db, "Hackathons", hackathon, "Applicants", applicantId);
+    const applicantSnap = await getDoc(applicantRef);
+    if (!applicantSnap.exists()) continue;
+
+    const applicantData = applicantSnap.data() as Applicant;
+    const scoreEntries = applicantData?.score?.scores ?? {};
+    const totalScore = applicantData?.score?.totalScore;
+
+    let delta = 0;
+    for (const field of scoreFields) {
+      const entry = scoreEntries?.[field];
+      const scoreValue = typeof entry?.score === "number" ? entry.score : 0;
+      const weight = criteriaWeights.get(field) ?? 1;
+      delta += scoreValue * weight;
+    }
+
+    const updates: Record<string, unknown> = {};
+    for (const field of scoreFields) {
+      updates[`score.scores.${field}`] = deleteField();
+    }
+
+    if (typeof totalScore === "number") {
+      const newTotal = Math.max(0, Math.round((totalScore - delta) * 100) / 100);
+      updates["score.totalScore"] = newTotal;
+    }
+
+    batch.update(applicantRef, updates);
+  }
+
+  try {
+    await batch.commit();
+  } catch (error) {
+    console.error("Error deleting applicant scores:", error);
+    throw error;
+  }
+};
+
+/**
  * Utility function to handle applicant updates
- * @param hackathon - of the applicant
- * @param applicantId - of the applicant
- * @param update - changes to patch
+ * @param hackathon of the applicant
+ * @param applicantId of the applicant
+ * @param update changes to patch
  * @returns void
  */
 type Object<T = string | number | Timestamp | undefined> = {
@@ -74,8 +150,8 @@ export const updateApplicant = async (hackathon: string, applicantId: string, up
 
 /**
  * Utility function to export applicant data as CSV
- * @param applicants - Array of applicant objects
- * @param hackathonName - Name of the hackathon for the filename
+ * @param applicants Array of applicant objects
+ * @param hackathonName Name of the hackathon for the filename
  * @returns void - triggers CSV download
  */
 export const exportApplicantsAsCSV = (applicants: Applicant[], hackathonName: string): void => {
@@ -121,8 +197,8 @@ export const exportApplicantsAsCSV = (applicants: Applicant[], hackathonName: st
 
 /**
  * Utility function that returns graded applicants
- * @param hackathon - The hackathon collection of the applicants to query
- * @param callback - The function used to ingest the data
+ * @param hackathon The hackathon collection of the applicants to query
+ * @param callback The function used to ingest the data
  * @returns a listener function to be called on dismount
  */
 export const getGradedApplicants = (hackathon: string, callback: (docs: Applicant[]) => void) =>
@@ -232,7 +308,10 @@ export const updateNormalizedScores = async (
       updates[`score.scores.${questionName}.normalizedScore`] = normalizedScore;
     }
 
-    const total = Object.values(questions).reduce((sum, z) => sum + (typeof z === "number" ? z : 0), 0);
+    const total = Object.values(questions).reduce(
+      (sum, z) => sum + (typeof z === "number" ? z : 0),
+      0,
+    );
     updates["score.totalZScore"] = Math.round(total * 100) / 100;
 
     const applicantRef = doc(db, "Hackathons", hackathon, "Applicants", applicantId);
@@ -302,7 +381,8 @@ export const getApplicantsToAccept = async (
 
     // zscore
     const totalZScore = applicant?.score?.totalZScore;
-    if (totalZScore === undefined || totalZScore === null || Number.isNaN(totalZScore)) return false;
+    if (totalZScore === undefined || totalZScore === null || Number.isNaN(totalZScore))
+      return false;
     if (minZScore !== undefined && totalZScore < minZScore) return false;
 
     // range of hackathons attended
@@ -368,8 +448,8 @@ export const acceptApplicants = async (hackathon: string, acceptIds: string[]) =
 
 /**
  * Subscribe to long-answer questions in real-time
- * @param hackathon - The hackathon collection of the applicants to query
- * @param onUpdate - Callback with array of { formInput, description }
+ * @param hackathon The hackathon collection of the applicants to query
+ * @param onUpdate Callback with array of { formInput, description }
  * @returns unsubscribe function
  */
 export const subscribeLongAnswerQuestions = (
