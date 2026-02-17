@@ -232,7 +232,7 @@ export function SettingsDialog({ open, onClose, hackathonIds }: FAQDialogProps) 
                           <FormControl>
                             <Input
                               type="number"
-                              step="0.1"
+                              step="1"
                               {...field}
                               value={field.value ?? ""}
                               onChange={(e) =>
