@@ -53,13 +53,13 @@ const formSchema = z.object({
   scoringCriteria: z.array(scoringCriteriaSchema),
 });
 
-interface FAQDialogProps {
+interface SettingsDialogProps {
   open: boolean;
   hackathonIds: string[];
   onClose: () => void;
 }
 
-export function SettingsDialog({ open, onClose, hackathonIds }: FAQDialogProps) {
+export function SettingsDialog({ open, onClose, hackathonIds }: SettingsDialogProps) {
   const { applicants, hackathon, scoringCriteria, setScoringCriteria, setHackathon } =
     useEvaluator();
 
