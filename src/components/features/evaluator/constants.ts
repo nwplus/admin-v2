@@ -15,74 +15,28 @@ export const RESPONSE_VISIBLE_FIELDS = [
   { field: "skills.contributionRole", type: "booleanMap", label: "Role" },
   { field: "basicInfo.educationLevel", type: "short", label: "Year Level" },
   { field: "skills.numHackathonsAttended", type: "short", label: "Number of Hackathons Attended" },
-  { field: "skills.longAnswers1", type: "long", label: "Long Answer 1" },
-  { field: "skills.longAnswers2", type: "long", label: "Long Answer 2" },
-  { field: "skills.longAnswers3", type: "long", label: "Long Answer 3" },
-  // { field: "skills.longAnswers4", type: "long", label: "Long Answer 4" },
+  {
+    field: "skills.longAnswers1",
+    type: "long",
+    label: "Long Answer 1",
+    scoreName: "ResponseOneScore",
+  },
+  {
+    field: "skills.longAnswers2",
+    type: "long",
+    label: "Long Answer 2",
+    scoreName: "ResponseTwoScore",
+  },
+  {
+    field: "skills.longAnswers3",
+    type: "long",
+    label: "Long Answer 3",
+    scoreName: "ResponseThreeScore",
+  },
   { field: "skills.portfolio", type: "link", label: "Portfolio" },
   { field: "skills.github", type: "link", label: "GitHub" },
   { field: "skills.linkedin", type: "link", label: "LinkedIn" },
-  { field: "skills.resume", type: "resume", label: "Resume" },
-];
-
-export interface ScoringCriteria {
-  label: string;
-  field: string;
-  minScore: number;
-  maxScore: number;
-  increments: number;
-  weight: number;
-}
-
-export const SCORING_CRITERIA: ScoringCriteria[] = [
-  {
-    label: "Resume",
-    field: "ResumeScore",
-    minScore: 0,
-    maxScore: 6,
-    increments: 1,
-    weight: 1.0,
-  },
-  // {
-  //   label: "Experience",
-  //   field: "NumExperiences",
-  //   minScore: 0,
-  //   maxScore: 5,
-  //   increments: 1,
-  //   weight: 1.0,
-  // },
-  {
-    label: "Q1 Score",
-    field: "ResponseOneScore",
-    minScore: 0,
-    maxScore: 4,
-    increments: 1,
-    weight: 1.0,
-  },
-  {
-    label: "Q2 Score",
-    field: "ResponseTwoScore",
-    minScore: 0,
-    maxScore: 6,
-    increments: 1,
-    weight: 1.0,
-  },
-  {
-    label: "Q3 Score",
-    field: "ResponseThreeScore",
-    minScore: 0,
-    maxScore: 1,
-    increments: 1,
-    weight: 1.0,
-  },
-  // {
-  //   label: "Response 4 Score",
-  //   field: "ResponseFourScore",
-  //   minScore: -1,
-  //   maxScore: 5,
-  //   increments: 1,
-  //   weight: 1.0,
-  // },
+  { field: "skills.resume", type: "resume", label: "Resume", scoreName: "ResumeScore" },
 ];
 
 export const CONTRIBUTION_ROLE_OPTIONS: MultiSelectOption[] = [
