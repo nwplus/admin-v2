@@ -53,13 +53,13 @@ const formSchema = z.object({
   scoringCriteria: z.array(scoringCriteriaSchema),
 });
 
-interface FAQDialogProps {
+interface SettingsDialogProps {
   open: boolean;
   hackathonIds: string[];
   onClose: () => void;
 }
 
-export function SettingsDialog({ open, onClose, hackathonIds }: FAQDialogProps) {
+export function SettingsDialog({ open, onClose, hackathonIds }: SettingsDialogProps) {
   const { applicants, hackathon, scoringCriteria, setScoringCriteria, setHackathon } =
     useEvaluator();
 
@@ -140,7 +140,10 @@ export function SettingsDialog({ open, onClose, hackathonIds }: FAQDialogProps) 
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
-      <DialogContent aria-describedby={undefined}>
+      <DialogContent
+        aria-describedby={undefined}
+        className="max-h-[90vh] overflow-y-auto sm:max-w-2xl"
+      >
         <DialogHeader>
           <DialogTitle>Evaluator settings</DialogTitle>
         </DialogHeader>
@@ -229,7 +232,7 @@ export function SettingsDialog({ open, onClose, hackathonIds }: FAQDialogProps) 
                           <FormControl>
                             <Input
                               type="number"
-                              step="0.1"
+                              step="1"
                               {...field}
                               value={field.value ?? ""}
                               onChange={(e) =>

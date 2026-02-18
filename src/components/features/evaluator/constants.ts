@@ -16,6 +16,11 @@ export const RESPONSE_VISIBLE_FIELDS = [
   { field: "basicInfo.educationLevel", type: "short", label: "Year Level" },
   { field: "skills.numHackathonsAttended", type: "short", label: "Number of Hackathons Attended" },
   {
+    field: "basicInfo.identifyAsUnderrepresented",
+    type: "short",
+    label: "Identify as underrepresented",
+  },
+  {
     field: "skills.longAnswers1",
     type: "long",
     label: "Long Answer 1",
