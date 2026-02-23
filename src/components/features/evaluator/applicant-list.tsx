@@ -49,7 +49,7 @@ export function ApplicantList() {
         <Input
           value={searchTerm ?? ""}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search..."
+          placeholder="Search by ID, name, email, phone..."
         />
       </CardHeader>
       <CardContent className="overflow-auto p-0">
@@ -92,6 +92,7 @@ export const filterApplicantsBySearch = (
     const { firstName, lastName, email, phoneNumber } = applicant.basicInfo;
 
     const fields = [
+      applicant._id?.toLowerCase() || "",
       firstName?.toLowerCase() || "",
       lastName?.toLowerCase() || "",
       email?.toLowerCase() || "",
