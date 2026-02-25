@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from "react";
 export function ApplicantScoring() {
   const { user } = useAuth();
   const { hackathon, focusedApplicant, scoringCriteria } = useEvaluator();
+  const enabledScoringCriteria = scoringCriteria.filter((criteria) => !criteria.isDisabled);
 
   const [scores, setScores] = useState<Record<string, ApplicantScoreItem>>({});
   const [comment, setComment] = useState<string>("");
@@ -64,7 +65,7 @@ export function ApplicantScoring() {
           [field]: newScore,
         },
         ...newMetadata,
-        totalScore: scoringCriteria.reduce((sum, criteria) => {
+        totalScore: enabledScoringCriteria.reduce((sum, criteria) => {
           const scoreItem = updatedScores[criteria.field];
           const scoreValue = typeof scoreItem?.score === "number" ? scoreItem.score : 0;
           return sum + scoreValue * criteria.weight;
@@ -75,9 +76,10 @@ export function ApplicantScoring() {
   };
 
   const areAllCategoriesScored = () => {
+    if (!enabledScoringCriteria.length) return false;
     if (!scores || Object.keys(scores).length === 0) return false;
 
-    return scoringCriteria.every((criteria) => {
+    return enabledScoringCriteria.every((criteria) => {
       const score = scores[criteria.field];
       return score && typeof score.score === "number";
     });

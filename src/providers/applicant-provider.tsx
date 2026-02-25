@@ -39,7 +39,9 @@ export function ApplicantProvider({ children }: { children: ReactNode }) {
     if (!selectedHackathon) return;
 
     const unsubscribe = subscribeToApplicants(selectedHackathon, (applicants) => {
-      const flattenedApplicants = applicants.map(flattenApplicantData);
+      const flattenedApplicants = applicants.map((applicant) =>
+        flattenApplicantData(applicant, selectedHackathon),
+      );
       setApplicants(flattenedApplicants);
       setIsLoading(false);
     });

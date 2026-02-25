@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { X, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { FilterRowsSelection } from "@/providers/query-provider";
+import type { FilterRowsSelection } from "@/lib/firebase/types";
 
 /**
  * Set of possible operators for filtering rows based on data type.
@@ -255,4 +255,3 @@ export function FilterRows({
     </Popover>
   );
 }
-
