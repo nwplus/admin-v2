@@ -259,6 +259,7 @@ export interface Applicant {
   submission?: {
     lastUpdated?: Timestamp;
     submitted?: boolean;
+    submittedAt?: Timestamp;
   };
   dayOf?: {
     day1?: {

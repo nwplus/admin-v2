@@ -26,7 +26,18 @@ export function ApplicantList() {
   const filteredApplicants = useMemo(() => {
     let list = applicants || [];
     list = filterApplicantsByStatus(list, selectedStatuses);
-    return filterApplicantsBySearch(list, searchTerm).sort((a, b) => a._id.localeCompare(b._id));
+    return filterApplicantsBySearch(list, searchTerm)
+      .slice()
+      .sort((a, b) => {
+        const aSubmissionMs = a.submission?.submittedAt?.toMillis?.() ?? 0;
+        const bSubmissionMs = b.submission?.submittedAt?.toMillis?.() ?? 0;
+
+        if (aSubmissionMs !== bSubmissionMs) {
+          return aSubmissionMs - bSubmissionMs;
+        }
+
+        return a._id.localeCompare(b._id);
+      });
   }, [applicants, searchTerm, selectedStatuses]);
 
   return (
