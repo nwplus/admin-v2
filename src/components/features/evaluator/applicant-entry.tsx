@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { Applicant } from "@/lib/firebase/types";
 import { cn } from "@/lib/utils";
-import { useMemo } from "react";
 import { ApplicantStatus } from "./applicant-status";
 
 interface ApplicantEntryProps {
@@ -14,17 +13,6 @@ interface ApplicantEntryProps {
 }
 
 export function ApplicantEntry({ index, score, status, isActive, onSelect }: ApplicantEntryProps) {
-  const normalizedScore = useMemo(() => {
-    if (!score?.scores) return 0;
-    let total = 0;
-    for (const [, scoreData] of Object.entries(score.scores)) {
-      if (scoreData?.normalizedScore && typeof scoreData.normalizedScore === "number") {
-        total += scoreData.normalizedScore;
-      }
-    }
-    return Math.round(total * 100) / 100;
-  }, [score?.scores]);
-
   return (
     <Button
       onClick={onSelect}
