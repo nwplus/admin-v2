@@ -108,7 +108,7 @@ export const deleteApplicantScores = async (
       delta += scoreValue * weight;
     }
 
-    const updates: Record<string, unknown> = {};
+    const updates: Record<string, number | ReturnType<typeof deleteField>> = {};
     for (const field of scoreFields) {
       updates[`score.scores.${field}`] = deleteField();
     }

@@ -49,6 +49,7 @@ export const flattenApplicantData = (
     // Basic Info
     ageByHackathon: applicant.basicInfo?.ageByHackathon || "",
     firstName: applicant.basicInfo?.legalFirstName || applicant.basicInfo?.firstName || "",
+    preferredName: applicant.basicInfo?.preferredName || "",
     lastName: applicant.basicInfo?.legalLastName || applicant.basicInfo?.lastName || "",
     email: applicant.basicInfo?.email || "",
     phoneNumber: applicant.basicInfo?.phoneNumber || "",
@@ -151,6 +152,7 @@ export const getAvailableColumns = (): string[] => {
     basicInfo: {
       legalFirstName: "",
       legalLastName: "",
+      preferredName: "",
       email: "",
       phoneNumber: "",
       school: "",
@@ -259,6 +261,7 @@ export const getAvailableColumns = (): string[] => {
 export interface FlattenedApplicant {
   // Basic Info
   firstName: string;
+  preferredName: string;
   lastName: string;
   email: string;
   phoneNumber: string;
