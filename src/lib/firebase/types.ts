@@ -171,6 +171,7 @@ export interface Applicant {
     email: string;
     firstName?: string;
     lastName?: string;
+    preferredName?: string;
     legalFirstName: string;
     legalLastName: string;
     gender: string | Record<string, boolean>;
