@@ -363,7 +363,9 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
               name="hackathon"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Hackathon</FormLabel>
+                  <FormLabel>
+                    Hackathon <span className="text-destructive">*</span>
+                  </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="w-full">
