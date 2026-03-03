@@ -282,6 +282,8 @@ export interface Applicant {
   };
   termsAndConditions?: {
     MLHCodeOfConduct?: boolean;
+    MLHPrivacyPolicy?: boolean;
+    MLHEmailSubscription?: boolean;
     nwPlusPrivacyPolicy?: boolean;
     shareWithSponsors?: boolean;
     shareWithnwPlus?: boolean;
