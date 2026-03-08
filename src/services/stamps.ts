@@ -144,7 +144,7 @@ export const deleteStampQR = async (stampId: string) => {
  * Each stamp a user has unlocked creates one entry (for nwHacks 2026 raffle weighting).
  * @returns Array of entries where each entry represents one stamp collected by a hacker
  */
-export const fetchHackersWithStamps = async (): Promise<HackerStampEntry[]> => {
+export const fetchHackersWithStamps = async (hackathonId: string): Promise<HackerStampEntry[]> => {
   const socialsSnapshot = await getDocs(collection(db, "Socials"));
   const entries: HackerStampEntry[] = [];
 
@@ -152,7 +152,7 @@ export const fetchHackersWithStamps = async (): Promise<HackerStampEntry[]> => {
     const socialData = socialDoc.data();
     const displayName = socialData.preferredName || "User";
     const email = socialData.email || "";
-    const unlockedStamps: string[] = socialData.unlockedStamps || [];
+    const unlockedStamps: string[] = socialData.unlockedStamps?.[hackathonId] || [];
 
     for (const stampId of unlockedStamps) {
       entries.push({
