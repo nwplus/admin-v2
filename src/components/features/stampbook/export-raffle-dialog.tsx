@@ -76,7 +76,7 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
 
     setLoading(true);
     try {
-      const allUserStamps = await fetchHackersWithStamps();
+      const allUserStamps = await fetchHackersWithStamps(selectedHackathon);
       const filteredEntries = allUserStamps.filter((entry: HackerStampEntry) =>
         selectedStampIds.includes(entry.stampId)
       );
