@@ -322,7 +322,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] max-w-5xl overflow-hidden">
+      <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BookmarkIcon className="h-5 w-5" />
