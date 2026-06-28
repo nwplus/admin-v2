@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { FilterRowsSelection } from "@/lib/firebase/types";
@@ -85,6 +85,14 @@ export function FilterRows({
 
   const handleRemoveFilter = (filterId: string) => {
     onRemoveFilter(filterId);
+  };
+
+  const handleEditFilter = (filter: FilterRowsSelection) => {
+    setNewFilterColumn(filter.filterColumn);
+    setNewFilterCondition(filter.filterCondition);
+    setNewFilterValue(filter.filterValue);
+    setNewFilterOperator(filter.logicalOperator || 'AND');
+    onRemoveFilter(filter.id);
   };
 
   const getFilterDisplayText = (filter: FilterRowsSelection) => {
@@ -165,6 +173,14 @@ export function FilterRows({
                     <span className="flex-1 px-2 text-xs">
                       {getFilterDisplayText(filter)}
                     </span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleEditFilter(filter)}
+                      className="h-6 w-6"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
                     <Button
                       size="icon"
                       variant="ghost"
