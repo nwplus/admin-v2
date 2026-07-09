@@ -127,6 +127,7 @@ interface QueryContextType {
   onFilterAdd: (selection: FilterRowsSelection) => void;
   onFilterRemove: (filterId: string) => void;
   onFilterOperatorChange: (filterId: string, operator: 'AND' | 'OR') => void;
+  onFilterUpdate: (filterId: string, selection: FilterRowsSelection) => void;
   onSortingChange: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
 }
 
@@ -246,6 +247,12 @@ export function QueryProvider({ children }: QueryProviderProps) {
     ));
   }, []);
 
+  const handleFilterUpdate = useCallback((filterId: string, selection: FilterRowsSelection) => {
+    setFilterSelections(prev => prev.map(filter =>
+      filter.id === filterId ? { ...selection, id: filterId } : filter
+    ));
+  }, []);
+
   const value = {
     hackathons,
     selectedHackathon,
@@ -262,6 +269,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
     onFilterAdd: handleFilterAdd,
     onFilterRemove: handleFilterRemove,
     onFilterOperatorChange: handleFilterOperatorChange,
+    onFilterUpdate: handleFilterUpdate,
     onSortingChange: setSorting,
   };
 
