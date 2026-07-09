@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Pencil, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { FilterRowsSelection } from "@/lib/firebase/types";
@@ -42,6 +42,7 @@ interface FilterRowsProps {
   filterSelections: FilterRowsSelection[];
   onAddFilter: (filter: FilterRowsSelection) => void;
   onRemoveFilter: (filterId: string) => void;
+  onFilterUpdate: (filterId: string, filter: FilterRowsSelection) => void;
   onFilterOperatorChange: (filterId: string, operator: 'AND' | 'OR') => void;
 }
 
@@ -55,6 +56,7 @@ export function FilterRows({
   filterSelections, 
   onAddFilter, 
   onRemoveFilter,
+  onFilterUpdate,
   onFilterOperatorChange
 }: FilterRowsProps) {
   const [open, setOpen] = useState(false);
@@ -62,29 +64,50 @@ export function FilterRows({
   const [newFilterCondition, setNewFilterCondition] = useState("");
   const [newFilterValue, setNewFilterValue] = useState("");
   const [newFilterOperator, setNewFilterOperator] = useState<'AND' | 'OR'>('AND');
+  const [editingFilterId, setEditingFilterId] = useState<string | null>(null);
 
   const type = columnTypes[newFilterColumn] || "string";
   const conditionOptions = CONDITION_OPTIONS[type] || CONDITION_OPTIONS.string;
 
-  const handleAddFilter = () => {
+  const handleCommitFilter = () => {
     if (newFilterColumn && newFilterCondition && newFilterValue) {
-      const newFilter: FilterRowsSelection = {
-        id: crypto.randomUUID(),
-        filterColumn: newFilterColumn,
-        filterCondition: newFilterCondition,
-        filterValue: newFilterValue,
-        logicalOperator: newFilterOperator,
-      };
-      onAddFilter(newFilter);
+      if (editingFilterId) {
+        const updatedFilter: FilterRowsSelection = {
+          id: editingFilterId,
+          filterColumn: newFilterColumn,
+          filterCondition: newFilterCondition,
+          filterValue: newFilterValue,
+          logicalOperator: newFilterOperator,
+        };
+        onFilterUpdate(editingFilterId, updatedFilter);
+      } else {
+        const newFilter: FilterRowsSelection = {
+          id: crypto.randomUUID(),
+          filterColumn: newFilterColumn,
+          filterCondition: newFilterCondition,
+          filterValue: newFilterValue,
+          logicalOperator: newFilterOperator,
+        };
+        onAddFilter(newFilter);
+      }
       setNewFilterColumn("");
       setNewFilterCondition("");
       setNewFilterValue("");
       setNewFilterOperator('AND');
+      setEditingFilterId(null);
     }
   };
 
   const handleRemoveFilter = (filterId: string) => {
     onRemoveFilter(filterId);
+  };
+
+  const handleEditFilter = (filter: FilterRowsSelection) => {
+    setNewFilterColumn(filter.filterColumn);
+    setNewFilterCondition(filter.filterCondition);
+    setNewFilterValue(filter.filterValue);
+    setNewFilterOperator(filter.logicalOperator || 'AND');
+    setEditingFilterId(filter.id);
   };
 
   const getFilterDisplayText = (filter: FilterRowsSelection) => {
@@ -106,7 +129,16 @@ export function FilterRows({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        setNewFilterColumn("");
+        setNewFilterCondition("");
+        setNewFilterValue("");
+        setNewFilterOperator('AND');
+        setEditingFilterId(null);
+      }
+      setOpen(isOpen);
+    }}>
       <PopoverTrigger asChild>
         <div className="flex items-center gap-2">
           <Button variant="outline" className="w-full justify-between font-normal">
@@ -168,6 +200,14 @@ export function FilterRows({
                     <Button
                       size="icon"
                       variant="ghost"
+                      onClick={() => handleEditFilter(filter)}
+                      className="h-6 w-6"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
                       onClick={() => handleRemoveFilter(filter.id)}
                       className="h-6 w-6"
                     >
@@ -181,7 +221,7 @@ export function FilterRows({
         )}
 
         <div className="mt-4 space-y-2">
-          <h4 className="font-medium text-sm">Add New Filter</h4>
+          <h4 className="font-medium text-sm">{editingFilterId ? "Edit Filter" : "Add New Filter"}</h4>
           <div className="space-y-2">
             {filterSelections.length > 0 && (
               <div className="flex items-center gap-2">
@@ -243,11 +283,26 @@ export function FilterRows({
               <Button
                 size="icon"
                 variant="ghost"
-                onClick={handleAddFilter}
+                onClick={handleCommitFilter}
                 disabled={!(newFilterColumn && newFilterCondition && newFilterValue)}
               >
-                <Plus className="h-4 w-4" />
+                {editingFilterId ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               </Button>
+              {editingFilterId && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => {
+                    setNewFilterColumn("");
+                    setNewFilterCondition("");
+                    setNewFilterValue("");
+                    setNewFilterOperator('AND');
+                    setEditingFilterId(null);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
