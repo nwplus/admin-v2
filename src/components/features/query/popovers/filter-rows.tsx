@@ -42,7 +42,7 @@ interface FilterRowsProps {
   filterSelections: FilterRowsSelection[];
   onAddFilter: (filter: FilterRowsSelection) => void;
   onRemoveFilter: (filterId: string) => void;
-  onFilterUpdate?: (filterId: string, filter: FilterRowsSelection) => void;
+  onFilterUpdate: (filterId: string, filter: FilterRowsSelection) => void;
   onFilterOperatorChange: (filterId: string, operator: 'AND' | 'OR') => void;
 }
 
@@ -79,7 +79,7 @@ export function FilterRows({
           filterValue: newFilterValue,
           logicalOperator: newFilterOperator,
         };
-        onFilterUpdate?.(editingFilterId, updatedFilter);
+        onFilterUpdate(editingFilterId, updatedFilter);
       } else {
         const newFilter: FilterRowsSelection = {
           id: crypto.randomUUID(),
