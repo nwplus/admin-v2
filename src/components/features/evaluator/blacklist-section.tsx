@@ -41,25 +41,33 @@ export function BlacklistSection({
   }, [hasMatches]);
 
   return (
-    <Accordion
-      type="single"
-      collapsible
-      value={openItem}
-      onValueChange={setOpenItem}
-      className="w-full border-b border-border"
-    >
+        <Accordion
+          type="single"
+          collapsible
+          value={openItem}
+          onValueChange={setOpenItem}
+          className="w-full border-b border-border"
+        >
       <AccordionItem value="blacklist" className="border-0">
         <AccordionTrigger
           className={cn(
-            "px-4 py-3 hover:no-underline transition-colors rounded-none",
+            "px-3 py-2.5 hover:no-underline transition-colors rounded-none",
             hasMatches
               ? "hover:bg-destructive/5 data-[state=open]:bg-destructive/5"
               : "hover:bg-muted/40 data-[state=open]:bg-muted/40",
           )}
         >
           <div className={cn("flex items-center gap-2", hasMatches && "text-destructive")}>
-            <ShieldAlert className="size-4 shrink-0" aria-hidden="true" />
-            <span className="font-semibold text-sm">Blacklisted</span>
+            <div className="flex items-center justify-center">
+              <div className="w-10 flex items-center justify-center shrink-0 rounded-full p-1.5">
+                <ShieldAlert className="size-4" aria-hidden="true" />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="font-medium text-sm leading-tight">Blacklisted</span>
+            </div>
+
             <Badge
               variant={hasMatches ? "destructive" : "secondary"}
               className="ml-1 h-5 min-w-5 rounded-full px-1.5 text-xs tabular-nums"
@@ -80,38 +88,53 @@ export function BlacklistSection({
                 const isActive = focusedApplicant?._id === match.applicantId;
                 return (
                   <li key={match.applicantId}>
-                    <Button
-                      variant="ghost"
-                      onClick={() => onSelect(match.applicantId)}
-                      className={cn(
-                        "h-full w-full cursor-pointer flex-col items-start gap-0.5",
-                        "rounded-none px-4 py-2.5 text-left",
-                        "border-l-2 border-l-destructive/40",
-                        "hover:bg-destructive/5 active:bg-destructive/10",
-                        isActive && "bg-destructive/10 border-l-destructive",
-                      )}
-                    >
-                      <span className="font-medium text-sm leading-tight text-destructive">
-                        {match.applicantName || "(No name)"}
-                      </span>
+                            <Button
+                              variant="ghost"
+                              onClick={() => onSelect(match.applicantId)}
+                              className={cn(
+                                "h-full w-full cursor-pointer rounded-none px-3 py-2.5 text-left",
+                                "hover:bg-destructive/5 active:bg-destructive/10",
+                                isActive && "bg-destructive/10",
+                              )}
+                            >
+                              <div className="grid w-full grid-cols-[40px_1fr_auto] items-center gap-2">
+                                <div className="flex items-center justify-center">
+                                  <div
+                                    className="flex items-center justify-center shrink-0 rounded-full bg-destructive/10 p-1.5"
+                                    title={match.entry.notes ?? "This applicant is blacklisted"}
+                                    aria-hidden={false}
+                                  >
+                                    <ShieldAlert className="size-4 text-destructive" />
+                                  </div>
+                                </div>
 
-                      <span className="text-xs text-muted-foreground leading-tight truncate w-full">
-                        {match.email}
-                      </span>
+                                <div className="flex flex-col items-start gap-0.5">
+                                                      <div className="text-sm text-destructive">
+                                                        {match.applicantName || "(No name)"}
+                                                      </div>
 
-                      {match.entry.bannedHackathon && (
-                        <span className="text-xs text-muted-foreground leading-tight">
-                          Banned:{" "}
-                          <span className="font-medium">{match.entry.bannedHackathon}</span>
-                        </span>
-                      )}
+                                                      <span className="text-xs text-muted-foreground leading-tight truncate w-full">
+                                                        {match.email}
+                                                      </span>
 
-                      {match.entry.notes && (
-                        <span className="text-xs text-muted-foreground leading-snug line-clamp-2 mt-0.5 w-full">
-                          {match.entry.notes}
-                        </span>
-                      )}
-                    </Button>
+                                  {match.entry.bannedHackathon && (
+                                    <span className="text-xs text-muted-foreground leading-tight">
+                                      Banned: <span className="font-medium">{match.entry.bannedHackathon}</span>
+                                    </span>
+                                  )}
+
+                                  {match.entry.notes && (
+                                    <span className="text-xs text-muted-foreground leading-snug line-clamp-2 mt-0.5 w-full">
+                                      {match.entry.notes}
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="flex items-center justify-end">
+                                  {/* empty for now - keeps right column aligned with applicant rows */}
+                                </div>
+                              </div>
+                            </Button>
                   </li>
                 );
               })}

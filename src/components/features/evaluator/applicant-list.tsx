@@ -17,6 +17,13 @@ const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({
   value: status,
 }));
 
+/**
+ * Sidebar list of applicants with search and filters.
+ *
+ * - Shows a collapsible `BlacklistSection` above the main list.
+ * - Provides search and status filters for the evaluator.
+ * - Selecting an applicant sets the focused applicant in context.
+ */
 export function ApplicantList() {
   const {
     applicants,
@@ -33,6 +40,13 @@ export function ApplicantList() {
     () => new Set(blacklistMatches.map((m) => m.applicantId)),
     [blacklistMatches],
   );
+
+  /** Map for quick lookup of blacklist entry by applicant id (to show reason/note). */
+  const blacklistLookup = useMemo(() => {
+    const map = new Map<string, typeof blacklistMatches[number]["entry"] | undefined>();
+    for (const m of blacklistMatches) map.set(m.applicantId, m.entry);
+    return map;
+  }, [blacklistMatches]);
 
   const filteredApplicants = useMemo(() => {
     let list = applicants || [];
@@ -58,7 +72,7 @@ export function ApplicantList() {
     <Card className="sticky top-[2vh] max-h-[96vh] rounded-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="pb-2">Applicant list</CardTitle>
+          <CardTitle className="pb-0">Applicant list</CardTitle>
           <div className="flex items-center gap-2">
             <MultiSelect
               options={APPLICATION_STATUS_OPTIONS}
@@ -100,6 +114,14 @@ export function ApplicantList() {
               }
               isActive={focusedApplicant?._id === applicant._id}
               disabled={blacklistedIds.has(applicant._id)}
+              blacklistNote={
+                blacklistLookup.get(applicant._id)
+                  ? blacklistLookup.get(applicant._id)?.notes ??
+                    (blacklistLookup.get(applicant._id)?.bannedHackathon
+                      ? `Banned at ${blacklistLookup.get(applicant._id)?.bannedHackathon}`
+                      : null)
+                  : null
+              }
             />
           ))}
         </div>
