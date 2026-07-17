@@ -33,7 +33,7 @@ export function QuestionsTable({
   const categories: FAQCategory[] = ["General", "Logistics", "Teams & Projects", "Miscellaneous"];
 
   const handleWebsiteFilter = (value: string) => {
-    const newFilters = columnFilters.filter(filter => filter.id !== "hackathonIDs");
+    const newFilters = columnFilters.filter((filter) => filter.id !== "hackathonIDs");
     if (value !== "all") {
       newFilters.push({ id: "hackathonIDs", value });
     }
@@ -42,7 +42,7 @@ export function QuestionsTable({
 
   const handleCategoryFilter = (value: string) => {
     setCategoryFilter(value);
-    const newFilters = columnFilters.filter(filter => filter.id !== "category");
+    const newFilters = columnFilters.filter((filter) => filter.id !== "category");
     if (value !== "all") {
       newFilters.push({ id: "category", value });
     }

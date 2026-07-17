@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import type { Applicant } from "@/lib/firebase/types";
 import { cn } from "@/lib/utils";
-import { ApplicantStatus } from "./applicant-status";
 import { ShieldAlert } from "lucide-react";
+import { ApplicantStatus } from "./applicant-status";
 
 interface ApplicantEntryProps {
   index: number;
@@ -33,7 +33,7 @@ export function ApplicantEntry({
       className={cn(
         "h-full w-full rounded-none px-3 py-2.5",
         disabled
-          ? "opacity-40 cursor-pointer"
+          ? "cursor-pointer opacity-40"
           : cn(
               "cursor-pointer active:scale-[0.99] active:rounded-md",
               isActive
@@ -46,7 +46,7 @@ export function ApplicantEntry({
         <div className="flex items-center justify-center">
           {disabled ? (
             <div
-              className="flex items-center justify-center shrink-0 rounded-full bg-destructive/10 p-1.5"
+              className="flex shrink-0 items-center justify-center rounded-full bg-destructive/10 p-1.5"
               title={blacklistNote ?? "This applicant is blacklisted"}
               aria-hidden={false}
             >
@@ -65,9 +65,7 @@ export function ApplicantEntry({
         </div>
 
         <div className="flex items-center justify-end">
-          {status?.applicationStatus && (
-            <ApplicantStatus status={status.applicationStatus} />
-          )}
+          {status?.applicationStatus && <ApplicantStatus status={status.applicationStatus} />}
         </div>
       </div>
     </Button>

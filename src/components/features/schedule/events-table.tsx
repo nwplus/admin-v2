@@ -46,7 +46,7 @@ export function EventsTable({
             day: "numeric",
             hour: "numeric",
             minute: "2-digit",
-            hour12: true
+            hour12: true,
           });
         } catch {
           return time;
@@ -64,7 +64,7 @@ export function EventsTable({
             day: "numeric",
             hour: "numeric",
             minute: "2-digit",
-            hour12: true
+            hour12: true,
           });
         } catch {
           return time;

@@ -1,16 +1,13 @@
 import { Loading } from "@/components/ui/loading";
 import type { Applicant, BlacklistMatch, ScoringCriteria } from "@/lib/firebase/types";
+import type { BlacklistEntry } from "@/lib/firebase/types";
+import { matchApplicantsToBlacklist, subscribeToBlacklist } from "@/services/blacklist";
 import {
   getAdminFlags,
   subscribeLongAnswerQuestions,
   subscribeToApplicants,
 } from "@/services/evaluator";
-import {
-  matchApplicantsToBlacklist,
-  subscribeToBlacklist,
-} from "@/services/blacklist";
 import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
-import type { BlacklistEntry } from "@/lib/firebase/types";
 
 export interface EvaluatorContextType {
   hackathon: string;
@@ -44,8 +41,7 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
         const adminConfig = await getAdminFlags();
         if (hackathon === "") setHackathon(adminConfig?.activeHackathon ?? "");
         setScoringCriteria(adminConfig?.evaluator?.criteria ?? []);
-        if (!adminConfig?.activeHackathon)
-          throw new Error("No activeHackathon flag set in CMS");
+        if (!adminConfig?.activeHackathon) throw new Error("No activeHackathon flag set in CMS");
         unsubApplicants = subscribeToApplicants(
           adminConfig.activeHackathon,
           (incoming: Applicant[]) => setApplicants(incoming),

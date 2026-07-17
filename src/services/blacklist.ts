@@ -1,11 +1,6 @@
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  type Unsubscribe,
-} from "firebase/firestore";
 import { db } from "@/lib/firebase/client.ts";
 import type { Applicant, BlacklistEntry, BlacklistMatch } from "@/lib/firebase/types";
+import { type Unsubscribe, collection, getDocs, onSnapshot } from "firebase/firestore";
 
 /**
  * Firestore path for the global blacklist collection (must be at subcollection level entries).
@@ -92,10 +87,7 @@ export function matchApplicantsToBlacklist(
       applicant.basicInfo?.firstName ??
       applicant.basicInfo?.legalFirstName ??
       "";
-    const lastName =
-      applicant.basicInfo?.lastName ??
-      applicant.basicInfo?.legalLastName ??
-      "";
+    const lastName = applicant.basicInfo?.lastName ?? applicant.basicInfo?.legalLastName ?? "";
 
     matches.push({
       applicantId: applicant._id,

@@ -1,11 +1,6 @@
 import { auth, db } from "@/lib/firebase/client";
 import type { LivesiteSettings } from "@/lib/firebase/types";
-import {
-  Timestamp,
-  doc,
-  onSnapshot,
-  setDoc,
-} from "firebase/firestore";
+import { Timestamp, doc, onSnapshot, setDoc } from "firebase/firestore";
 
 /**
  * Returns livesite settings from InternalWebsites/Livesite
@@ -36,7 +31,11 @@ export const updateLivesiteSettings = async (settings: Partial<LivesiteSettings>
       lastEditedBy: auth.currentUser?.email ?? "",
     };
 
-    await setDoc(doc(db, "InternalWebsites", "Livesite"), { ...settings, ...record }, { merge: true });
+    await setDoc(
+      doc(db, "InternalWebsites", "Livesite"),
+      { ...settings, ...record },
+      { merge: true },
+    );
   } catch (error) {
     console.error(error);
     throw error;

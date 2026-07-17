@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Stamp } from "@/lib/firebase/types";
 import type { ColumnFiltersState } from "@tanstack/react-table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Check, Eye, EyeOff, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { StampDialog } from "./stamp-dialog";
@@ -86,18 +86,14 @@ export function StampsTable({
             </span>
           </TooltipTrigger>
           <TooltipContent className="border-1">
-            <p className="max-w-[200px] text-xs">
-              Hackers can scan a QR code to unlock this stamp
-            </p>
+            <p className="max-w-[200px] text-xs">Hackers can scan a QR code to unlock this stamp</p>
           </TooltipContent>
         </Tooltip>
       ),
       size: 50,
       cell: (info) => {
         const hasQR = info.getValue();
-        return hasQR && (
-          <Check className="h-4 w-4" />
-        );
+        return hasQR && <Check className="h-4 w-4" />;
       },
     }),
     columnHelper.accessor("criteria", {
@@ -119,9 +115,7 @@ export function StampsTable({
       size: 50,
       cell: (info) => {
         const criteria = info.getValue();
-        return criteria && criteria.length > 0 && (
-          <Check className="h-4 w-4" />
-        );
+        return criteria && criteria.length > 0 && <Check className="h-4 w-4" />;
       },
     }),
     columnHelper.accessor("isEventUnlockable", {
@@ -129,7 +123,7 @@ export function StampsTable({
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="flex items-center gap-1">
-              Check-in 
+              Check-in
               <HelpCircle className="h-3 w-3 text-gray-400" />
             </span>
           </TooltipTrigger>
@@ -143,9 +137,7 @@ export function StampsTable({
       size: 50,
       cell: (info) => {
         const isEventUnlockable = info.getValue();
-        return isEventUnlockable && (
-          <Check className="h-4 w-4" />
-        );
+        return isEventUnlockable && <Check className="h-4 w-4" />;
       },
     }),
     columnHelper.accessor("lastModified", {
@@ -175,9 +167,7 @@ export function StampsTable({
             columnFilters={columnFilters}
             setColumnFilters={setColumnFilters}
             setGlobalFilter={setSearch}
-            onRowClick={(data) =>
-              setActiveStamp(stamps?.find((s) => s._id === data._id) ?? null)
-            }
+            onRowClick={(data) => setActiveStamp(stamps?.find((s) => s._id === data._id) ?? null)}
             emptyMessage="No stamps found"
           />
         </CardContent>
@@ -191,4 +181,3 @@ export function StampsTable({
     </>
   );
 }
-

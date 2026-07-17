@@ -1,8 +1,8 @@
 import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
-import type { ColumnFiltersState } from "@tanstack/react-table";
-import { useState, useMemo } from "react";
-import type { FlattenedApplicant } from "@/services/query";
 import { useQuery } from "@/providers/query-provider";
+import type { FlattenedApplicant } from "@/services/query";
+import type { ColumnFiltersState } from "@tanstack/react-table";
+import { useMemo, useState } from "react";
 
 const columnHelper = createTableColumnHelper<FlattenedApplicant>();
 
@@ -12,13 +12,7 @@ const columnHelper = createTableColumnHelper<FlattenedApplicant>();
  */
 export function QueryTable() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const {
-    tableData,
-    selectedColumns,
-    groupBySelection,
-    sorting,
-    onSortingChange,
-  } = useQuery();
+  const { tableData, selectedColumns, groupBySelection, sorting, onSortingChange } = useQuery();
 
   function isNonNullObject(val: unknown): val is Record<string, boolean> {
     return typeof val === "object" && val !== null && !Array.isArray(val);

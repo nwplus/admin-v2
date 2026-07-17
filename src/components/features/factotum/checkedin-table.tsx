@@ -1,8 +1,8 @@
-import { createTableColumnHelper, DataTable } from "@/components/ui/data-table";
+import { Card, CardContent } from "@/components/ui/card";
+import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
+import { Input } from "@/components/ui/input";
 import type { ContestQuestion } from "@/lib/firebase/types";
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { CardContent, Card } from "@/components/ui/card";
 
 //example data, waiting until factotum rework
 const questions: ContestQuestion[] = [

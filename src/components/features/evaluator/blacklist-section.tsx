@@ -24,11 +24,7 @@ interface BlacklistSectionProps {
  * - All matches are shown regardless of the applicant's grading status.
  * - Clicking a row loads the application in the centre panel via onSelect.
  */
-export function BlacklistSection({
-  matches,
-  focusedApplicant,
-  onSelect,
-}: BlacklistSectionProps) {
+export function BlacklistSection({ matches, focusedApplicant, onSelect }: BlacklistSectionProps) {
   const hasMatches = matches.length > 0;
   const [openItem, setOpenItem] = useState<string | undefined>(
     hasMatches ? "blacklist" : undefined,
@@ -41,17 +37,17 @@ export function BlacklistSection({
   }, [hasMatches]);
 
   return (
-        <Accordion
-          type="single"
-          collapsible
-          value={openItem}
-          onValueChange={setOpenItem}
-          className="w-full border-b border-border"
-        >
+    <Accordion
+      type="single"
+      collapsible
+      value={openItem}
+      onValueChange={setOpenItem}
+      className="w-full border-border border-b"
+    >
       <AccordionItem value="blacklist" className="border-0">
         <AccordionTrigger
           className={cn(
-            "px-3 py-2.5 hover:no-underline transition-colors rounded-none",
+            "rounded-none px-3 py-2.5 transition-colors hover:no-underline",
             hasMatches
               ? "hover:bg-destructive/5 data-[state=open]:bg-destructive/5"
               : "hover:bg-muted/40 data-[state=open]:bg-muted/40",
@@ -59,7 +55,7 @@ export function BlacklistSection({
         >
           <div className={cn("flex items-center gap-2", hasMatches && "text-destructive")}>
             <div className="flex items-center justify-center">
-              <div className="w-10 flex items-center justify-center shrink-0 rounded-full p-1.5">
+              <div className="flex w-10 shrink-0 items-center justify-center rounded-full p-1.5">
                 <ShieldAlert className="size-4" aria-hidden="true" />
               </div>
             </div>
@@ -79,62 +75,63 @@ export function BlacklistSection({
         {/* ── Match rows ───────────────────────────────────────────── */}
         <AccordionContent className="pb-0">
           {matches.length === 0 ? (
-            <div className="px-4 py-3 text-xs text-muted-foreground">
+            <div className="px-4 py-3 text-muted-foreground text-xs">
               No blacklisted applicants in this hackathon.
             </div>
           ) : (
-            <ul role="list" className="flex flex-col">
+            <ul className="flex flex-col">
               {matches.map((match) => {
                 const isActive = focusedApplicant?._id === match.applicantId;
                 return (
                   <li key={match.applicantId}>
-                            <Button
-                              variant="ghost"
-                              onClick={() => onSelect(match.applicantId)}
-                              className={cn(
-                                "h-full w-full cursor-pointer rounded-none px-3 py-2.5 text-left",
-                                "hover:bg-destructive/5 active:bg-destructive/10",
-                                isActive && "bg-destructive/10",
-                              )}
-                            >
-                              <div className="grid w-full grid-cols-[40px_1fr_auto] items-center gap-2">
-                                <div className="flex items-center justify-center">
-                                  <div
-                                    className="flex items-center justify-center shrink-0 rounded-full bg-destructive/10 p-1.5"
-                                    title={match.entry.notes ?? "This applicant is blacklisted"}
-                                    aria-hidden={false}
-                                  >
-                                    <ShieldAlert className="size-4 text-destructive" />
-                                  </div>
-                                </div>
+                    <Button
+                      variant="ghost"
+                      onClick={() => onSelect(match.applicantId)}
+                      className={cn(
+                        "h-full w-full cursor-pointer rounded-none px-3 py-2.5 text-left",
+                        "hover:bg-destructive/5 active:bg-destructive/10",
+                        isActive && "bg-destructive/10",
+                      )}
+                    >
+                      <div className="grid w-full grid-cols-[40px_1fr_auto] items-center gap-2">
+                        <div className="flex items-center justify-center">
+                          <div
+                            className="flex shrink-0 items-center justify-center rounded-full bg-destructive/10 p-1.5"
+                            title={match.entry.notes ?? "This applicant is blacklisted"}
+                            aria-hidden={false}
+                          >
+                            <ShieldAlert className="size-4 text-destructive" />
+                          </div>
+                        </div>
 
-                                <div className="flex flex-col items-start gap-0.5">
-                                                      <div className="text-sm text-destructive">
-                                                        {match.applicantName || "(No name)"}
-                                                      </div>
+                        <div className="flex flex-col items-start gap-0.5">
+                          <div className="text-destructive text-sm">
+                            {match.applicantName || "(No name)"}
+                          </div>
 
-                                                      <span className="text-xs text-muted-foreground leading-tight truncate w-full">
-                                                        {match.email}
-                                                      </span>
+                          <span className="w-full truncate text-muted-foreground text-xs leading-tight">
+                            {match.email}
+                          </span>
 
-                                  {match.entry.bannedHackathon && (
-                                    <span className="text-xs text-muted-foreground leading-tight">
-                                      Banned: <span className="font-medium">{match.entry.bannedHackathon}</span>
-                                    </span>
-                                  )}
+                          {match.entry.bannedHackathon && (
+                            <span className="text-muted-foreground text-xs leading-tight">
+                              Banned:{" "}
+                              <span className="font-medium">{match.entry.bannedHackathon}</span>
+                            </span>
+                          )}
 
-                                  {match.entry.notes && (
-                                    <span className="text-xs text-muted-foreground leading-snug line-clamp-2 mt-0.5 w-full">
-                                      {match.entry.notes}
-                                    </span>
-                                  )}
-                                </div>
+                          {match.entry.notes && (
+                            <span className="mt-0.5 line-clamp-2 w-full text-muted-foreground text-xs leading-snug">
+                              {match.entry.notes}
+                            </span>
+                          )}
+                        </div>
 
-                                <div className="flex items-center justify-end">
-                                  {/* empty for now - keeps right column aligned with applicant rows */}
-                                </div>
-                              </div>
-                            </Button>
+                        <div className="flex items-center justify-end">
+                          {/* empty for now - keeps right column aligned with applicant rows */}
+                        </div>
+                      </div>
+                    </Button>
                   </li>
                 );
               })}

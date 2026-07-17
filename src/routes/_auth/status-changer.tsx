@@ -1,18 +1,24 @@
 import { PageHeader } from "@/components/graphy/typo";
-import { Card, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { ApplicationStatus, Hackathon } from "@/lib/firebase/types";
-import { toast } from "sonner";
-import { updateApplicantsStatusByEmails } from "@/services/status-changer";
-import { getAdminFlags } from "@/services/evaluator";
 import { isValidEmail } from "@/lib/utils";
+import { getAdminFlags } from "@/services/evaluator";
+import { updateApplicantsStatusByEmails } from "@/services/status-changer";
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_auth/status-changer")({
   component: StatusChangerPage,
@@ -61,9 +67,7 @@ function StatusChangerPage() {
     const text = emailsText.trim();
     if (!text) return [] as string[];
 
-    const tokens = separationType === "comma" 
-      ? text.split(",")
-      : text.split(/\r?\n/);
+    const tokens = separationType === "comma" ? text.split(",") : text.split(/\r?\n/);
 
     return Array.from(new Set(tokens.map((t) => t.trim()).filter(Boolean)));
   }, [emailsText, separationType]);
@@ -134,7 +138,10 @@ function StatusChangerPage() {
 
           <div className="flex flex-col gap-2">
             <CardTitle>Choose a Status:</CardTitle>
-            <Select value={selectedStatus} onValueChange={(v) => setSelectedStatus(v as ApplicationStatus)}>
+            <Select
+              value={selectedStatus}
+              onValueChange={(v) => setSelectedStatus(v as ApplicationStatus)}
+            >
               <SelectTrigger className="w-[250px]">
                 <SelectValue placeholder="Select status..." />
               </SelectTrigger>
@@ -147,26 +154,39 @@ function StatusChangerPage() {
               </SelectContent>
             </Select>
             <div className="w-[500px] font-medium text-gray-500 text-xs">
-              Be careful: This will update the status of all selected applicants who have submitted an application, regardless of their current status.
+              Be careful: This will update the status of all selected applicants who have submitted
+              an application, regardless of their current status.
             </div>
           </div>
 
           <div className="flex flex-col gap-3">
             <CardTitle>Enter emails:</CardTitle>
-            <RadioGroup value={separationType} onValueChange={(value) => setSeparationType(value as "comma" | "newline")} className="flex gap-6">
+            <RadioGroup
+              value={separationType}
+              onValueChange={(value) => setSeparationType(value as "comma" | "newline")}
+              className="flex gap-6"
+            >
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="comma" id="comma" />
-                <Label htmlFor="comma" className="text-gray-600">separate by comma</Label>
+                <Label htmlFor="comma" className="text-gray-600">
+                  separate by comma
+                </Label>
               </div>
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="newline" id="newline" />
-                <Label htmlFor="newline" className="text-gray-600">separate by newline</Label>
+                <Label htmlFor="newline" className="text-gray-600">
+                  separate by newline
+                </Label>
               </div>
             </RadioGroup>
             <Textarea
               value={emailsText}
               onChange={(e) => setEmailsText(e.target.value)}
-              placeholder={separationType === "comma" ? "e.g. alvin.kam.33@gmail.com, heyitsme@hotmail.com..." : "e.g. alvin.kam.33@gmail.com\nheyitsme@hotmail.com\n..."}
+              placeholder={
+                separationType === "comma"
+                  ? "e.g. alvin.kam.33@gmail.com, heyitsme@hotmail.com..."
+                  : "e.g. alvin.kam.33@gmail.com\nheyitsme@hotmail.com\n..."
+              }
               className="min-h-[220px] max-w-3xl"
             />
             {showValidation && firstInvalidEmail && (

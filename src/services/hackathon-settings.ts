@@ -1,11 +1,6 @@
 import { auth, db } from "@/lib/firebase/client";
 import type { HackathonConfig } from "@/lib/firebase/types";
-import {
-  Timestamp,
-  doc,
-  onSnapshot,
-  setDoc,
-} from "firebase/firestore";
+import { Timestamp, doc, onSnapshot, setDoc } from "firebase/firestore";
 
 /**
  * Returns hackathon config settings from InternalWebsites/Portal

@@ -25,12 +25,7 @@ const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({
  * - Selecting an applicant sets the focused applicant in context.
  */
 export function ApplicantList() {
-  const {
-    applicants,
-    focusedApplicant,
-    setFocusedApplicant,
-    blacklistMatches,
-  } = useEvaluator();
+  const { applicants, focusedApplicant, setFocusedApplicant, blacklistMatches } = useEvaluator();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
@@ -43,7 +38,7 @@ export function ApplicantList() {
 
   /** Map for quick lookup of blacklist entry by applicant id (to show reason/note). */
   const blacklistLookup = useMemo(() => {
-    const map = new Map<string, typeof blacklistMatches[number]["entry"] | undefined>();
+    const map = new Map<string, (typeof blacklistMatches)[number]["entry"] | undefined>();
     for (const m of blacklistMatches) map.set(m.applicantId, m.entry);
     return map;
   }, [blacklistMatches]);
@@ -63,9 +58,7 @@ export function ApplicantList() {
 
   const handleBlacklistSelect = (applicantId: string) => {
     const applicant = applicants?.find((a) => a._id === applicantId) ?? null;
-    setFocusedApplicant?.(
-      focusedApplicant?._id === applicantId ? null : applicant,
-    );
+    setFocusedApplicant?.(focusedApplicant?._id === applicantId ? null : applicant);
   };
 
   return (
@@ -108,18 +101,16 @@ export function ApplicantList() {
               status={applicant.status}
               score={applicant.score}
               onSelect={() =>
-                setFocusedApplicant?.(
-                  focusedApplicant?._id === applicant._id ? null : applicant,
-                )
+                setFocusedApplicant?.(focusedApplicant?._id === applicant._id ? null : applicant)
               }
               isActive={focusedApplicant?._id === applicant._id}
               disabled={blacklistedIds.has(applicant._id)}
               blacklistNote={
                 blacklistLookup.get(applicant._id)
-                  ? blacklistLookup.get(applicant._id)?.notes ??
+                  ? (blacklistLookup.get(applicant._id)?.notes ??
                     (blacklistLookup.get(applicant._id)?.bannedHackathon
                       ? `Banned at ${blacklistLookup.get(applicant._id)?.bannedHackathon}`
-                      : null)
+                      : null))
                   : null
               }
             />
