@@ -1,5 +1,7 @@
 import { Loading } from "@/components/ui/loading";
-import type { Applicant, ScoringCriteria } from "@/lib/firebase/types";
+import type { Applicant, BlacklistMatch, ScoringCriteria } from "@/lib/firebase/types";
+import type { BlacklistEntry } from "@/lib/firebase/types";
+import { matchApplicantsToBlacklist, subscribeToBlacklist } from "@/services/blacklist";
 import {
   getAdminFlags,
   subscribeLongAnswerQuestions,
@@ -16,6 +18,8 @@ export interface EvaluatorContextType {
   setFocusedApplicant: React.Dispatch<React.SetStateAction<Applicant | null>>;
   scoringCriteria: ScoringCriteria[];
   questionLabels: Record<string, string>;
+  /** Runtime-computed blacklist matches — reacts to both lists changing. */
+  blacklistMatches: BlacklistMatch[];
 }
 
 export const EvaluatorContext = createContext<EvaluatorContextType | null>(null);
@@ -27,22 +31,20 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
   const [focusedApplicant, setFocusedApplicant] = useState<Applicant | null>(null);
   const [scoringCriteria, setScoringCriteria] = useState<ScoringCriteria[]>([]);
   const [questionLabels, setQuestionLabels] = useState<Record<string, string>>({});
+  const [blacklistEntries, setBlacklistEntries] = useState<BlacklistEntry[]>([]);
 
+  // ── Applicant subscription (logic unchanged) ──────────────────────────────
   useEffect(() => {
     let unsubApplicants: (() => void) | null = null;
     const fetchAndSubscribe = async () => {
       try {
         const adminConfig = await getAdminFlags();
-        if (hackathon === "") {
-          setHackathon(adminConfig?.activeHackathon ?? "");
-        }
+        if (hackathon === "") setHackathon(adminConfig?.activeHackathon ?? "");
         setScoringCriteria(adminConfig?.evaluator?.criteria ?? []);
         if (!adminConfig?.activeHackathon) throw new Error("No activeHackathon flag set in CMS");
         unsubApplicants = subscribeToApplicants(
-          adminConfig?.activeHackathon,
-          (applicants: Applicant[]) => {
-            setApplicants(applicants);
-          },
+          adminConfig.activeHackathon,
+          (incoming: Applicant[]) => setApplicants(incoming),
         );
       } catch (error) {
         console.error("Error fetching applicants: ", error);
@@ -54,12 +56,11 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubApplicants?.();
   }, [hackathon]);
 
+  // ── Long-answer labels (logic unchanged) ──────────────────────────────────
   useEffect(() => {
     if (!hackathon) return;
-
     setFocusedApplicant(null);
-
-    const unsubLongAnswerQuestions = subscribeLongAnswerQuestions(hackathon, (questions) => {
+    const unsub = subscribeLongAnswerQuestions(hackathon, (questions) => {
       const labelMap = questions.reduce(
         (acc, q, index) => {
           const key = `skills.${q.formInput}`;
@@ -68,14 +69,25 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
         },
         {} as Record<string, string>,
       );
-
       setQuestionLabels(labelMap);
     });
-
-    return () => unsubLongAnswerQuestions();
+    return () => unsub();
   }, [hackathon]);
 
-  const value = {
+  // ── Blacklist subscription (new) ──────────────────────────────────────────
+  // Mount-once: blacklist is global, not scoped to a single hackathon.
+  useEffect(() => {
+    const unsub = subscribeToBlacklist(
+      (entries) => setBlacklistEntries(entries),
+      (err) => console.warn("[blacklist] Non-fatal subscription error:", err),
+    );
+    return () => unsub();
+  }, []);
+
+  // ── Derived matches (recomputes when either list changes) ─────────────────
+  const blacklistMatches = matchApplicantsToBlacklist(applicants, blacklistEntries);
+
+  const value: EvaluatorContextType = {
     hackathon,
     applicants,
     focusedApplicant,
@@ -84,6 +96,7 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
     setScoringCriteria,
     setFocusedApplicant,
     questionLabels,
+    blacklistMatches,
   };
 
   return (
@@ -95,9 +108,7 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
 
 export const useEvaluator = () => {
   const context = useContext(EvaluatorContext);
-  if (!context) {
-    throw new Error("useEvaluator must be used within an EvaluatorContext");
-  }
+  if (!context) throw new Error("useEvaluator must be used within an EvaluatorContext");
   return context;
 };
 

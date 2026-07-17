@@ -65,12 +65,16 @@ export const upsertReward = async (
     }
 
     // Update document with all data
-    await setDoc(rewardRef, {
-      ...reward,
-      ...record,
-      key: rewardId,
-      ...(imageUrl && { imgURL: imageUrl }),
-    }, { merge: true });
+    await setDoc(
+      rewardRef,
+      {
+        ...reward,
+        ...record,
+        key: rewardId,
+        ...(imageUrl && { imgURL: imageUrl }),
+      },
+      { merge: true },
+    );
 
     return rewardRef;
   } catch (error) {

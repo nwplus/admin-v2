@@ -18,7 +18,7 @@ import {
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { Hackathon, Stamp } from "@/lib/firebase/types";
 import { cn, downloadCSV, obfuscateEmail } from "@/lib/utils";
-import { fetchHackersWithStamps, type HackerStampEntry } from "@/services/stamps";
+import { type HackerStampEntry, fetchHackersWithStamps } from "@/services/stamps";
 import { Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -47,7 +47,7 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
 
   const hackathonStamps = stamps.filter((stamp) => stamp.hackathon === selectedHackathon);
   const filteredStamps = hackathonStamps.filter(
-    (stamp) => stamp._id && stamp.name.toLowerCase().includes(stampSearch.toLowerCase())
+    (stamp) => stamp._id && stamp.name.toLowerCase().includes(stampSearch.toLowerCase()),
   );
 
   const handleHackathonChange = (hackathon: string) => {
@@ -58,7 +58,7 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
 
   const handleToggleStamp = (stampId: string) => {
     setSelectedStampIds((prev) =>
-      prev.includes(stampId) ? prev.filter((id) => id !== stampId) : [...prev, stampId]
+      prev.includes(stampId) ? prev.filter((id) => id !== stampId) : [...prev, stampId],
     );
   };
 
@@ -78,7 +78,7 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
     try {
       const allUserStamps = await fetchHackersWithStamps(selectedHackathon);
       const filteredEntries = allUserStamps.filter((entry: HackerStampEntry) =>
-        selectedStampIds.includes(entry.stampId)
+        selectedStampIds.includes(entry.stampId),
       );
 
       const raffleEntries = filteredEntries.map((entry: HackerStampEntry) => ({
@@ -112,11 +112,15 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
 
   return (
     <Dialog open={open} onOpenChange={(state) => !state && handleClose()}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg" aria-describedby="raffle-export-description">
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto sm:max-w-lg"
+        aria-describedby="raffle-export-description"
+      >
         <DialogHeader>
           <DialogTitle>Export Raffle</DialogTitle>
           <DialogDescription id="raffle-export-description" className="text-xs">
-            Export a CSV of obfuscated emails for raffles. Outputs a list of name + emails, where duplicate entries correlate to number of stamps collected by a hacker.
+            Export a CSV of obfuscated emails for raffles. Outputs a list of name + emails, where
+            duplicate entries correlate to number of stamps collected by a hacker.
           </DialogDescription>
         </DialogHeader>
 
@@ -173,7 +177,7 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
                         htmlFor={`stamp-${stamp._id}`}
                         className={cn(
                           "flex cursor-pointer items-start gap-2 rounded-md p-2 hover:bg-muted/50",
-                          selectedStampIds.includes(stamp._id || "") && "bg-muted"
+                          selectedStampIds.includes(stamp._id || "") && "bg-muted",
                         )}
                       >
                         <Checkbox
@@ -185,7 +189,9 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
                         <div className="flex-1">
                           <span className="font-normal text-sm">{stamp.name}</span>
                           {stamp.description && (
-                            <p className="line-clamp-1 text-muted-foreground text-xs">{stamp.description}</p>
+                            <p className="line-clamp-1 text-muted-foreground text-xs">
+                              {stamp.description}
+                            </p>
                           )}
                         </div>
                       </label>
@@ -206,7 +212,11 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
             disabled={loading || !selectedHackathon || selectedStampIds.length === 0}
             className="w-full"
           >
-            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
             Export Raffle CSV
           </Button>
         </div>

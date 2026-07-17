@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -8,11 +9,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { X, Plus, Pencil, Check } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { FilterRowsSelection } from "@/lib/firebase/types";
+import { Check, Pencil, Plus, X } from "lucide-react";
+import { useState } from "react";
 
 /**
  * Set of possible operators for filtering rows based on data type.
@@ -43,27 +43,27 @@ interface FilterRowsProps {
   onAddFilter: (filter: FilterRowsSelection) => void;
   onRemoveFilter: (filterId: string) => void;
   onFilterUpdate: (filterId: string, filter: FilterRowsSelection) => void;
-  onFilterOperatorChange: (filterId: string, operator: 'AND' | 'OR') => void;
+  onFilterOperatorChange: (filterId: string, operator: "AND" | "OR") => void;
 }
 
 /**
  * Popover for filtering data based on clauses of the form 'column-operator-value'.
  * Provides the onApply callback prop to the parent component to notify a new selection.
  */
-export function FilterRows({ 
-  columns, 
-  columnTypes, 
-  filterSelections, 
-  onAddFilter, 
+export function FilterRows({
+  columns,
+  columnTypes,
+  filterSelections,
+  onAddFilter,
   onRemoveFilter,
   onFilterUpdate,
-  onFilterOperatorChange
+  onFilterOperatorChange,
 }: FilterRowsProps) {
   const [open, setOpen] = useState(false);
   const [newFilterColumn, setNewFilterColumn] = useState("");
   const [newFilterCondition, setNewFilterCondition] = useState("");
   const [newFilterValue, setNewFilterValue] = useState("");
-  const [newFilterOperator, setNewFilterOperator] = useState<'AND' | 'OR'>('AND');
+  const [newFilterOperator, setNewFilterOperator] = useState<"AND" | "OR">("AND");
   const [editingFilterId, setEditingFilterId] = useState<string | null>(null);
 
   const type = columnTypes[newFilterColumn] || "string";
@@ -93,7 +93,7 @@ export function FilterRows({
       setNewFilterColumn("");
       setNewFilterCondition("");
       setNewFilterValue("");
-      setNewFilterOperator('AND');
+      setNewFilterOperator("AND");
       setEditingFilterId(null);
     }
   };
@@ -106,66 +106,70 @@ export function FilterRows({
     setNewFilterColumn(filter.filterColumn);
     setNewFilterCondition(filter.filterCondition);
     setNewFilterValue(filter.filterValue);
-    setNewFilterOperator(filter.logicalOperator || 'AND');
+    setNewFilterOperator(filter.logicalOperator || "AND");
     setEditingFilterId(filter.id);
   };
 
   const getFilterDisplayText = (filter: FilterRowsSelection) => {
-    const conditionLabel = CONDITION_OPTIONS[columnTypes[filter.filterColumn] || "string"]
-      ?.find(opt => opt.value === filter.filterCondition)?.label || filter.filterCondition;
+    const conditionLabel =
+      CONDITION_OPTIONS[columnTypes[filter.filterColumn] || "string"]?.find(
+        (opt) => opt.value === filter.filterCondition,
+      )?.label || filter.filterCondition;
     return `${filter.filterColumn} ${conditionLabel} ${filter.filterValue}`;
   };
 
   const getFilterLogicDisplay = () => {
     if (filterSelections.length === 0) return "";
-    
-    return filterSelections.map((filter, index) => {
-      const filterText = getFilterDisplayText(filter);
-      const operator = filter.logicalOperator || 'AND';
-      
-      if (index === 0) return filterText;
-      return ` ${operator} ${filterText}`;
-    }).join('');
+
+    return filterSelections
+      .map((filter, index) => {
+        const filterText = getFilterDisplayText(filter);
+        const operator = filter.logicalOperator || "AND";
+
+        if (index === 0) return filterText;
+        return ` ${operator} ${filterText}`;
+      })
+      .join("");
   };
 
   return (
-    <Popover open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) {
-        setNewFilterColumn("");
-        setNewFilterCondition("");
-        setNewFilterValue("");
-        setNewFilterOperator('AND');
-        setEditingFilterId(null);
-      }
-      setOpen(isOpen);
-    }}>
+    <Popover
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          setNewFilterColumn("");
+          setNewFilterCondition("");
+          setNewFilterValue("");
+          setNewFilterOperator("AND");
+          setEditingFilterId(null);
+        }
+        setOpen(isOpen);
+      }}
+    >
       <PopoverTrigger asChild>
         <div className="flex items-center gap-2">
           <Button variant="outline" className="w-full justify-between font-normal">
             <span>
-              {filterSelections.length > 0 
-                ? <span className="font-medium text-neutral-700">
-                    {filterSelections.length} filter{filterSelections.length !== 1 ? 's' : ''} applied
-                  </span>
-                : <span className="text-muted-foreground">
-                    Add filter...
-                  </span>
-              }
+              {filterSelections.length > 0 ? (
+                <span className="font-medium text-neutral-700">
+                  {filterSelections.length} filter{filterSelections.length !== 1 ? "s" : ""} applied
+                </span>
+              ) : (
+                <span className="text-muted-foreground">Add filter...</span>
+              )}
             </span>
           </Button>
           {filterSelections.length > 0 && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Badge variant="secondary" className="cursor-pointer">
-                  {filterSelections.length} filter{filterSelections.length !== 1 ? 's' : ''}
+                  {filterSelections.length} filter{filterSelections.length !== 1 ? "s" : ""}
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>
                 <div className="space-y-1">
                   <p className="font-medium">Active Filters:</p>
-                  <div className="font-mono text-xs">
-                    {getFilterLogicDisplay()}
-                  </div>
+                  <div className="font-mono text-xs">{getFilterLogicDisplay()}</div>
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -181,8 +185,10 @@ export function FilterRows({
                 <div key={filter.id} className="flex items-center gap-2">
                   {index > 0 && (
                     <Select
-                      value={filter.logicalOperator || 'AND'}
-                      onValueChange={(value: 'AND' | 'OR') => onFilterOperatorChange(filter.id, value)}
+                      value={filter.logicalOperator || "AND"}
+                      onValueChange={(value: "AND" | "OR") =>
+                        onFilterOperatorChange(filter.id, value)
+                      }
                     >
                       <SelectTrigger className="h-8 w-20">
                         <SelectValue />
@@ -194,9 +200,7 @@ export function FilterRows({
                     </Select>
                   )}
                   <div className="flex flex-1 items-center gap-2 rounded-md bg-muted p-2">
-                    <span className="flex-1 px-2 text-xs">
-                      {getFilterDisplayText(filter)}
-                    </span>
+                    <span className="flex-1 px-2 text-xs">{getFilterDisplayText(filter)}</span>
                     <Button
                       size="icon"
                       variant="ghost"
@@ -221,14 +225,16 @@ export function FilterRows({
         )}
 
         <div className="mt-4 space-y-2">
-          <h4 className="font-medium text-sm">{editingFilterId ? "Edit Filter" : "Add New Filter"}</h4>
+          <h4 className="font-medium text-sm">
+            {editingFilterId ? "Edit Filter" : "Add New Filter"}
+          </h4>
           <div className="space-y-2">
             {filterSelections.length > 0 && (
               <div className="flex items-center gap-2">
                 <span className="text-sm">Connect with:</span>
                 <Select
                   value={newFilterOperator}
-                  onValueChange={(value: 'AND' | 'OR') => setNewFilterOperator(value)}
+                  onValueChange={(value: "AND" | "OR") => setNewFilterOperator(value)}
                 >
                   <SelectTrigger className="w-20">
                     <SelectValue />
@@ -242,26 +248,28 @@ export function FilterRows({
             )}
             <div className="flex items-center gap-2">
               <span className="mr-1 text-sm">Where</span>
-              <Select 
-                value={newFilterColumn} 
-                onValueChange={col => { 
-                  setNewFilterColumn(col); 
-                  setNewFilterCondition(""); 
-                  setNewFilterValue(""); 
+              <Select
+                value={newFilterColumn}
+                onValueChange={(col) => {
+                  setNewFilterColumn(col);
+                  setNewFilterCondition("");
+                  setNewFilterValue("");
                 }}
               >
                 <SelectTrigger className="min-w-[160px]">
                   <SelectValue placeholder="Select Column" />
                 </SelectTrigger>
                 <SelectContent>
-                  {columns.map(col => (
-                    <SelectItem key={col} value={col}>{col}</SelectItem>
+                  {columns.map((col) => (
+                    <SelectItem key={col} value={col}>
+                      {col}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Select 
-                value={newFilterCondition} 
-                onValueChange={setNewFilterCondition} 
+              <Select
+                value={newFilterCondition}
+                onValueChange={setNewFilterCondition}
                 disabled={!newFilterColumn}
               >
                 <SelectTrigger className="min-w-[150px]">
@@ -269,7 +277,9 @@ export function FilterRows({
                 </SelectTrigger>
                 <SelectContent>
                   {conditionOptions.map((opt: { value: string; label: string }) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -277,7 +287,7 @@ export function FilterRows({
                 className="max-w-[160px] text-sm"
                 placeholder="Enter value…"
                 value={newFilterValue}
-                onChange={e => setNewFilterValue(e.target.value)}
+                onChange={(e) => setNewFilterValue(e.target.value)}
                 disabled={!newFilterCondition}
               />
               <Button
@@ -296,7 +306,7 @@ export function FilterRows({
                     setNewFilterColumn("");
                     setNewFilterCondition("");
                     setNewFilterValue("");
-                    setNewFilterOperator('AND');
+                    setNewFilterOperator("AND");
                     setEditingFilterId(null);
                   }}
                 >

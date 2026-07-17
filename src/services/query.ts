@@ -115,6 +115,8 @@ export const flattenApplicantData = (
 
     // Terms and conditions
     MLHCodeOfConduct: applicant.termsAndConditions?.MLHCodeOfConduct || false,
+    MLHPrivacyPolicy: applicant.termsAndConditions?.MLHPrivacyPolicy || false,
+    MLHEmailSubscription: applicant.termsAndConditions?.MLHEmailSubscription || false,
     nwPlusPrivacyPolicy: applicant.termsAndConditions?.nwPlusPrivacyPolicy || false,
     shareWithSponsors: applicant.termsAndConditions?.shareWithSponsors || false,
     shareWithnwPlus: applicant.termsAndConditions?.shareWithnwPlus || false,

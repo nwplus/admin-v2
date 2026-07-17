@@ -5,13 +5,13 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
+  getDocs,
   onSnapshot,
+  orderBy,
   query,
   setDoc,
   where,
-  orderBy,
-  getDoc,
-  getDocs,
 } from "firebase/firestore";
 
 /**
@@ -26,10 +26,7 @@ const queriesCollection = () => collection(db, "InternalWebsites", "CMS", "queri
  */
 export const subscribeToSavedQueries = (callback: (docs: FirebaseQuery[]) => void) =>
   onSnapshot(
-    query(
-      queriesCollection(),
-      orderBy("updatedAt", "desc")
-    ),
+    query(queriesCollection(), orderBy("updatedAt", "desc")),
     (querySnapshot) => {
       const queries: FirebaseQuery[] = [];
       for (const docSnap of querySnapshot.docs) {
@@ -46,7 +43,7 @@ export const subscribeToSavedQueries = (callback: (docs: FirebaseQuery[]) => voi
     (error) => {
       console.error("Error fetching saved queries:", error);
       callback([]);
-    }
+    },
   );
 
 /**
@@ -56,11 +53,7 @@ export const subscribeToSavedQueries = (callback: (docs: FirebaseQuery[]) => voi
  */
 export const subscribeToPublicSavedQueries = (callback: (docs: FirebaseQuery[]) => void) =>
   onSnapshot(
-    query(
-      queriesCollection(),
-      where("isPublic", "==", true),
-      orderBy("updatedAt", "desc")
-    ),
+    query(queriesCollection(), where("isPublic", "==", true), orderBy("updatedAt", "desc")),
     (querySnapshot) => {
       const queries: FirebaseQuery[] = [];
       for (const docSnap of querySnapshot.docs) {
@@ -77,7 +70,7 @@ export const subscribeToPublicSavedQueries = (callback: (docs: FirebaseQuery[]) 
     (error) => {
       console.error("Error fetching public saved queries:", error);
       callback([]);
-    }
+    },
   );
 
 /**
@@ -96,7 +89,7 @@ export const subscribeToUserSavedQueries = (callback: (docs: FirebaseQuery[]) =>
     query(
       queriesCollection(),
       where("createdBy", "==", currentUserEmail),
-      orderBy("updatedAt", "desc")
+      orderBy("updatedAt", "desc"),
     ),
     (querySnapshot) => {
       const queries: FirebaseQuery[] = [];
@@ -114,7 +107,7 @@ export const subscribeToUserSavedQueries = (callback: (docs: FirebaseQuery[]) =>
     (error) => {
       console.error("Error fetching user saved queries:", error);
       callback([]);
-    }
+    },
   );
 };
 
@@ -147,7 +140,10 @@ export const getSavedQuery = async (queryId: string): Promise<FirebaseQuery | nu
  * @param savedQuery - the saved query to update or insert
  * @param id - if updating, ID of the saved query doc to update
  */
-export const upsertSavedQuery = async (savedQuery: Omit<FirebaseQuery, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>, id?: string) => {
+export const upsertSavedQuery = async (
+  savedQuery: Omit<FirebaseQuery, "id" | "createdAt" | "updatedAt" | "createdBy">,
+  id?: string,
+) => {
   try {
     const currentUser = auth.currentUser;
     if (!currentUser?.email) {
@@ -170,17 +166,13 @@ export const upsertSavedQuery = async (savedQuery: Omit<FirebaseQuery, 'id' | 'c
     }
 
     const queryId = id || doc(queriesCollection()).id;
-    
+
     const firestoreQuery = {
       ...savedQuery,
       ...record,
     };
 
-    await setDoc(
-      doc(queriesCollection(), queryId),
-      firestoreQuery,
-      { merge: true }
-    );
+    await setDoc(doc(queriesCollection(), queryId), firestoreQuery, { merge: true });
 
     return queryId;
   } catch (error) {
@@ -195,7 +187,7 @@ export const upsertSavedQuery = async (savedQuery: Omit<FirebaseQuery, 'id' | 'c
  */
 export const deleteSavedQuery = async (id: string) => {
   if (!id) return;
-  
+
   try {
     const currentUser = auth.currentUser;
     if (!currentUser?.email) {
@@ -225,8 +217,8 @@ export const getSavedQueriesByTag = async (tag: string): Promise<FirebaseQuery[]
       query(
         queriesCollection(),
         where("tags", "array-contains", tag),
-        orderBy("updatedAt", "desc")
-      )
+        orderBy("updatedAt", "desc"),
+      ),
     );
 
     const queries: FirebaseQuery[] = [];
@@ -253,7 +245,10 @@ export const getSavedQueriesByTag = async (tag: string): Promise<FirebaseQuery[]
  * @param newDescription - optional new description for the duplicated query
  * @returns Promise<string> - the ID of the new duplicated query
  */
-export const duplicateSavedQuery = async (queryId: string, newDescription?: string): Promise<string> => {
+export const duplicateSavedQuery = async (
+  queryId: string,
+  newDescription?: string,
+): Promise<string> => {
   try {
     const originalQuery = await getSavedQuery(queryId);
     if (!originalQuery) {
@@ -261,11 +256,11 @@ export const duplicateSavedQuery = async (queryId: string, newDescription?: stri
     }
 
     const { id, createdAt, updatedAt, createdBy, ...queryData } = originalQuery;
-    
+
     const duplicatedQuery = {
       ...queryData,
       description: newDescription || `Copy of ${originalQuery.description}`,
-      isPublic: false, 
+      isPublic: false,
     };
 
     return await upsertSavedQuery(duplicatedQuery);
@@ -273,4 +268,4 @@ export const duplicateSavedQuery = async (queryId: string, newDescription?: stri
     console.error("Error duplicating saved query:", error);
     throw error;
   }
-}; 
+};
