@@ -30,7 +30,7 @@ export function QuestionsTable({
     return [...new Set(allHackathonIds)].sort();
   }, [questions]);
 
-  const categories: FAQCategory[] = ["General", "Logistics", "Teams & Projects", "Miscellaneous"];
+  const categories: FAQCategory[] = ["General", "Logistics", "Projects", "Teams & Projects", "Miscellaneous"];
 
   const handleWebsiteFilter = (value: string) => {
     const newFilters = columnFilters.filter((filter) => filter.id !== "hackathonIDs");
