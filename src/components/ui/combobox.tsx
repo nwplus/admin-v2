@@ -26,8 +26,7 @@ export function Combobox({
 
   const search = value.trim().toLowerCase();
   const filtered = search ? options.filter((o) => o.toLowerCase().startsWith(search)) : options;
-  const showDropdown =
-    open && filtered.length > 0 && !(filtered.length === 1 && filtered[0] === value.trim());
+  const showDropdown = open && filtered.length > 0;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: reset highlight when the search term changes
   useEffect(() => {
@@ -61,7 +60,7 @@ export function Combobox({
   };
 
   return (
-    <Popover open={showDropdown} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverAnchor>
         <Input
           ref={inputRef}
@@ -74,6 +73,7 @@ export function Combobox({
             setOpen(true);
           }}
           onFocus={() => setOpen(true)}
+          onClick={() => setOpen(true)}
           onBlur={() => {
             setTimeout(() => {
               if (!inputRef.current?.contains(document.activeElement)) setOpen(false);
@@ -82,31 +82,39 @@ export function Combobox({
           onKeyDown={onKeyDown}
         />
       </PopoverAnchor>
-      <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-1"
-        align="start"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
-        <div className="max-h-60 overflow-y-auto">
-          {filtered.map((opt, i) => (
-            <button
-              type="button"
-              key={opt}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                pick(opt);
-              }}
-              onMouseEnter={() => setHighlight(i)}
-              className={cn(
-                "flex w-full cursor-default items-center rounded-sm px-2 py-1.5 text-left text-sm",
-                i === highlight ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
-              )}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      </PopoverContent>
+      {filtered.length > 0 && (
+        <PopoverContent
+          className="w-[var(--radix-popover-trigger-width)] p-1"
+          align="start"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onPointerDownOutside={(e) => {
+            if (inputRef.current?.contains(e.target as Node)) e.preventDefault();
+          }}
+          onFocusOutside={(e) => {
+            if (inputRef.current?.contains(e.target as Node)) e.preventDefault();
+          }}
+        >
+          <div className="max-h-60 overflow-y-auto">
+            {filtered.map((opt, i) => (
+              <button
+                type="button"
+                key={opt}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  pick(opt);
+                }}
+                onMouseEnter={() => setHighlight(i)}
+                className={cn(
+                  "flex w-full cursor-default items-center rounded-sm px-2 py-1.5 text-left text-sm",
+                  i === highlight ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
+                )}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </PopoverContent>
+      )}
     </Popover>
   );
 }
