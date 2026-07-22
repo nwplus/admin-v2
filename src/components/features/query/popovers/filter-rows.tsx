@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -11,8 +12,11 @@ import {
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { FilterRowsSelection } from "@/lib/firebase/types";
+import { CATEGORICAL_COLUMNS } from "@/services/query";
 import { Check, Pencil, Plus, X } from "lucide-react";
 import { useState } from "react";
+
+const BOOLEAN_OPTIONS = ["true", "false"];
 
 /**
  * Set of possible operators for filtering rows based on data type.
@@ -39,6 +43,7 @@ const CONDITION_OPTIONS: Record<string, { value: string; label: string }[]> = {
 interface FilterRowsProps {
   columns: string[];
   columnTypes: Record<string, string>;
+  columnValueOptions: Record<string, string[]>;
   filterSelections: FilterRowsSelection[];
   onAddFilter: (filter: FilterRowsSelection) => void;
   onRemoveFilter: (filterId: string) => void;
@@ -53,6 +58,7 @@ interface FilterRowsProps {
 export function FilterRows({
   columns,
   columnTypes,
+  columnValueOptions,
   filterSelections,
   onAddFilter,
   onRemoveFilter,
@@ -283,13 +289,38 @@ export function FilterRows({
                   ))}
                 </SelectContent>
               </Select>
-              <Input
-                className="max-w-[160px] text-sm"
-                placeholder="Enter value…"
-                value={newFilterValue}
-                onChange={(e) => setNewFilterValue(e.target.value)}
-                disabled={!newFilterCondition}
-              />
+              {(() => {
+                const isBoolean = type === "boolean";
+                const isCategorical = CATEGORICAL_COLUMNS.has(newFilterColumn);
+                const options = isBoolean
+                  ? BOOLEAN_OPTIONS
+                  : isCategorical
+                    ? (columnValueOptions[newFilterColumn] ?? [])
+                    : [];
+
+                if (isBoolean || isCategorical) {
+                  return (
+                    <Combobox
+                      className="max-w-[160px] text-sm"
+                      placeholder="Enter value…"
+                      value={newFilterValue}
+                      onChange={setNewFilterValue}
+                      options={options}
+                      disabled={!newFilterCondition}
+                    />
+                  );
+                }
+
+                return (
+                  <Input
+                    className="max-w-[160px] text-sm"
+                    placeholder="Enter value…"
+                    value={newFilterValue}
+                    onChange={(e) => setNewFilterValue(e.target.value)}
+                    disabled={!newFilterCondition}
+                  />
+                );
+              })()}
               <Button
                 size="icon"
                 variant="ghost"
