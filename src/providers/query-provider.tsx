@@ -11,6 +11,7 @@ import type {
 import type { FlattenedApplicant } from "@/services/query";
 import {
   calculateApplicantPoints,
+  extractColumnValues,
   flattenApplicantData,
   subscribeToApplicants,
 } from "@/services/query";
@@ -138,6 +139,8 @@ interface QueryContextType {
   // Final data after processing
   tableData: FlattenedApplicant[];
 
+  columnValueOptions: Record<string, string[]>;
+
   // Actions
   onColumnToggle: (column: string) => void;
   onGroupByChange: (selection: GroupBySelection | undefined) => void;
@@ -181,6 +184,8 @@ export function QueryProvider({ children }: QueryProviderProps) {
   const [groupBySelection, setGroupBySelection] = useState<GroupBySelection | undefined>(undefined);
   const [filterSelections, setFilterSelections] = useState<FilterRowsSelection[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
+
+  const columnValueOptions = useMemo(() => extractColumnValues(applicants), [applicants]);
 
   const tableData = useMemo(() => {
     let filtered = applicants;
@@ -288,6 +293,7 @@ export function QueryProvider({ children }: QueryProviderProps) {
     filterSelections,
     sorting,
     tableData,
+    columnValueOptions,
     onColumnToggle: handleColumnToggle,
     onGroupByChange: setGroupBySelection,
     onFilterAdd: handleFilterAdd,
