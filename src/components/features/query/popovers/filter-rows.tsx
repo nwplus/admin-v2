@@ -23,20 +23,20 @@ const BOOLEAN_OPTIONS = ["true", "false"];
  */
 const CONDITION_OPTIONS: Record<string, { value: string; label: string }[]> = {
   string: [
-    { value: "matches", label: "matches" },
-    { value: "does_not_match", label: "does not match" },
-    { value: "equals", label: "equals" },
-    { value: "not_equals", label: "is not equal to" },
+    { value: "matches", label: "contains" },
+    { value: "does_not_match", label: "does not contain" },
+    { value: "equals", label: "exactly equals" },
+    { value: "not_equals", label: "is not exactly equal to" },
   ],
   number: [
-    { value: "equals", label: "equals" },
-    { value: "not_equals", label: "is not equal to" },
+    { value: "equals", label: "exactly equals" },
+    { value: "not_equals", label: "is not exactly equal to" },
     { value: "greater_than", label: "greater than" },
     { value: "less_than", label: "less than" },
   ],
   boolean: [
-    { value: "equals", label: "equals" },
-    { value: "not_equals", label: "is not equal to" },
+    { value: "equals", label: "exactly equals" },
+    { value: "not_equals", label: "is not exactly equal to" },
   ],
 };
 
