@@ -26,18 +26,46 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { CONTRIBUTION_ROLE_OPTIONS, YEAR_LEVEL_OPTIONS } from "./constants";
 
-const formSchema = z.object({
-  minScore: z.coerce.number().optional(),
-  minZScore: z.coerce.number().optional(),
-  minPrevHacks: z.coerce.number().optional(),
-  maxPrevHacks: z.coerce.number().optional(),
-  contributionRoles: z.array(z.string()).optional(),
-  yearLevels: z.array(z.string()).optional(),
-  minExperiencesScore: z.coerce.number().optional(),
-  maxExperiencesScore: z.coerce.number().optional(),
+const blankToUndefined = (value?: string) =>
+  value === undefined || value.trim() === "" ? undefined : Number(value);
+
+const optionalNumber = z
+  .string()
+  .optional()
+  .transform(blankToUndefined)
+  .pipe(z.number({ invalid_type_error: "Enter a number" }).optional());
+
 });
 
 const BASE_VALUES: z.infer<typeof formSchema> = {
+
+const formSchema = z
+  .object({
+    minScore: optionalNumber,
+    minZScore: optionalNumber,
+    minPrevHacks: optionalNumber,
+    maxPrevHacks: optionalNumber,
+    contributionRoles: z.array(z.string()).optional(),
+    yearLevels: z.array(z.string()).optional(),
+    minExperiencesScore: optionalNumber,
+    maxExperiencesScore: optionalNumber,
+    totalToAccept: optionalCount,
+    beginnerPercentage: optionalPercentage,
+  })
+  .superRefine((values, ctx) => {
+    if (values.beginnerPercentage !== undefined && values.totalToAccept === undefined) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["beginnerPercentage"],
+        message: "Set a total number of hackers to use a ratio",
+      });
+    }
+  });
+
+type FormInput = z.input<typeof formSchema>;
+type FormValues = z.output<typeof formSchema>;
+
+const BASE_VALUES: FormInput = {
   minScore: undefined,
   minZScore: undefined,
   minPrevHacks: undefined,
@@ -46,7 +74,10 @@ const BASE_VALUES: z.infer<typeof formSchema> = {
   yearLevels: undefined,
   minExperiencesScore: undefined,
   maxExperiencesScore: undefined,
+  totalToAccept: undefined,
+  beginnerPercentage: undefined,
 };
+
 
 export function AcceptDialog() {
   const { hackathon } = useEvaluator();
@@ -55,7 +86,7 @@ export function AcceptDialog() {
   const [open, setOpen] = useState<boolean>(false);
   const [affectedApplicantIds, setAffectedApplicantsId] = useState<string[] | null>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(formSchema),
     values: BASE_VALUES,
   });
@@ -66,25 +97,38 @@ export function AcceptDialog() {
     setOpen(false);
   };
 
-  const onCalculate = async () => {
+  const onCalculate = async (values: FormValues) => {
     if (isCalculating) return;
     const formData = form.getValues();
     setIsCalculating(true);
 
-    const applicants = await getApplicantsToAccept(
-      hackathon,
-      formData.minScore,
-      formData.minZScore,
-      formData.minPrevHacks,
-      formData.maxPrevHacks,
-      formData.yearLevels,
-      formData.contributionRoles,
-      formData.minExperiencesScore,
-      formData.maxExperiencesScore,
-    );
+    try {
+      const applicants = await getApplicantsToAccept(
+        hackathon,
+        values.minScore,
+        values.minZScore,
+        values.minPrevHacks,
+        values.maxPrevHacks,
+        values.yearLevels,
+        values.contributionRoles,
+        values.minExperiencesScore,
+        values.maxExperiencesScore,
+      );
 
-    setAffectedApplicantsId(applicants?.map((a) => a._id));
-    setIsCalculating(false);
+      setPreview({
+        plan: planAcceptance(applicants ?? [], {
+          total: values.totalToAccept,
+          beginnerPercentage: values.beginnerPercentage,
+        }),
+        total: values.totalToAccept,
+        beginnerPercentage: values.beginnerPercentage,
+      });
+    } catch (error) {
+      console.error(error);
+      toast("Error calculating acceptances");
+    } finally {
+      setIsCalculating(false);
+    }
   };
 
   const onAccept = async () => {
@@ -126,7 +170,7 @@ export function AcceptDialog() {
           <DialogTitle>Accept applicants</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={form.handleSubmit(onCalculate)}>
             <div className="flex gap-4">
               <FormField
                 control={form.control}
@@ -135,7 +179,12 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Minimum score</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Optional"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -148,7 +197,12 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Minimum z-score</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Optional"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -163,7 +217,12 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Minimum hackathons</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Optional"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -176,7 +235,12 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Maximum hackathons</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Optional"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -231,7 +295,12 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Number of experiences (Min)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Optional"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -244,7 +313,12 @@ export function AcceptDialog() {
                   <FormItem className="flex-grow">
                     <FormLabel>Number of experiences (Max)</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="Optional" {...field} />
+                      <Input
+                        type="number"
+                        placeholder="Optional"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -264,15 +338,25 @@ export function AcceptDialog() {
               )
             )} */}
             <div className="flex flex-center gap-2">
-              <Confirm
-                sideEffect={onCalculate}
-                variant="default"
-                onConfirm={onAccept}
-                header={`Accept ${affectedApplicantIds?.length ?? 0} hackers`}
-                description={`Acceptances will reflect on hackers' portals immediately.`}
-              >
-                Calculate acceptances
-              </Confirm>
+              <Button type="submit" className="flex-grow" disabled={isCalculating}>
+                {isCalculating ? "Calculating..." : "Calculate acceptances"}
+              </Button>
+              {plan &&
+                (canAccept ? (
+                  <Confirm
+                    className="flex-grow"
+                    variant="default"
+                    onConfirm={onAccept}
+                    header={`Accept ${plan.ids.length} hackers`}
+                    description={`${plan.selected.beginner} beginner and ${plan.selected.experienced} experienced hackers. Acceptances will reflect on hackers' portals immediately.`}
+                  >
+                    Accept {plan.ids.length} hackers
+                  </Confirm>
+                ) : (
+                  <Button type="button" variant="secondary" className="flex-grow" disabled>
+                    {plan.exceedsRatioLimit ? "Ratio out of range" : "Nothing to accept"}
+                  </Button>
+                ))}
             </div>
           </form>
         </Form>
