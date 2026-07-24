@@ -1,3 +1,4 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Confirm } from "@/components/ui/confirm";
 import {
@@ -16,12 +17,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { type AcceptancePlan, MAX_RATIO_DEVIATION_POINTS, planAcceptance } from "@/lib/acceptance";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { acceptApplicants, getApplicantsToAccept } from "@/services/evaluator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useId, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CONTRIBUTION_ROLE_OPTIONS, YEAR_LEVEL_OPTIONS } from "./constants";
@@ -35,9 +38,29 @@ const optionalNumber = z
   .transform(blankToUndefined)
   .pipe(z.number({ invalid_type_error: "Enter a number" }).optional());
 
-});
+const optionalCount = z
+  .string()
+  .optional()
+  .transform(blankToUndefined)
+  .pipe(
+    z
+      .number({ invalid_type_error: "Enter a number" })
+      .int("Enter a whole number")
+      .positive("Enter a number greater than 0")
+      .optional(),
+  );
 
-const BASE_VALUES: z.infer<typeof formSchema> = {
+const optionalPercentage = z
+  .string()
+  .optional()
+  .transform(blankToUndefined)
+  .pipe(
+    z
+      .number({ invalid_type_error: "Enter a number" })
+      .min(0, "Enter a number between 0 and 100")
+      .max(100, "Enter a number between 0 and 100")
+      .optional(),
+  );
 
 const formSchema = z
   .object({
@@ -78,28 +101,43 @@ const BASE_VALUES: FormInput = {
   beginnerPercentage: undefined,
 };
 
+interface Preview {
+  plan: AcceptancePlan;
+  total?: number;
+  beginnerPercentage?: number;
+}
 
 export function AcceptDialog() {
   const { hackathon } = useEvaluator();
+  const experiencedPercentageId = useId();
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [open, setOpen] = useState<boolean>(false);
-  const [affectedApplicantIds, setAffectedApplicantsId] = useState<string[] | null>(null);
+  const [preview, setPreview] = useState<Preview | null>(null);
 
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(formSchema),
     values: BASE_VALUES,
   });
 
+  // a preview only describes the filters it was calculated with, so drop it as soon as they change
+  // this is a bit of a hack, but react-hook-form doesn't provide a way to watch all fields at once
+  useEffect(() => {
+    const subscription = form.watch(() => setPreview(null));
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  const beginnerPercentage = useWatch({ control: form.control, name: "beginnerPercentage" });
+  const experiencedPercentage = calculateExperiencedPercentage(beginnerPercentage);
+
   const close = () => {
     form.reset();
-    setAffectedApplicantsId(null);
+    setPreview(null);
     setOpen(false);
   };
 
   const onCalculate = async (values: FormValues) => {
     if (isCalculating) return;
-    const formData = form.getValues();
     setIsCalculating(true);
 
     try {
@@ -133,15 +171,16 @@ export function AcceptDialog() {
 
   const onAccept = async () => {
     if (loading) return;
-    if (!affectedApplicantIds || affectedApplicantIds?.length < 1) {
+    const acceptIds = preview?.plan.ids;
+    if (!acceptIds || acceptIds.length < 1) {
       toast("No applications to accept");
       return;
     }
 
     setLoading(true);
     try {
-      await acceptApplicants(hackathon, affectedApplicantIds);
-      toast(`${affectedApplicantIds?.length} hackers successfully accepted`);
+      await acceptApplicants(hackathon, acceptIds);
+      toast(`${acceptIds.length} hackers successfully accepted`);
     } catch (error) {
       console.error(error);
       toast("Error accepting applicants");
@@ -150,6 +189,9 @@ export function AcceptDialog() {
     }
     close();
   };
+
+  const plan = preview?.plan;
+  const canAccept = !!plan && plan.ids.length > 0 && !plan.exceedsRatioLimit;
 
   return (
     <Dialog
@@ -165,7 +207,7 @@ export function AcceptDialog() {
       <DialogTrigger asChild>
         <Button className="flex-grow">Accept Hackers</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Accept applicants</DialogTitle>
         </DialogHeader>
@@ -325,18 +367,69 @@ export function AcceptDialog() {
                 )}
               />
             </div>
-            {/* {isCalculating ? (
-              <Skeleton />
-            ) : (
-              affectedApplicantIds && (
-                <Alert variant="default">
-                  <AlertTitle>Affected applicants</AlertTitle>
-                  <AlertDescription>
-                    You'll be accepting {affectedApplicantIds?.length ?? 0} hackers.
-                  </AlertDescription>
-                </Alert>
-              )
-            )} */}
+            <div className="flex flex-col gap-3 rounded-lg border p-3">
+              <div className="font-medium text-sm">Proportional acceptance</div>
+              <div className="flex gap-4">
+                <FormField
+                  control={form.control}
+                  name="totalToAccept"
+                  render={({ field }) => (
+                    <FormItem className="flex-grow">
+                      <FormLabel>Total hackers</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Optional"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="beginnerPercentage"
+                  render={({ field }) => (
+                    <FormItem className="flex-grow">
+                      <FormLabel>Beginners (%)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Optional"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid flex-grow content-start gap-2">
+                  <Label htmlFor={experiencedPercentageId}>Experienced (%)</Label>
+                  <Input
+                    id={experiencedPercentageId}
+                    type="number"
+                    placeholder="—"
+                    value={experiencedPercentage}
+                    readOnly
+                    disabled
+                  />
+                </div>
+              </div>
+              <p className="text-muted-foreground text-xs">
+                Beginners have attended 0–1 hackathons, everyone else counts as experienced. Leave
+                these blank to accept every applicant matching the filters.
+              </p>
+            </div>
+            {plan && (
+              <AcceptancePreview
+                plan={plan}
+                total={preview?.total}
+                beginnerPercentage={preview?.beginnerPercentage}
+              />
+            )}
             <div className="flex flex-center gap-2">
               <Button type="submit" className="flex-grow" disabled={isCalculating}>
                 {isCalculating ? "Calculating..." : "Calculate acceptances"}
@@ -364,3 +457,64 @@ export function AcceptDialog() {
     </Dialog>
   );
 }
+
+/**
+ * mirrors the beginner percentage input to show the experienced percentage, or blank if the input is invalid
+ */
+const calculateExperiencedPercentage = (beginnerPercentage?: string) => {
+  const entered = (beginnerPercentage ?? "").trim();
+  const parsed = entered === "" ? Number.NaN : Number(entered);
+  if (Number.isNaN(parsed) || parsed < 0 || parsed > 100) return "";
+  return String(100 - parsed);
+};
+
+function AcceptancePreview({
+  plan,
+  total,
+  beginnerPercentage,
+}: {
+  plan: AcceptancePlan;
+  total?: number;
+  beginnerPercentage?: number;
+}) {
+  const { selected, target, available, finalBeginnerPercentage } = plan;
+  const shortGroup = selected.beginner < target.beginner ? "beginner" : "experienced";
+  const overflowGroup = shortGroup === "beginner" ? "experienced" : "beginner";
+  const movedSpots = selected[overflowGroup] - target[overflowGroup];
+
+  return (
+    <Alert variant={plan.exceedsRatioLimit ? "destructive" : "default"}>
+      <AlertTitle>
+        {plan.exceedsRatioLimit
+          ? "Ratio cannot be met"
+          : `You'll be accepting ${selected.total} hackers`}
+      </AlertTitle>
+      <AlertDescription>
+        <p>
+          {selected.beginner} beginner, {selected.experienced} experienced
+          {finalBeginnerPercentage !== null &&
+            ` (${finalBeginnerPercentage}% / ${round(100 - finalBeginnerPercentage)}%)`}
+        </p>
+        {plan.isUnderfilled && total !== undefined && (
+          <p>
+            Only {selected.total} of the {total} requested hackers match these filters.
+          </p>
+        )}
+        {plan.hasOverflow && (
+          <p>
+            Only {available[shortGroup]} {shortGroup} applicants are available, so {movedSpots} spot
+            {movedSpots === 1 ? "" : "s"} moved to {overflowGroup} hackers.
+          </p>
+        )}
+        {plan.exceedsRatioLimit && beginnerPercentage !== undefined && (
+          <p>
+            That is more than {MAX_RATIO_DEVIATION_POINTS} points off the {beginnerPercentage}%
+            beginner split you asked for. Lower the total or change the percentage to continue.
+          </p>
+        )}
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+const round = (value: number) => Math.round(value * 10) / 10;
