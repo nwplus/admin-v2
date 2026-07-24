@@ -23,7 +23,7 @@ import { type AcceptancePlan, MAX_RATIO_DEVIATION_POINTS, planAcceptance } from 
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { acceptApplicants, getApplicantsToAccept } from "@/services/evaluator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -105,6 +105,7 @@ interface Preview {
   plan: AcceptancePlan;
   total?: number;
   beginnerPercentage?: number;
+  signature: string;
 }
 
 export function AcceptDialog() {
@@ -120,12 +121,7 @@ export function AcceptDialog() {
     values: BASE_VALUES,
   });
 
-  // a preview only describes the filters it was calculated with, so drop it as soon as they change
-  // this is a bit of a hack, but react-hook-form doesn't provide a way to watch all fields at once
-  useEffect(() => {
-    const subscription = form.watch(() => setPreview(null));
-    return () => subscription.unsubscribe();
-  }, [form]);
+  const filterSignature = JSON.stringify(useWatch({ control: form.control }));
 
   const beginnerPercentage = useWatch({ control: form.control, name: "beginnerPercentage" });
   const experiencedPercentage = calculateExperiencedPercentage(beginnerPercentage);
@@ -160,6 +156,7 @@ export function AcceptDialog() {
         }),
         total: values.totalToAccept,
         beginnerPercentage: values.beginnerPercentage,
+        signature: filterSignature,
       });
     } catch (error) {
       console.error(error);
@@ -190,7 +187,9 @@ export function AcceptDialog() {
     close();
   };
 
-  const plan = preview?.plan;
+  // only surface the preview while it still matches the current filters
+  const activePreview = preview?.signature === filterSignature ? preview : null;
+  const plan = activePreview?.plan;
   const canAccept = !!plan && plan.ids.length > 0 && !plan.exceedsRatioLimit;
 
   return (
@@ -426,8 +425,8 @@ export function AcceptDialog() {
             {plan && (
               <AcceptancePreview
                 plan={plan}
-                total={preview?.total}
-                beginnerPercentage={preview?.beginnerPercentage}
+                total={activePreview?.total}
+                beginnerPercentage={activePreview?.beginnerPercentage}
               />
             )}
             <div className="flex flex-center gap-2">
