@@ -15,8 +15,8 @@ const SOCIALS_NAME_FALLBACK = "User";
 /**
  * Aggregates collected stamps into one entrant per hacker, where each stamp is one raffle entry
  *
- * @param stampEntries - one element per stamp collected, as returned by `fetchHackersWithStamps`
- * @param applicantNames - lowercased email to applicant name fields, used to recover last names
+ * @param stampEntries one element per stamp collected, as returned by `fetchHackersWithStamps`
+ * @param applicantNames lowercased email to applicant name fields, used to recover last names
  * @returns the raffle pool, one entrant per hacker
  */
 export const buildRaffleEntrants = (
@@ -55,7 +55,7 @@ export const buildRaffleEntrants = (
 
 /**
  * Total number of raffle entries across the pool
- * @param entrants - the raffle pool
+ * @param entrants the raffle pool
  * @returns the sum of every entrant's entries
  */
 export const totalEntries = (entrants: RaffleEntrant[]): number =>
@@ -64,12 +64,13 @@ export const totalEntries = (entrants: RaffleEntrant[]): number =>
 /**
  * Draws one winner, weighted so that a hacker with N stamps is N times as likely to win
  *
- * @param entrants - the raffle pool
+ * @param entrants the raffle pool
  * @returns the drawn entrant, or null when the pool has no entries
  */
 export const pickWeightedWinner = (entrants: RaffleEntrant[]): RaffleEntrant | null => {
   const total = totalEntries(entrants);
-  if (total <= 0) return null;
+  if (total <= 0) 
+    return null;
 
   let threshold = Math.random() * total;
   for (const entrant of entrants) {
@@ -88,7 +89,7 @@ const csvField = (value: string | number): string => `"${String(value).replace(/
 /**
  * Builds the winners log as CSV, with a header row and fully escaped fields
  * 
- * @param winners - the winners to export, in the order they should appear
+ * @param winners the winners to export, in the order they should appear
  * @returns CSV content ready for `downloadCSV`
  */
 export const generateWinnersCSV = (winners: RaffleWinner[]): string => {
