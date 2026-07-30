@@ -652,3 +652,51 @@ export interface Stamp {
   lastModified?: Timestamp;
   lastModifiedBy?: string;
 }
+
+/**
+ * Sub-collection: /Hackathons/[hackathon]/RafflePrizes
+ *
+ * A prize that can be drawn for on the raffle page, pre-populated before the event
+ */
+export interface RafflePrize {
+  _id?: string;
+  name: string;
+  quantity: number;
+  order?: number;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
+}
+
+/**
+ * Sub-collection: /Hackathons/[hackathon]/RaffleWinners
+ *
+ * A confirmed raffle draw
+ */
+export interface RaffleWinner {
+  _id?: string;
+  prizeId: string;
+  prizeName: string;
+  preferredName: string;
+  lastName: string;
+  email: string;
+  entryCount: number;
+  drawnAt?: Timestamp;
+  drawnBy?: string;
+}
+
+/**
+ * Document: /Hackathons/[hackathon]/Raffle/settings
+ *
+ * Which stamps count as raffle entries for this hackathon
+ */
+export interface RaffleSettings {
+  eligibleStampIds: string[];
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
+}
+export interface RaffleEntrant {
+  email: string;
+  preferredName: string;
+  lastName: string;
+  entries: number;
+}
