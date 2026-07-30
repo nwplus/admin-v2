@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { type AcceptancePlan, MAX_RATIO_DEVIATION_POINTS, planAcceptance } from "@/lib/acceptance";
+import { type AcceptancePlan, planAcceptance } from "@/lib/acceptance";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { acceptApplicants, getApplicantsToAccept } from "@/services/evaluator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -104,7 +104,6 @@ const BASE_VALUES: FormInput = {
 interface Preview {
   plan: AcceptancePlan;
   total?: number;
-  beginnerPercentage?: number;
   signature: string;
 }
 
@@ -155,7 +154,6 @@ export function AcceptDialog() {
           beginnerPercentage: values.beginnerPercentage,
         }),
         total: values.totalToAccept,
-        beginnerPercentage: values.beginnerPercentage,
         signature: filterSignature,
       });
     } catch (error) {
@@ -190,7 +188,7 @@ export function AcceptDialog() {
   // only surface the preview while it still matches the current filters
   const activePreview = preview?.signature === filterSignature ? preview : null;
   const plan = activePreview?.plan;
-  const canAccept = !!plan && plan.ids.length > 0 && !plan.exceedsRatioLimit;
+  const canAccept = !!plan && plan.ids.length > 0;
 
   return (
     <Dialog
@@ -422,13 +420,7 @@ export function AcceptDialog() {
                 these blank to accept every applicant matching the filters.
               </p>
             </div>
-            {plan && (
-              <AcceptancePreview
-                plan={plan}
-                total={activePreview?.total}
-                beginnerPercentage={activePreview?.beginnerPercentage}
-              />
-            )}
+            {plan && <AcceptancePreview plan={plan} total={activePreview?.total} />}
             <div className="flex flex-center gap-2">
               <Button type="submit" className="flex-grow" disabled={isCalculating}>
                 {isCalculating ? "Calculating..." : "Calculate acceptances"}
@@ -446,7 +438,7 @@ export function AcceptDialog() {
                   </Confirm>
                 ) : (
                   <Button type="button" variant="secondary" className="flex-grow" disabled>
-                    {plan.exceedsRatioLimit ? "Ratio out of range" : "Nothing to accept"}
+                    Nothing to accept
                   </Button>
                 ))}
             </div>
@@ -467,33 +459,39 @@ const calculateExperiencedPercentage = (beginnerPercentage?: string) => {
   return String(100 - parsed);
 };
 
-function AcceptancePreview({
-  plan,
-  total,
-  beginnerPercentage,
-}: {
-  plan: AcceptancePlan;
-  total?: number;
-  beginnerPercentage?: number;
-}) {
+function AcceptancePreview({ plan, total }: { plan: AcceptancePlan; total?: number }) {
   const { selected, target, available, finalBeginnerPercentage } = plan;
   const shortGroup = selected.beginner < target.beginner ? "beginner" : "experienced";
   const overflowGroup = shortGroup === "beginner" ? "experienced" : "beginner";
   const movedSpots = selected[overflowGroup] - target[overflowGroup];
 
   return (
-    <Alert variant={plan.exceedsRatioLimit ? "destructive" : "default"}>
-      <AlertTitle>
-        {plan.exceedsRatioLimit
-          ? "Ratio cannot be met"
-          : `You'll be accepting ${selected.total} hackers`}
-      </AlertTitle>
+    <Alert>
+      <AlertTitle>You'll be accepting {selected.total} hackers</AlertTitle>
       <AlertDescription>
-        <p>
-          {selected.beginner} beginner, {selected.experienced} experienced
-          {finalBeginnerPercentage !== null &&
-            ` (${finalBeginnerPercentage}% / ${round(100 - finalBeginnerPercentage)}%)`}
-        </p>
+        <dl className="grid w-full grid-cols-[auto_1fr] gap-x-3">
+          {total !== undefined && (
+            <>
+              <dt className="font-medium">Requested</dt>
+              <dd>
+                {total}
+                {plan.mode === "proportional" &&
+                  ` (${target.beginner} beginner, ${target.experienced} experienced)`}
+              </dd>
+            </>
+          )}
+          <dt className="font-medium">Selected</dt>
+          <dd>
+            {selected.total} ({selected.beginner} beginner, {selected.experienced} experienced)
+            {finalBeginnerPercentage !== null &&
+              ` — ${finalBeginnerPercentage}% / ${round(100 - finalBeginnerPercentage)}%`}
+          </dd>
+          <dt className="font-medium">Available</dt>
+          <dd>
+            {available.beginner + available.experienced} ({available.beginner} beginner,{" "}
+            {available.experienced} experienced)
+          </dd>
+        </dl>
         {plan.isUnderfilled && total !== undefined && (
           <p>
             Only {selected.total} of the {total} requested hackers match these filters.
@@ -503,12 +501,6 @@ function AcceptancePreview({
           <p>
             Only {available[shortGroup]} {shortGroup} applicants are available, so {movedSpots} spot
             {movedSpots === 1 ? "" : "s"} moved to {overflowGroup} hackers.
-          </p>
-        )}
-        {plan.exceedsRatioLimit && beginnerPercentage !== undefined && (
-          <p>
-            That is more than {MAX_RATIO_DEVIATION_POINTS} points off the {beginnerPercentage}%
-            beginner split you asked for. Lower the total or change the percentage to continue.
           </p>
         )}
       </AlertDescription>

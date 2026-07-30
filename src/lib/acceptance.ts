@@ -1,7 +1,6 @@
 import type { Applicant } from "@/lib/firebase/types";
 
 export const BEGINNER_MAX_PREV_HACKATHONS = 1;
-export const MAX_RATIO_DEVIATION_POINTS = 5;
 
 export type ExperienceGroup = "beginner" | "experienced";
 
@@ -24,7 +23,6 @@ export interface AcceptancePlan {
   finalBeginnerPercentage: number | null;
   hasOverflow: boolean;
   isUnderfilled: boolean;
-  exceedsRatioLimit: boolean;
 }
 
 const percentageOf = (count: number, total: number) =>
@@ -99,7 +97,6 @@ export const planAcceptance = (
       finalBeginnerPercentage: percentageOf(available.beginner, applicants.length),
       hasOverflow: false,
       isUnderfilled: false,
-      exceedsRatioLimit: false,
     };
   }
 
@@ -120,7 +117,6 @@ export const planAcceptance = (
       finalBeginnerPercentage: percentageOf(counts.beginner, selection.length),
       hasOverflow: false,
       isUnderfilled: selection.length < total,
-      exceedsRatioLimit: false,
     };
   }
 
@@ -153,9 +149,5 @@ export const planAcceptance = (
     finalBeginnerPercentage,
     hasOverflow,
     isUnderfilled: selectedTotal < total,
-    exceedsRatioLimit:
-      hasOverflow &&
-      finalBeginnerPercentage !== null &&
-      Math.abs(finalBeginnerPercentage - beginnerPercentage) > MAX_RATIO_DEVIATION_POINTS,
   };
 };
