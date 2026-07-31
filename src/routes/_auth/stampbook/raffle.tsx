@@ -78,7 +78,7 @@ function RafflePage() {
 
     // one toast per subscription error, not one per subscription
     const onError = () =>
-      toast.error("Couldn't load the raffle — you may not have access to this hackathon", {
+      toast.error("Couldn't load the raffle, you may not have access to this hackathon", {
         id: "raffle-subscription-error",
       });
 

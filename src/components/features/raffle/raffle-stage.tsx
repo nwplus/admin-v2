@@ -8,9 +8,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
-import { pickWeightedWinner, totalEntries } from "@/lib/raffle";
+import {
+  entrantsEligibleForPrize,
+  nextPrizeSlot,
+  pickWeightedWinner,
+  totalEntries,
+} from "@/lib/raffle";
 import { obfuscateEmail } from "@/lib/utils";
-import { addRaffleWinner } from "@/services/raffle";
+import { RaffleSlotTakenError, addRaffleWinner } from "@/services/raffle";
 import { Loader2, RefreshCw, Settings, Sparkles, Stamp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -63,11 +68,10 @@ export function RaffleStage({
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = null;
   };
-  
+
   useEffect(
     () => () => {
-      if (timerRef.current) 
-        clearTimeout(timerRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
     },
     [],
   );
@@ -75,14 +79,26 @@ export function RaffleStage({
   const drawnCount = (prizeId?: string) =>
     winners.filter((entry) => entry.prizeId === prizeId).length;
 
-  const isDrawable = (prize: RafflePrize) => prize.quantity - drawnCount(prize._id) > 0;
+  // the organizer's pick is the only thing that moves the picker
+  useEffect(() => {
+    if (phase !== "idle") return;
+    setSelectedPrizeId((current) => {
+      if (prizes.some((prize) => prize._id === current)) return current;
+      const firstDrawable = prizes.find(
+        (prize) =>
+          prize.quantity - winners.filter((entry) => entry.prizeId === prize._id).length > 0,
+      );
+      return firstDrawable?._id ?? "";
+    });
+  }, [prizes, winners, phase]);
 
-  // allows the picker to select a prize that has already been fully drawn
-  const chosenPrize = prizes.find((prize) => prize._id === selectedPrizeId) ?? null;
-  const selectedPrize =
-    chosenPrize && isDrawable(chosenPrize) ? chosenPrize : (prizes.find(isDrawable) ?? null);
+  const selectedPrize = prizes.find((prize) => prize._id === selectedPrizeId) ?? null;
   const remaining = selectedPrize ? selectedPrize.quantity - drawnCount(selectedPrize._id) : 0;
   const poolEntries = totalEntries(entrants);
+
+  // winning a prize does not rule a hacker out of winning other prizes
+  const drawPool = entrantsEligibleForPrize(entrants, winners, selectedPrize?._id);
+  const drawableEntries = totalEntries(drawPool);
 
   const disabledReason =
     prizes.length === 0
@@ -97,10 +113,12 @@ export function RaffleStage({
               ? "Every prize has been fully drawn"
               : remaining <= 0
                 ? `All ${selectedPrize.quantity} of "${selectedPrize.name}" have been drawn`
-                : null;
+                : drawableEntries === 0
+                  ? `Everyone in the pool has already won "${selectedPrize.name}"`
+                  : null;
 
   const startDraw = () => {
-    const picked = pickWeightedWinner(entrants);
+    const picked = pickWeightedWinner(drawPool);
     if (!picked) {
       toast.error("There are no entries to draw from");
       return;
@@ -123,7 +141,7 @@ export function RaffleStage({
         return;
       }
 
-      const sample = entrants[Math.floor(Math.random() * entrants.length)];
+      const sample = drawPool[Math.floor(Math.random() * drawPool.length)];
       if (sample) setShuffleName(fullName(sample));
 
       // ease out cubically
@@ -136,25 +154,53 @@ export function RaffleStage({
     tick();
   };
 
+  const dismissReveal = () => {
+    setWinner(null);
+    setPhase("idle");
+  };
+
   const confirmWinner = async () => {
     if (!winner || !selectedPrize?._id || confirming) return;
 
+    // check against the current winners log
+    if (remaining <= 0) {
+      toast.error(`Every "${selectedPrize.name}" has already been drawn`);
+      dismissReveal();
+      return;
+    }
+
+    if (
+      winners.some((entry) => entry.prizeId === selectedPrize._id && entry.email === winner.email)
+    ) {
+      toast.error(`${winner.preferredName} has already won "${selectedPrize.name}"`);
+      dismissReveal();
+      return;
+    }
+
     setConfirming(true);
     try {
-      const logged = await addRaffleWinner(hackathon, {
-        prizeId: selectedPrize._id,
-        prizeName: selectedPrize.name,
-        preferredName: winner.preferredName,
-        lastName: winner.lastName,
-        email: winner.email,
-        entryCount: winner.entries,
-      });
+      const logged = await addRaffleWinner(
+        hackathon,
+        {
+          prizeId: selectedPrize._id,
+          prizeName: selectedPrize.name,
+          preferredName: winner.preferredName,
+          lastName: winner.lastName,
+          email: winner.email,
+          entryCount: winner.entries,
+        },
+        nextPrizeSlot(winners, selectedPrize._id),
+      );
       if (!logged) throw new Error("Error logging the raffle winner");
 
       toast.success(`${winner.preferredName} wins ${selectedPrize.name}!`);
-      setWinner(null);
-      setPhase("idle");
+      dismissReveal();
     } catch (error) {
+      if (error instanceof RaffleSlotTakenError) {
+        toast.error(`Another organizer just drew this "${selectedPrize.name}" — draw again`);
+        dismissReveal();
+        return;
+      }
       console.error("Error logging the raffle winner", error);
       toast.error("Something went wrong logging this winner");
     } finally {
@@ -173,7 +219,7 @@ export function RaffleStage({
           <div className="min-w-56 flex-1 space-y-2">
             <span className="font-medium text-sm">Prize</span>
             <Select
-              value={selectedPrize?._id ?? ""}
+              value={selectedPrizeId}
               onValueChange={setSelectedPrizeId}
               disabled={phase === "drawing"}
             >
