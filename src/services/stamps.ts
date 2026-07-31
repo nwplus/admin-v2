@@ -8,6 +8,7 @@ import {
   uploadStampQR,
 } from "@/lib/firebase/storage";
 import type { Stamp } from "@/lib/firebase/types";
+import { readUnlockedStamps } from "@/lib/stamps";
 import {
   type DocumentReference,
   Timestamp,
@@ -140,8 +141,10 @@ export const deleteStampQR = async (stampId: string) => {
 };
 
 /**
- * Fetches all hackers with unlocked stamps from the Socials collection.
- * Each stamp a user has unlocked creates one entry (for nwHacks 2026 raffle weighting).
+ * Fetches all hackers with unlocked stamps from the Socials collection
+ * Each stamp a user has unlocked creates one entry
+ * 
+ * @param hackathonId - hackathon ID whose stamps should be counted
  * @returns Array of entries where each entry represents one stamp collected by a hacker
  */
 export const fetchHackersWithStamps = async (hackathonId: string): Promise<HackerStampEntry[]> => {
@@ -152,14 +155,9 @@ export const fetchHackersWithStamps = async (hackathonId: string): Promise<Hacke
     const socialData = socialDoc.data();
     const displayName = socialData.preferredName || "User";
     const email = socialData.email || "";
-    const unlockedStamps: string[] = socialData.unlockedStamps?.[hackathonId] || [];
 
-    for (const stampId of unlockedStamps) {
-      entries.push({
-        displayName,
-        email,
-        stampId: typeof stampId === "string" ? stampId : String(stampId),
-      });
+    for (const stampId of readUnlockedStamps(socialData.unlockedStamps, hackathonId)) {
+      entries.push({ displayName, email, stampId });
     }
   }
 

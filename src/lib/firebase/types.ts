@@ -680,6 +680,7 @@ export interface RaffleWinner {
   lastName: string;
   email: string;
   entryCount: number;
+  slot?: number;
   drawnAt?: Timestamp;
   drawnBy?: string;
 }
