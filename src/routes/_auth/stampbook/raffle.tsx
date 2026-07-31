@@ -20,6 +20,7 @@ import type {
   RaffleWinner,
   Stamp,
 } from "@/lib/firebase/types";
+import { splitHackathon } from "@/lib/utils";
 import {
   fetchRaffleEntrants,
   subscribeToRafflePrizes,
@@ -36,11 +37,13 @@ export const Route = createFileRoute("/_auth/stampbook/raffle")({
   component: RafflePage,
 });
 
-/** Hackathon IDs are name+year strings like "nwHacks2026". */
-const hackathonYear = (id: string) => Number(id.match(/\d{4}/)?.[0] ?? 0);
+const hackathonYear = (id: string) => Number(splitHackathon(id)[1] ?? 0);
 
 const newestHackathonId = (hackathons: Hackathon[]) =>
   [...hackathons].sort((a, b) => hackathonYear(b._id) - hackathonYear(a._id))[0]?._id ?? "";
+
+const sameStampIds = (current: string[], next: string[]) =>
+  current.length === next.length && current.every((id, index) => id === next[index]);
 
 function RafflePage() {
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
@@ -55,7 +58,6 @@ function RafflePage() {
   const [showEmails, setShowEmails] = useState<boolean>(false);
   const [prizesOpen, setPrizesOpen] = useState<boolean>(false);
   const [stampsOpen, setStampsOpen] = useState<boolean>(false);
-  /** Guards against a slower earlier pool fetch landing after a newer one. */
   const requestRef = useRef<number>(0);
 
   useEffect(() => {
@@ -74,10 +76,21 @@ function RafflePage() {
   useEffect(() => {
     if (!selectedHackathon) return;
 
-    const unsubPrizes = subscribeToRafflePrizes(selectedHackathon, setPrizes);
-    const unsubWinners = subscribeToRaffleWinners(selectedHackathon, setWinners);
-    const unsubSettings = subscribeToRaffleSettings(selectedHackathon, (settings) =>
-      setEligibleStampIds(settings.eligibleStampIds),
+    // one toast per subscription error, not one per subscription
+    const onError = () =>
+      toast.error("Couldn't load the raffle — you may not have access to this hackathon", {
+        id: "raffle-subscription-error",
+      });
+
+    const unsubPrizes = subscribeToRafflePrizes(selectedHackathon, setPrizes, onError);
+    const unsubWinners = subscribeToRaffleWinners(selectedHackathon, setWinners, onError);
+    const unsubSettings = subscribeToRaffleSettings(
+      selectedHackathon,
+      (settings) =>
+        setEligibleStampIds((current) =>
+          sameStampIds(current, settings.eligibleStampIds) ? current : settings.eligibleStampIds,
+        ),
+      onError,
     );
 
     return () => {
@@ -87,9 +100,8 @@ function RafflePage() {
     };
   }, [selectedHackathon]);
 
-  // Reading Socials + Applicants takes a moment, so the pool is fetched once per hackathon/stamp
-  // change and then refreshed on demand — organizers control freshness during a live event.
-  const loadPool = useCallback(async (hackathon: string, stampIds: string[]) => {
+  // fetched only on change, refreshed on demand
+  const loadPool = useCallback(async (hackathon: string, stampIds: string[], refresh = false) => {
     if (!hackathon) {
       setEntrants([]);
       setPoolFetchedAt(null);
@@ -101,7 +113,7 @@ function RafflePage() {
     setPoolLoading(true);
 
     try {
-      const pool = await fetchRaffleEntrants(hackathon, stampIds);
+      const pool = await fetchRaffleEntrants(hackathon, stampIds, refresh);
       if (requestId !== requestRef.current) return;
       setEntrants(pool);
       setPoolFetchedAt(new Date());
@@ -159,7 +171,7 @@ function RafflePage() {
             poolLoading={poolLoading}
             poolFetchedAt={poolFetchedAt}
             showEmails={showEmails}
-            onRefreshPool={() => loadPool(selectedHackathon, eligibleStampIds)}
+            onRefreshPool={() => loadPool(selectedHackathon, eligibleStampIds, true)}
             onManagePrizes={() => setPrizesOpen(true)}
             onManageStamps={() => setStampsOpen(true)}
           />
