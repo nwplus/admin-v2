@@ -69,8 +69,7 @@ export const totalEntries = (entrants: RaffleEntrant[]): number =>
  */
 export const pickWeightedWinner = (entrants: RaffleEntrant[]): RaffleEntrant | null => {
   const total = totalEntries(entrants);
-  if (total <= 0) 
-    return null;
+  if (total <= 0) return null;
 
   let threshold = Math.random() * total;
   for (const entrant of entrants) {
@@ -82,13 +81,55 @@ export const pickWeightedWinner = (entrants: RaffleEntrant[]): RaffleEntrant | n
 };
 
 /**
+ * Drops the hackers who have already won this prize, so nobody wins the same prize twice
+ *
+ * @param entrants the raffle pool
+ * @param winners every winner logged so far
+ * @param prizeId the prize about to be drawn for
+ * @returns the entrants still eligible for this prize
+ */
+export const entrantsEligibleForPrize = (
+  entrants: RaffleEntrant[],
+  winners: RaffleWinner[],
+  prizeId?: string,
+): RaffleEntrant[] => {
+  if (!prizeId) return entrants;
+
+  const alreadyWon = new Set(
+    winners
+      .filter((winner) => winner.prizeId === prizeId)
+      .map((winner) => winner.email.trim().toLowerCase()),
+  );
+
+  if (alreadyWon.size === 0) return entrants;
+  return entrants.filter((entrant) => !alreadyWon.has(entrant.email));
+};
+
+/**
+ * Picks the slot a new winner should claim for a prize
+ *
+ * @param winners every winner logged so far
+ * @param prizeId the prize about to be drawn for
+ * @returns the slot index to claim
+ */
+export const nextPrizeSlot = (winners: RaffleWinner[], prizeId: string): number => {
+  const taken = new Set(
+    winners.filter((winner) => winner.prizeId === prizeId).map((winner) => winner.slot),
+  );
+
+  let slot = 0;
+  while (taken.has(slot)) slot++;
+  return slot;
+};
+
+/**
  * Escapes a CSV field by quoting it and doubling any embedded quotes
  */
 const csvField = (value: string | number): string => `"${String(value).replace(/"/g, '""')}"`;
 
 /**
  * Builds the winners log as CSV, with a header row and fully escaped fields
- * 
+ *
  * @param winners the winners to export, in the order they should appear
  * @returns CSV content ready for `downloadCSV`
  */
