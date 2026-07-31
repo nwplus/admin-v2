@@ -5,11 +5,11 @@ import { PageHeader } from "@/components/graphy/typo";
 import { Button } from "@/components/ui/button";
 import type { Stamp } from "@/lib/firebase/types";
 import { subscribeToStamps } from "@/services/stamps";
-import { createFileRoute } from "@tanstack/react-router";
-import { Download, Plus } from "lucide-react";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { Dices, Download, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/_auth/stampbook")({
+export const Route = createFileRoute("/_auth/stampbook/")({
   component: StampbookPage,
 });
 
@@ -35,6 +35,12 @@ function StampbookPage() {
             <Button variant="outline" onClick={() => setExportRaffleOpen(true)}>
               <Download className="mr-2 h-4 w-4" />
               Export Raffle
+            </Button>
+            <Button asChild>
+              <Link to="/stampbook/raffle">
+                <Dices className="mr-2 h-4 w-4" />
+                Run Raffle
+              </Link>
             </Button>
             <Button onClick={() => setCreateOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />

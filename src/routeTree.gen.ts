@@ -15,11 +15,12 @@ import { Route as SigninImport } from './routes/signin'
 import { Route as AuthRouteImport } from './routes/_auth/route'
 import { Route as AuthIndexImport } from './routes/_auth/index'
 import { Route as AuthStatusChangerImport } from './routes/_auth/status-changer'
-import { Route as AuthStampbookImport } from './routes/_auth/stampbook'
 import { Route as AuthQueryImport } from './routes/_auth/query'
 import { Route as AuthFaqImport } from './routes/_auth/faq'
 import { Route as AuthFactotumImport } from './routes/_auth/factotum'
 import { Route as AuthEvaluatorImport } from './routes/_auth/evaluator'
+import { Route as AuthStampbookIndexImport } from './routes/_auth/stampbook/index'
+import { Route as AuthStampbookRaffleImport } from './routes/_auth/stampbook/raffle'
 import { Route as AuthHackathonsHackathonIdRouteImport } from './routes/_auth/hackathons/$hackathonId/route'
 import { Route as AuthHackathonsHackathonIdIndexImport } from './routes/_auth/hackathons/$hackathonId/index'
 import { Route as AuthHackathonsHackathonIdSponsorsImport } from './routes/_auth/hackathons/$hackathonId/sponsors'
@@ -53,12 +54,6 @@ const AuthStatusChangerRoute = AuthStatusChangerImport.update({
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
-const AuthStampbookRoute = AuthStampbookImport.update({
-  id: '/stampbook',
-  path: '/stampbook',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
 const AuthQueryRoute = AuthQueryImport.update({
   id: '/query',
   path: '/query',
@@ -80,6 +75,18 @@ const AuthFactotumRoute = AuthFactotumImport.update({
 const AuthEvaluatorRoute = AuthEvaluatorImport.update({
   id: '/evaluator',
   path: '/evaluator',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthStampbookIndexRoute = AuthStampbookIndexImport.update({
+  id: '/stampbook/',
+  path: '/stampbook/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+
+const AuthStampbookRaffleRoute = AuthStampbookRaffleImport.update({
+  id: '/stampbook/raffle',
+  path: '/stampbook/raffle',
   getParentRoute: () => AuthRouteRoute,
 } as any)
 
@@ -178,13 +185,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthQueryImport
       parentRoute: typeof AuthRouteImport
     }
-    '/_auth/stampbook': {
-      id: '/_auth/stampbook'
-      path: '/stampbook'
-      fullPath: '/stampbook'
-      preLoaderRoute: typeof AuthStampbookImport
-      parentRoute: typeof AuthRouteImport
-    }
     '/_auth/status-changer': {
       id: '/_auth/status-changer'
       path: '/status-changer'
@@ -204,6 +204,20 @@ declare module '@tanstack/react-router' {
       path: '/hackathons/$hackathonId'
       fullPath: '/hackathons/$hackathonId'
       preLoaderRoute: typeof AuthHackathonsHackathonIdRouteImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/_auth/stampbook/raffle': {
+      id: '/_auth/stampbook/raffle'
+      path: '/stampbook/raffle'
+      fullPath: '/stampbook/raffle'
+      preLoaderRoute: typeof AuthStampbookRaffleImport
+      parentRoute: typeof AuthRouteImport
+    }
+    '/_auth/stampbook/': {
+      id: '/_auth/stampbook/'
+      path: '/stampbook'
+      fullPath: '/stampbook'
+      preLoaderRoute: typeof AuthStampbookIndexImport
       parentRoute: typeof AuthRouteImport
     }
     '/_auth/hackathons/$hackathonId/application': {
@@ -287,10 +301,11 @@ interface AuthRouteRouteChildren {
   AuthFactotumRoute: typeof AuthFactotumRoute
   AuthFaqRoute: typeof AuthFaqRoute
   AuthQueryRoute: typeof AuthQueryRoute
-  AuthStampbookRoute: typeof AuthStampbookRoute
   AuthStatusChangerRoute: typeof AuthStatusChangerRoute
   AuthIndexRoute: typeof AuthIndexRoute
   AuthHackathonsHackathonIdRouteRoute: typeof AuthHackathonsHackathonIdRouteRouteWithChildren
+  AuthStampbookRaffleRoute: typeof AuthStampbookRaffleRoute
+  AuthStampbookIndexRoute: typeof AuthStampbookIndexRoute
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
@@ -298,11 +313,12 @@ const AuthRouteRouteChildren: AuthRouteRouteChildren = {
   AuthFactotumRoute: AuthFactotumRoute,
   AuthFaqRoute: AuthFaqRoute,
   AuthQueryRoute: AuthQueryRoute,
-  AuthStampbookRoute: AuthStampbookRoute,
   AuthStatusChangerRoute: AuthStatusChangerRoute,
   AuthIndexRoute: AuthIndexRoute,
   AuthHackathonsHackathonIdRouteRoute:
     AuthHackathonsHackathonIdRouteRouteWithChildren,
+  AuthStampbookRaffleRoute: AuthStampbookRaffleRoute,
+  AuthStampbookIndexRoute: AuthStampbookIndexRoute,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
@@ -316,10 +332,11 @@ export interface FileRoutesByFullPath {
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
   '/query': typeof AuthQueryRoute
-  '/stampbook': typeof AuthStampbookRoute
   '/status-changer': typeof AuthStatusChangerRoute
   '/': typeof AuthIndexRoute
   '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
+  '/stampbook/raffle': typeof AuthStampbookRaffleRoute
+  '/stampbook': typeof AuthStampbookIndexRoute
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
   '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
   '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
@@ -334,9 +351,10 @@ export interface FileRoutesByTo {
   '/factotum': typeof AuthFactotumRoute
   '/faq': typeof AuthFaqRoute
   '/query': typeof AuthQueryRoute
-  '/stampbook': typeof AuthStampbookRoute
   '/status-changer': typeof AuthStatusChangerRoute
   '/': typeof AuthIndexRoute
+  '/stampbook/raffle': typeof AuthStampbookRaffleRoute
+  '/stampbook': typeof AuthStampbookIndexRoute
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
   '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
   '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
@@ -353,10 +371,11 @@ export interface FileRoutesById {
   '/_auth/factotum': typeof AuthFactotumRoute
   '/_auth/faq': typeof AuthFaqRoute
   '/_auth/query': typeof AuthQueryRoute
-  '/_auth/stampbook': typeof AuthStampbookRoute
   '/_auth/status-changer': typeof AuthStatusChangerRoute
   '/_auth/': typeof AuthIndexRoute
   '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
+  '/_auth/stampbook/raffle': typeof AuthStampbookRaffleRoute
+  '/_auth/stampbook/': typeof AuthStampbookIndexRoute
   '/_auth/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
   '/_auth/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
   '/_auth/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
@@ -374,10 +393,11 @@ export interface FileRouteTypes {
     | '/factotum'
     | '/faq'
     | '/query'
-    | '/stampbook'
     | '/status-changer'
     | '/'
     | '/hackathons/$hackathonId'
+    | '/stampbook/raffle'
+    | '/stampbook'
     | '/hackathons/$hackathonId/application'
     | '/hackathons/$hackathonId/rewards'
     | '/hackathons/$hackathonId/schedule'
@@ -391,9 +411,10 @@ export interface FileRouteTypes {
     | '/factotum'
     | '/faq'
     | '/query'
-    | '/stampbook'
     | '/status-changer'
     | '/'
+    | '/stampbook/raffle'
+    | '/stampbook'
     | '/hackathons/$hackathonId/application'
     | '/hackathons/$hackathonId/rewards'
     | '/hackathons/$hackathonId/schedule'
@@ -408,10 +429,11 @@ export interface FileRouteTypes {
     | '/_auth/factotum'
     | '/_auth/faq'
     | '/_auth/query'
-    | '/_auth/stampbook'
     | '/_auth/status-changer'
     | '/_auth/'
     | '/_auth/hackathons/$hackathonId'
+    | '/_auth/stampbook/raffle'
+    | '/_auth/stampbook/'
     | '/_auth/hackathons/$hackathonId/application'
     | '/_auth/hackathons/$hackathonId/rewards'
     | '/_auth/hackathons/$hackathonId/schedule'
@@ -452,10 +474,11 @@ export const routeTree = rootRoute
         "/_auth/factotum",
         "/_auth/faq",
         "/_auth/query",
-        "/_auth/stampbook",
         "/_auth/status-changer",
         "/_auth/",
-        "/_auth/hackathons/$hackathonId"
+        "/_auth/hackathons/$hackathonId",
+        "/_auth/stampbook/raffle",
+        "/_auth/stampbook/"
       ]
     },
     "/signin": {
@@ -477,10 +500,6 @@ export const routeTree = rootRoute
       "filePath": "_auth/query.tsx",
       "parent": "/_auth"
     },
-    "/_auth/stampbook": {
-      "filePath": "_auth/stampbook.tsx",
-      "parent": "/_auth"
-    },
     "/_auth/status-changer": {
       "filePath": "_auth/status-changer.tsx",
       "parent": "/_auth"
@@ -500,6 +519,14 @@ export const routeTree = rootRoute
         "/_auth/hackathons/$hackathonId/sponsors",
         "/_auth/hackathons/$hackathonId/"
       ]
+    },
+    "/_auth/stampbook/raffle": {
+      "filePath": "_auth/stampbook/raffle.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/stampbook/": {
+      "filePath": "_auth/stampbook/index.tsx",
+      "parent": "/_auth"
     },
     "/_auth/hackathons/$hackathonId/application": {
       "filePath": "_auth/hackathons/$hackathonId/application.tsx",
