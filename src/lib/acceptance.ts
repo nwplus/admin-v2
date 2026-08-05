@@ -12,8 +12,8 @@ export interface AcceptanceRatio {
 export interface AcceptancePlan {
   ids: string[];
   /**
-   * `all` accepts everyone, 
-   * `top` takes the highest ranked applicants, 
+   * `all` accepts everyone,
+   * `top` takes the highest ranked applicants,
    * `proportional` fills a quota per group
    */
   mode: "all" | "top" | "proportional";
