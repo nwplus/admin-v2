@@ -108,7 +108,7 @@ export function RaffleStage({
         : poolLoading
           ? "Loading the entry pool..."
           : poolEntries === 0
-            ? "No entries yet — nobody has collected an eligible stamp"
+            ? "No entries yet, nobody has collected an eligible stamp"
             : !selectedPrize
               ? "Every prize has been fully drawn"
               : remaining <= 0
@@ -197,7 +197,7 @@ export function RaffleStage({
       dismissReveal();
     } catch (error) {
       if (error instanceof RaffleSlotTakenError) {
-        toast.error(`Another organizer just drew this "${selectedPrize.name}" — draw again`);
+        toast.error(`Another organizer just drew this "${selectedPrize.name}", draw again`);
         dismissReveal();
         return;
       }
