@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import type { RafflePrize, RaffleWinner } from "@/lib/firebase/types";
+import { drawnCountForPrize } from "@/lib/raffle";
 import { deleteRafflePrize, upsertRafflePrize } from "@/services/raffle";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Pencil, Plus, X } from "lucide-react";
@@ -31,9 +32,15 @@ const EMPTY_FORM = {
 };
 
 const formSchema = z.object({
-  name: z.string().min(1, "Give the prize a name").max(100),
+  name: z.string().trim().min(1, "Give the prize a name").max(100),
   quantity: z.coerce.number().int().min(1, "At least 1 winner").max(999),
 });
+
+interface PrizeDraft {
+  id: string;
+  name: string;
+  quantity: number;
+}
 
 interface RafflePrizesDialogProps {
   open: boolean;
@@ -51,17 +58,12 @@ export function RafflePrizesDialog({
   winners,
 }: RafflePrizesDialogProps) {
   const [loading, setLoading] = useState<boolean>(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [draftName, setDraftName] = useState<string>("");
-  const [draftQuantity, setDraftQuantity] = useState<number>(1);
+  const [editing, setEditing] = useState<PrizeDraft | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: EMPTY_FORM,
   });
-
-  const drawnCount = (prizeId?: string) =>
-    winners.filter((winner) => winner.prizeId === prizeId).length;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (loading) return;
@@ -85,32 +87,22 @@ export function RafflePrizesDialog({
   };
 
   const startEdit = (prize: RafflePrize) => {
-    setEditingId(prize._id ?? null);
-    setDraftName(prize.name);
-    setDraftQuantity(prize.quantity);
+    if (prize._id) setEditing({ id: prize._id, name: prize.name, quantity: prize.quantity });
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setDraftName("");
-    setDraftQuantity(1);
-  };
+  const cancelEdit = () => setEditing(null);
 
   const saveEdit = async (prize: RafflePrize) => {
-    if (loading || !prize._id) return;
-    const name = draftName.trim();
-    if (!name) {
-      toast.error("Give the prize a name");
+    if (loading || !editing) return;
+    
+    const parsed = formSchema.safeParse({ name: editing.name, quantity: editing.quantity });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
       return;
     }
 
-    if (!Number.isFinite(draftQuantity) || draftQuantity < 1) {
-      toast.error("Quantity must be at least 1");
-      return;
-    }
-
-    const alreadyDrawn = drawnCount(prize._id);
-    if (draftQuantity < alreadyDrawn) {
+    const alreadyDrawn = drawnCountForPrize(winners, editing.id);
+    if (parsed.data.quantity < alreadyDrawn) {
       toast.error(`${alreadyDrawn} winners are already drawn for this prize`);
       return;
     }
@@ -119,8 +111,8 @@ export function RafflePrizesDialog({
     try {
       const updated = await upsertRafflePrize(
         hackathon,
-        { name, quantity: draftQuantity, order: prize.order ?? 0 },
-        prize._id,
+        { ...parsed.data, order: prize.order ?? 0 },
+        editing.id,
       );
       if (!updated) throw new Error("Error upserting a raffle prize");
 
@@ -140,7 +132,7 @@ export function RafflePrizesDialog({
     try {
       await deleteRafflePrize(hackathon, prize._id);
       toast.success(`Deleted "${prize.name}"`);
-      if (editingId === prize._id) cancelEdit();
+      if (editing?.id === prize._id) cancelEdit();
     } catch (error) {
       console.error("Error deleting a raffle prize", error);
       toast.error("Something went wrong deleting this prize");
@@ -175,27 +167,29 @@ export function RafflePrizesDialog({
             <p className="py-4 text-center text-muted-foreground text-sm">No prizes yet</p>
           ) : (
             prizes.map((prize) => {
-              const drawn = drawnCount(prize._id);
-              const isEditing = editingId === prize._id;
+              const drawn = drawnCountForPrize(winners, prize._id);
+              const isEditing = editing?.id === prize._id;
 
               return (
                 <div
                   key={prize._id}
                   className="flex items-center gap-2 rounded-md border p-2 text-sm"
                 >
-                  {isEditing ? (
+                  {isEditing && editing ? (
                     <>
                       <Input
-                        value={draftName}
-                        onChange={(e) => setDraftName(e.target.value)}
+                        value={editing.name}
+                        onChange={(e) => setEditing({ ...editing, name: e.target.value })}
                         placeholder="Prize name"
                         className="flex-1"
                       />
                       <Input
                         type="number"
                         min={1}
-                        value={draftQuantity}
-                        onChange={(e) => setDraftQuantity(Number(e.target.value))}
+                        value={editing.quantity}
+                        onChange={(e) =>
+                          setEditing({ ...editing, quantity: Number(e.target.value) })
+                        }
                         className="w-20"
                       />
                       <Button

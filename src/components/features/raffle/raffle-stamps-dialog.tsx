@@ -10,7 +10,7 @@ import {
 import type { Stamp } from "@/lib/firebase/types";
 import { saveRaffleSettings } from "@/services/raffle";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 interface RaffleStampsDialogProps {
@@ -28,13 +28,15 @@ export function RaffleStampsDialog({
   stamps,
   eligibleStampIds,
 }: RaffleStampsDialogProps) {
-  const [selectedStampIds, setSelectedStampIds] = useState<string[]>(eligibleStampIds);
+  const [draftStampIds, setDraftStampIds] = useState<string[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // load save stamp when dialog opens
-  useEffect(() => {
-    if (open) setSelectedStampIds(eligibleStampIds);
-  }, [open]);
+  const selectedStampIds = draftStampIds ?? eligibleStampIds;
+
+  const handleClose = () => {
+    setDraftStampIds(null);
+    onClose();
+  };
 
   const handleSave = async () => {
     if (loading) return;
@@ -44,7 +46,7 @@ export function RaffleStampsDialog({
       toast.success(
         `${selectedStampIds.length} stamp${selectedStampIds.length === 1 ? "" : "s"} count as entries`,
       );
-      onClose();
+      handleClose();
     } catch (error) {
       console.error("Error saving raffle settings:", error);
       toast.error("Failed to save eligible stamps");
@@ -54,7 +56,7 @@ export function RaffleStampsDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(state) => !state && onClose()}>
+    <Dialog open={open} onOpenChange={(state) => !state && handleClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Eligible stamps</DialogTitle>
@@ -70,7 +72,7 @@ export function RaffleStampsDialog({
             stamps={stamps}
             hackathon={hackathon}
             selectedIds={selectedStampIds}
-            onChange={setSelectedStampIds}
+            onChange={setDraftStampIds}
             label={`Stamps for ${hackathon}`}
           />
 

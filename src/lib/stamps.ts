@@ -1,6 +1,17 @@
 import { getHackathonType } from "@/lib/utils";
 
 /**
+ * Represents a user's collected stamp entry
+ */
+export interface HackerStampEntry {
+  displayName: string;
+  email: string;
+  stampId: string;
+}
+
+export const SOCIALS_NAME_FALLBACK = "User";
+
+/**
  * Reads the stamp IDs one Socials document has unlocked for a hackathon
  *
  * Interestingly, the portal has written this field a few different ways, so we read all

@@ -50,9 +50,9 @@ function StampbookPage() {
         </div>
         <StampsTable stamps={stamps} />
       </div>
-      <ExportRaffleDialog 
-        open={exportRaffleOpen} 
-        onClose={() => setExportRaffleOpen(false)} 
+      <ExportRaffleDialog
+        open={exportRaffleOpen}
+        onClose={() => setExportRaffleOpen(false)}
         stamps={stamps}
       />
       <StampDialog open={createOpen} onClose={() => setCreateOpen(false)} />

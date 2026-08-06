@@ -127,7 +127,6 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
               hackathon={selectedHackathon}
               selectedIds={selectedStampIds}
               onChange={setSelectedStampIds}
-              listClassName="max-h-48"
             />
           )}
 

@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/select";
 import type { RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
 import {
+  drawnCountForPrize,
   entrantsEligibleForPrize,
   nextPrizeSlot,
   pickWeightedWinner,
+  remainingForPrize,
   totalEntries,
 } from "@/lib/raffle";
 import { obfuscateEmail } from "@/lib/utils";
@@ -75,25 +77,12 @@ export function RaffleStage({
     },
     [],
   );
-
-  const drawnCount = (prizeId?: string) =>
-    winners.filter((entry) => entry.prizeId === prizeId).length;
-
-  // the organizer's pick is the only thing that moves the picker
-  useEffect(() => {
-    if (phase !== "idle") return;
-    setSelectedPrizeId((current) => {
-      if (prizes.some((prize) => prize._id === current)) return current;
-      const firstDrawable = prizes.find(
-        (prize) =>
-          prize.quantity - winners.filter((entry) => entry.prizeId === prize._id).length > 0,
-      );
-      return firstDrawable?._id ?? "";
-    });
-  }, [prizes, winners, phase]);
-
-  const selectedPrize = prizes.find((prize) => prize._id === selectedPrizeId) ?? null;
-  const remaining = selectedPrize ? selectedPrize.quantity - drawnCount(selectedPrize._id) : 0;
+  
+  const selectedPrize =
+    prizes.find((prize) => prize._id === selectedPrizeId) ??
+    prizes.find((prize) => remainingForPrize(prize, winners) > 0) ??
+    null;
+  const remaining = selectedPrize ? remainingForPrize(selectedPrize, winners) : 0;
   const poolEntries = totalEntries(entrants);
 
   // winning a prize does not rule a hacker out of winning other prizes
@@ -219,7 +208,7 @@ export function RaffleStage({
           <div className="min-w-56 flex-1 space-y-2">
             <span className="font-medium text-sm">Prize</span>
             <Select
-              value={selectedPrizeId}
+              value={selectedPrize?._id ?? ""}
               onValueChange={setSelectedPrizeId}
               disabled={phase === "drawing"}
             >
@@ -230,7 +219,7 @@ export function RaffleStage({
                 {prizes
                   .filter((prize) => prize._id)
                   .map((prize) => {
-                    const drawn = drawnCount(prize._id);
+                    const drawn = drawnCountForPrize(winners, prize._id);
                     return (
                       <SelectItem
                         key={prize._id}

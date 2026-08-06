@@ -230,14 +230,13 @@ export const subscribeToRaffleSettings = (
  */
 export const saveRaffleSettings = async (hackathon: string, eligibleStampIds: string[]) => {
   try {
-    const record = {
-      lastModified: Timestamp.now(),
-      lastModifiedBy: auth.currentUser?.email ?? "",
-    };
-
     await setDoc(
       doc(db, "Hackathons", hackathon, "Raffle", "settings"),
-      { eligibleStampIds, ...record },
+      {
+        eligibleStampIds,
+        lastModified: Timestamp.now(),
+        lastModifiedBy: auth.currentUser?.email ?? "",
+      },
       { merge: true },
     );
   } catch (error) {

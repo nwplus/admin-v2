@@ -11,7 +11,6 @@ interface StampPickerProps {
   selectedIds: string[];
   onChange: (stampIds: string[]) => void;
   label?: string;
-  listClassName?: string;
 }
 
 /**
@@ -23,14 +22,14 @@ export function StampPicker({
   selectedIds,
   onChange,
   label = "Stamps",
-  listClassName = "max-h-64",
 }: StampPickerProps) {
   const [stampSearch, setStampSearch] = useState<string>("");
   const checkboxId = useId();
 
-  const hackathonStamps = stamps.filter((stamp) => stamp.hackathon === hackathon);
-  const filteredStamps = hackathonStamps.filter(
-    (stamp) => stamp._id && stamp.name.toLowerCase().includes(stampSearch.toLowerCase()),
+  const search = stampSearch.toLowerCase();
+  const filteredStamps = stamps.filter(
+    (stamp) =>
+      stamp.hackathon === hackathon && stamp._id && stamp.name.toLowerCase().includes(search),
   );
   const filteredIds = filteredStamps.map((stamp) => stamp._id).filter(Boolean) as string[];
   const allFilteredSelected =
@@ -73,7 +72,7 @@ export function StampPicker({
         value={stampSearch}
         onChange={(e) => setStampSearch(e.target.value)}
       />
-      <div className={cn("overflow-y-auto rounded-md border p-2", listClassName)}>
+      <div className="max-h-64 overflow-y-auto rounded-md border p-2">
         {filteredStamps.length === 0 ? (
           <p className="py-2 text-center text-muted-foreground text-sm">
             No stamps found for this hackathon

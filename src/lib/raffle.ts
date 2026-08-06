@@ -1,16 +1,12 @@
-import type { RaffleEntrant, RaffleWinner } from "@/lib/firebase/types";
+import type { RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
+import { type HackerStampEntry, SOCIALS_NAME_FALLBACK } from "@/lib/stamps";
 
-export interface StampEntry {
-  displayName: string;
-  email: string;
-}
+export type StampEntry = Pick<HackerStampEntry, "displayName" | "email">;
 
 export interface ApplicantName {
   preferredName?: string;
   lastName?: string;
 }
-
-const SOCIALS_NAME_FALLBACK = "User";
 
 /**
  * Aggregates collected stamps into one entrant per hacker, where each stamp is one raffle entry
@@ -80,6 +76,29 @@ export const pickWeightedWinner = (entrants: RaffleEntrant[]): RaffleEntrant | n
   return entrants[entrants.length - 1] ?? null;
 };
 
+const winnersForPrize = (winners: RaffleWinner[], prizeId?: string) =>
+  winners.filter((winner) => winner.prizeId === prizeId);
+
+/**
+ * How many winners have been logged for a prize
+ *
+ * @param winners every winner logged so far
+ * @param prizeId the prize to count winners for
+ * @returns the number of the prize's slots that are claimed
+ */
+export const drawnCountForPrize = (winners: RaffleWinner[], prizeId?: string): number =>
+  winnersForPrize(winners, prizeId).length;
+
+/**
+ * How many of a prize are still left to draw
+ *
+ * @param prize the prize to count
+ * @param winners every winner logged so far
+ * @returns the number of unclaimed slots, never below zero
+ */
+export const remainingForPrize = (prize: RafflePrize, winners: RaffleWinner[]): number =>
+  Math.max(prize.quantity - drawnCountForPrize(winners, prize._id), 0);
+
 /**
  * Drops the hackers who have already won this prize, so nobody wins the same prize twice
  *
@@ -96,9 +115,7 @@ export const entrantsEligibleForPrize = (
   if (!prizeId) return entrants;
 
   const alreadyWon = new Set(
-    winners
-      .filter((winner) => winner.prizeId === prizeId)
-      .map((winner) => winner.email.trim().toLowerCase()),
+    winnersForPrize(winners, prizeId).map((winner) => winner.email.trim().toLowerCase()),
   );
 
   if (alreadyWon.size === 0) return entrants;
@@ -113,9 +130,7 @@ export const entrantsEligibleForPrize = (
  * @returns the slot index to claim
  */
 export const nextPrizeSlot = (winners: RaffleWinner[], prizeId: string): number => {
-  const taken = new Set(
-    winners.filter((winner) => winner.prizeId === prizeId).map((winner) => winner.slot),
-  );
+  const taken = new Set(winnersForPrize(winners, prizeId).map((winner) => winner.slot));
 
   let slot = 0;
   while (taken.has(slot)) slot++;
