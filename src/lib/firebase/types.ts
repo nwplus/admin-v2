@@ -43,7 +43,12 @@ export type ApplicationStatus =
   | "acceptedAndAttending"
   | "acceptedUnRSVP";
 
-export type FAQCategory = "General" | "Logistics" | "Projects" | "Teams & Projects" | "Miscellaneous";
+export type FAQCategory =
+  | "General"
+  | "Logistics"
+  | "Projects"
+  | "Teams & Projects"
+  | "Miscellaneous";
 type ApplicantContributionRole = "developer" | "designer" | "productManager" | "other";
 export type ApplicantContribution = Record<ApplicantContributionRole, boolean>;
 

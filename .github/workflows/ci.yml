@@ -1,54 +1,61 @@
-# lints, and then runs Lighthouse CI (Google) for performance checks
-
 name: CI
 
 on:
   pull_request:
     branches: [main, dev]
 
+permissions:
+  contents: read
+
 jobs:
-  lint:
-    name: Linting
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v6
         with:
-          version: 9.12.3
+          run_install: false
 
       - name: Set up Node
-        uses: actions/setup-node@v4
-        with: 
-          node-version: '22'
-          cache: 'pnpm'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      - name: Check formatting
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm check --fix --unsafe
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting and lint
+        run: pnpm check
+
+      - name: Check types
+        run: pnpm exec tsc
+
   lhci:
-    name: Lighthouse
+    name: Lighthouse CI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v6
         with:
-          version: 9.12.3
+          run_install: false
 
       - name: Set up Node
-        uses: actions/setup-node@v4
-        with: 
-          node-version: '22'
-          cache: 'pnpm'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
-      - name: Install dependencies and build
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm build:staging
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build staging application
+        run: pnpm build:staging
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.DEV_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.DEV_FIREBASE_AUTH_DOMAIN }}
@@ -58,9 +65,8 @@ jobs:
           VITE_FIREBASE_APP_ID: ${{ secrets.DEV_FIREBASE_APP_ID }}
           VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.DEV_FIREBASE_MEASUREMENT_ID }}
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.DEV_FIREBASE_MESSAGING_SENDER_ID }}
-      - name: run Lighthouse CI
-        run: |
-          sudo yarn global add @lhci/cli@0.4.x
-          lhci autorun
+
+      - name: Run Lighthouse CI
+        run: pnpm exec lhci autorun
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}

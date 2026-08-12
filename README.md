@@ -1,5 +1,7 @@
 # nwPlus Admin
 
+Use Node.js 24 LTS and pnpm 11.10.0 for development. The exact pnpm version is pinned in `package.json`.
+
 For development:
 
 ```bash

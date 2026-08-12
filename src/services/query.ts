@@ -362,9 +362,7 @@ export const MULTI_VALUE_COLUMNS: ReadonlySet<string> = new Set([
   "engagementSource",
 ]);
 
-export const extractColumnValues = (
-  applicants: FlattenedApplicant[],
-): Record<string, string[]> => {
+export const extractColumnValues = (applicants: FlattenedApplicant[]): Record<string, string[]> => {
   const result: Record<string, string[]> = {};
   for (const column of CATEGORICAL_COLUMNS) {
     const values = new Set<string>();
