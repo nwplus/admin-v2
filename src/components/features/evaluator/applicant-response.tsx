@@ -28,9 +28,7 @@ export function ApplicantResponse() {
             key={fieldConfig.field}
             label={questionLabels[fieldConfig.field] || fieldConfig.label}
             type={fieldConfig.type as ResponseType}
-            response={
-              getNestedValue(focusedApplicant, fieldConfig.field)
-            }
+            response={getNestedValue(focusedApplicant, fieldConfig.field)}
             userId={focusedApplicant?._id}
           />
         ))}

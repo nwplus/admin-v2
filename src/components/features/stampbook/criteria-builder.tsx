@@ -102,9 +102,7 @@ export function CriteriaBuilder({ criteria, onChange }: CriteriaBuilderProps) {
   };
 
   const handleOperatorChange = (filterId: string, operator: "AND" | "OR") => {
-    onChange(
-      criteria.map((f) => (f.id === filterId ? { ...f, logicalOperator: operator } : f)),
-    );
+    onChange(criteria.map((f) => (f.id === filterId ? { ...f, logicalOperator: operator } : f)));
   };
 
   const getFilterDisplayText = (filter: FilterRowsSelection) => {
@@ -134,7 +132,7 @@ export function CriteriaBuilder({ criteria, onChange }: CriteriaBuilderProps) {
       <Label>Unlock Criteria (optional)</Label>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-        <div className="relative flex items-center gap-2">
+          <div className="relative flex items-center gap-2">
             <Button type="button" variant="outline" className="w-full justify-between font-normal">
               <span>
                 {criteria.length > 0 ? (
@@ -189,9 +187,7 @@ export function CriteriaBuilder({ criteria, onChange }: CriteriaBuilderProps) {
                       </Select>
                     )}
                     <div className="flex flex-1 items-center gap-2 rounded-md bg-muted p-2">
-                      <span className="flex-1 px-2 text-xs">
-                        {getFilterDisplayText(filter)}
-                      </span>
+                      <span className="flex-1 px-2 text-xs">{getFilterDisplayText(filter)}</span>
                       <Button
                         size="icon"
                         variant="ghost"
@@ -292,4 +288,3 @@ export function CriteriaBuilder({ criteria, onChange }: CriteriaBuilderProps) {
     </div>
   );
 }
-

@@ -1,15 +1,15 @@
-import { PageHeader } from "@/components/graphy/typo";
-import { Card, CardHeader } from "@/components/ui/card";
-import { useMemo } from "react";
+import { HackathonSelector } from "@/components/features/query/hackathon-selector";
+import { QueryActions } from "@/components/features/query/query-actions";
 import { QueryFilters } from "@/components/features/query/query-filters";
 import { QueryTable } from "@/components/features/query/query-table";
-import { getAvailableColumns } from "@/services/query";
-import { QueryProvider } from "@/providers/query-provider";
-import { createFileRoute } from "@tanstack/react-router";
-import { QueryActions } from "@/components/features/query/query-actions";
-import { HackathonSelector } from "@/components/features/query/hackathon-selector";
 import { SavedQueries } from "@/components/features/query/saved-queries";
+import { PageHeader } from "@/components/graphy/typo";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader } from "@/components/ui/card";
+import { QueryProvider } from "@/providers/query-provider";
+import { getAvailableColumns } from "@/services/query";
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 
 export const Route = createFileRoute("/_auth/query")({
   component: QueryPage,
@@ -29,9 +29,7 @@ function QueryPage() {
                 <HackathonSelector />
                 <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:gap-3">
                   <SavedQueries>
-                    <Button variant="outline">
-                      Saved Queries
-                    </Button>
+                    <Button variant="outline">Saved Queries</Button>
                   </SavedQueries>
                   <QueryActions />
                 </div>

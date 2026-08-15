@@ -81,7 +81,7 @@ const PORTAL_BASE_URL = "https://portal.nwplus.io";
 async function generateQRBlob(stampId: string, hackathonId: string): Promise<Blob> {
   const hackathonSlug = getHackathonType(hackathonId);
   const qrContent = `${PORTAL_BASE_URL}/${hackathonSlug}/stampbook?unlockStamp=${stampId}`;
-  
+
   const dataUrl = await QRCode.toDataURL(qrContent, {
     width: 512,
     margin: 2,
@@ -231,14 +231,15 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       if (criteria.length > 0) {
         stampData.criteria = criteria;
       }
-      
+
       // Generate QR blob if isQRUnlockable is being enabled for the first time
       // else delete QR if isQRUnlockable is being disabled and a QR exists
       let qrBlob: Blob | null = null;
       const stampId = activeStamp?._id;
       const needsNewQR = values.isQRUnlockable && (!activeStamp || !activeStamp.isQRUnlockable);
-      const needsQRDeletion = !values.isQRUnlockable && activeStamp?.isQRUnlockable && activeStamp?.qrURL;
-      
+      const needsQRDeletion =
+        !values.isQRUnlockable && activeStamp?.isQRUnlockable && activeStamp?.qrURL;
+
       if (needsNewQR && stampId) {
         qrBlob = await generateQRBlob(stampId, values.hackathon);
       }
@@ -451,8 +452,8 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                   <div className="space-y-0.5">
                     <FormLabel>Event Unlockable</FormLabel>
                     <FormDescription className="text-xs">
-                      If enabled, organizers can explicitly unlock this stamp for a hacker through the
-                      check-in app.
+                      If enabled, organizers can explicitly unlock this stamp for a hacker through
+                      the check-in app.
                     </FormDescription>
                   </div>
                   <FormControl>
@@ -518,4 +519,3 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
     </Dialog>
   );
 }
-

@@ -2,12 +2,12 @@ import { STATUS_LABEL } from "@/components/features/evaluator/applicant-status";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
-import type { Applicant } from "@/lib/firebase/types";
-import type { ApplicationStatus } from "@/lib/firebase/types";
+import type { Applicant, ApplicationStatus } from "@/lib/firebase/types";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { useMemo, useState } from "react";
 import { AcceptDialog } from "./accept-dialog";
 import { ApplicantEntry } from "./applicant-entry";
+import { BlacklistSection } from "./blacklist-section";
 import { CalculateDialog } from "./calculate-dialog";
 import { ExportDialog } from "./export-dialog";
 
@@ -17,34 +17,55 @@ const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({
   value: status,
 }));
 
+/**
+ * Sidebar list of applicants with search and filters.
+ *
+ * - Shows a collapsible `BlacklistSection` above the main list.
+ * - Provides search and status filters for the evaluator.
+ * - Selecting an applicant sets the focused applicant in context.
+ */
 export function ApplicantList() {
-  const { applicants, focusedApplicant, setFocusedApplicant } = useEvaluator();
+  const { applicants, focusedApplicant, setFocusedApplicant, blacklistMatches } = useEvaluator();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
 
-  // using a useMemo for later when adding debounce
+  /** O(1) look-ups: is this applicant blacklisted? */
+  const blacklistedIds = useMemo(
+    () => new Set(blacklistMatches.map((m) => m.applicantId)),
+    [blacklistMatches],
+  );
+
+  /** Map for quick lookup of blacklist entry by applicant id (to show reason/note). */
+  const blacklistLookup = useMemo(() => {
+    const map = new Map<string, (typeof blacklistMatches)[number]["entry"] | undefined>();
+    for (const m of blacklistMatches) map.set(m.applicantId, m.entry);
+    return map;
+  }, [blacklistMatches]);
+
   const filteredApplicants = useMemo(() => {
     let list = applicants || [];
     list = filterApplicantsByStatus(list, selectedStatuses);
     return filterApplicantsBySearch(list, searchTerm)
       .slice()
       .sort((a, b) => {
-        const aSubmissionMs = a.submission?.submittedAt?.toMillis?.() ?? 0;
-        const bSubmissionMs = b.submission?.submittedAt?.toMillis?.() ?? 0;
-
-        if (aSubmissionMs !== bSubmissionMs) {
-          return aSubmissionMs - bSubmissionMs;
-        }
-
+        const aMs = a.submission?.submittedAt?.toMillis?.() ?? 0;
+        const bMs = b.submission?.submittedAt?.toMillis?.() ?? 0;
+        if (aMs !== bMs) return aMs - bMs;
         return a._id.localeCompare(b._id);
       });
   }, [applicants, searchTerm, selectedStatuses]);
+
+  const handleBlacklistSelect = (applicantId: string) => {
+    const applicant = applicants?.find((a) => a._id === applicantId) ?? null;
+    setFocusedApplicant?.(focusedApplicant?._id === applicantId ? null : applicant);
+  };
 
   return (
     <Card className="sticky top-[2vh] max-h-[96vh] rounded-xl">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="pb-2">Applicant list</CardTitle>
+          <CardTitle className="pb-0">Applicant list</CardTitle>
           <div className="flex items-center gap-2">
             <MultiSelect
               options={APPLICATION_STATUS_OPTIONS}
@@ -56,14 +77,21 @@ export function ApplicantList() {
             <ExportDialog />
           </div>
         </div>
-
         <Input
           value={searchTerm ?? ""}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search by ID, name, email, phone..."
         />
       </CardHeader>
+
       <CardContent className="overflow-auto p-0">
+        {/* Blacklist section sits above the main list */}
+        <BlacklistSection
+          matches={blacklistMatches}
+          focusedApplicant={focusedApplicant}
+          onSelect={handleBlacklistSelect}
+        />
+
         <div className="flex flex-col">
           {filteredApplicants?.map((applicant, index) => (
             <ApplicantEntry
@@ -76,10 +104,20 @@ export function ApplicantList() {
                 setFocusedApplicant?.(focusedApplicant?._id === applicant._id ? null : applicant)
               }
               isActive={focusedApplicant?._id === applicant._id}
+              disabled={blacklistedIds.has(applicant._id)}
+              blacklistNote={
+                blacklistLookup.get(applicant._id)
+                  ? (blacklistLookup.get(applicant._id)?.notes ??
+                    (blacklistLookup.get(applicant._id)?.bannedHackathon
+                      ? `Banned at ${blacklistLookup.get(applicant._id)?.bannedHackathon}`
+                      : null))
+                  : null
+              }
             />
           ))}
         </div>
       </CardContent>
+
       <CardFooter className="flex gap-3">
         <CalculateDialog />
         <AcceptDialog />
@@ -88,20 +126,18 @@ export function ApplicantList() {
   );
 }
 
+// ── Helpers (unchanged) ───────────────────────────────────────────────────────
+
 export const filterApplicantsBySearch = (
   applicants: Applicant[],
   searchTerm: string,
 ): Applicant[] => {
   if (!searchTerm.trim()) return applicants;
-
   const normalizedSearch = searchTerm.toLowerCase().trim();
   const searchWords = normalizedSearch.split(/\s+/);
-
   return applicants.filter((applicant) => {
     if (!applicant.basicInfo) return false;
-
     const { firstName, lastName, email, phoneNumber } = applicant.basicInfo;
-
     const fields = [
       applicant._id?.toLowerCase() || "",
       firstName?.toLowerCase() || "",
@@ -109,8 +145,6 @@ export const filterApplicantsBySearch = (
       email?.toLowerCase() || "",
       phoneNumber?.toLowerCase() || "",
     ];
-
-    // Check if all search words match at least one field
     return searchWords.every((word) => fields.some((field) => field.includes(word)));
   });
 };

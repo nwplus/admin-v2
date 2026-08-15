@@ -130,7 +130,7 @@ export const deleteLockedStampImage = async (stampId: string) => {
 };
 
 /**
- * Uploads a stamp QR code to storage. 
+ * Uploads a stamp QR code to storage.
  * The generated QR code points to the portal, where the logic for unlocking stamps is handled.
  * @param stampId - The stamp document's ID used for naming
  * @param blob - The QR code blob

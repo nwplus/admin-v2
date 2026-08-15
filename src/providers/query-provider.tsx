@@ -1,18 +1,30 @@
-
 import { Loading } from "@/components/ui/loading";
-import { createContext, useContext, useState, useCallback, type ReactNode, useEffect, useMemo } from "react";
-import type { SortingState } from "@tanstack/react-table";
-import type { FlattenedApplicant } from "@/services/query";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
-import { subscribeToApplicants, flattenApplicantData, calculateApplicantPoints } from "@/services/query";
-import type { 
-  Hackathon, 
-  FilterCondition, 
-  AggregationFunction, 
-  ApplicantFieldValue, 
-  GroupBySelection, 
-  FilterRowsSelection 
+import type {
+  AggregationFunction,
+  ApplicantFieldValue,
+  FilterCondition,
+  FilterRowsSelection,
+  GroupBySelection,
+  Hackathon,
 } from "@/lib/firebase/types";
+import type { FlattenedApplicant } from "@/services/query";
+import {
+  calculateApplicantPoints,
+  extractColumnValues,
+  flattenApplicantData,
+  subscribeToApplicants,
+} from "@/services/query";
+import type { SortingState } from "@tanstack/react-table";
+import {
+  type ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 /**
  * Evaluates whether a single applicant field value satisfies a given filter condition.
@@ -20,7 +32,7 @@ import type {
 function evaluateFilterCondition(
   value: ApplicantFieldValue,
   filterCondition: FilterCondition,
-  filterValue: string
+  filterValue: string,
 ): boolean {
   switch (filterCondition) {
     case "matches":
@@ -51,14 +63,18 @@ function evaluateFilters(row: FlattenedApplicant, filters: FilterRowsSelection[]
     const filter = filters[i];
     const { filterColumn, filterCondition, filterValue, logicalOperator } = filter;
     const value = row[filterColumn];
-    
-    const currResult = evaluateFilterCondition(value, filterCondition as FilterCondition, filterValue);
+
+    const currResult = evaluateFilterCondition(
+      value,
+      filterCondition as FilterCondition,
+      filterValue,
+    );
 
     if (i === 0) {
       result = currResult;
     } else {
-      const operator = logicalOperator || 'AND';
-      if (operator === 'AND') {
+      const operator = logicalOperator || "AND";
+      if (operator === "AND") {
         result = result && currResult;
       } else {
         result = result || currResult;
@@ -74,33 +90,35 @@ function evaluateFilters(row: FlattenedApplicant, filters: FilterRowsSelection[]
  */
 function applyAggregation(
   values: ApplicantFieldValue[],
-  aggregationFunction: AggregationFunction
+  aggregationFunction: AggregationFunction,
 ): ApplicantFieldValue {
-  const filteredValues = values.filter(v => v !== undefined && v !== null);
-  
+  const filteredValues = values.filter((v) => v !== undefined && v !== null);
+
   switch (aggregationFunction) {
     case "COUNT":
       return filteredValues.length;
     case "SUM":
       return (filteredValues as number[]).reduce((a, b) => a + b, 0);
     case "AVERAGE":
-      return filteredValues.length ? (filteredValues as number[]).reduce((a, b) => a + b, 0) / filteredValues.length : 0;
+      return filteredValues.length
+        ? (filteredValues as number[]).reduce((a, b) => a + b, 0) / filteredValues.length
+        : 0;
     case "MIN":
       if (filteredValues.length === 0) return null;
       if (typeof filteredValues[0] === "number") {
         return Math.min(...(filteredValues as number[]));
       }
-        return filteredValues.reduce((min, current) => 
-          String(current) < String(min) ? current : min
-        );
+      return filteredValues.reduce((min, current) =>
+        String(current) < String(min) ? current : min,
+      );
     case "MAX":
       if (filteredValues.length === 0) return null;
       if (typeof filteredValues[0] === "number") {
         return Math.max(...(filteredValues as number[]));
       }
-        return filteredValues.reduce((max, current) => 
-          String(current) > String(max) ? current : max
-        );
+      return filteredValues.reduce((max, current) =>
+        String(current) > String(max) ? current : max,
+      );
   }
 }
 
@@ -117,16 +135,19 @@ interface QueryContextType {
   groupBySelection: GroupBySelection | undefined;
   filterSelections: FilterRowsSelection[];
   sorting: SortingState;
-  
+
   // Final data after processing
   tableData: FlattenedApplicant[];
-  
+
+  columnValueOptions: Record<string, string[]>;
+
   // Actions
   onColumnToggle: (column: string) => void;
   onGroupByChange: (selection: GroupBySelection | undefined) => void;
   onFilterAdd: (selection: FilterRowsSelection) => void;
   onFilterRemove: (filterId: string) => void;
-  onFilterOperatorChange: (filterId: string, operator: 'AND' | 'OR') => void;
+  onFilterOperatorChange: (filterId: string, operator: "AND" | "OR") => void;
+  onFilterUpdate: (filterId: string, selection: FilterRowsSelection) => void;
   onSortingChange: (updater: SortingState | ((prev: SortingState) => SortingState)) => void;
 }
 
@@ -140,7 +161,7 @@ const DEFAULT_SELECTED_COLUMNS = [
   "school",
   "major",
   "firstTimeHacker",
-  "MLHCodeOfConduct"
+  "MLHCodeOfConduct",
 ];
 
 interface QueryProviderProps {
@@ -164,25 +185,30 @@ export function QueryProvider({ children }: QueryProviderProps) {
   const [filterSelections, setFilterSelections] = useState<FilterRowsSelection[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  const columnValueOptions = useMemo(() => extractColumnValues(applicants), [applicants]);
+
   const tableData = useMemo(() => {
     let filtered = applicants;
     if (filterSelections.length > 0) {
-      filtered = applicants.filter(row => evaluateFilters(row, filterSelections));
+      filtered = applicants.filter((row) => evaluateFilters(row, filterSelections));
     }
 
     if (!groupBySelection) return filtered;
-    
+
     const groups: Record<string, FlattenedApplicant[]> = {};
     for (const row of filtered) {
       const key = String(row[groupBySelection.groupByColumn]);
       if (!groups[key]) groups[key] = [];
       groups[key].push(row);
     }
-    
+
     return Object.entries(groups).map(([key, rows]) => {
-      const values = rows.map(r => r[groupBySelection.aggregationColumn]);
-      const aggValue = applyAggregation(values, groupBySelection.aggregationFunction as AggregationFunction);
-      
+      const values = rows.map((r) => r[groupBySelection.aggregationColumn]);
+      const aggValue = applyAggregation(
+        values,
+        groupBySelection.aggregationFunction as AggregationFunction,
+      );
+
       return {
         [groupBySelection.groupByColumn]: key,
         [`${groupBySelection.aggregationFunction} ${groupBySelection.aggregationColumn}`]: aggValue,
@@ -205,20 +231,22 @@ export function QueryProvider({ children }: QueryProviderProps) {
 
     const unsubscribe = subscribeToApplicants(selectedHackathon, async (applicants) => {
       try {
-        const flattenedApplicants = applicants.map(applicant => flattenApplicantData(applicant, selectedHackathon));
+        const flattenedApplicants = applicants.map((applicant) =>
+          flattenApplicantData(applicant, selectedHackathon),
+        );
         setApplicants(flattenedApplicants);
         setIsLoading(false);
-        
+
         const pointsMap = await calculateApplicantPoints(applicants, selectedHackathon);
-        
-        setApplicants(prevApplicants => 
-          prevApplicants.map(applicant => ({
+
+        setApplicants((prevApplicants) =>
+          prevApplicants.map((applicant) => ({
             ...applicant,
-            points: pointsMap[applicant.email] || 0
-          }))
+            points: pointsMap[applicant.email] || 0,
+          })),
         );
       } catch (error) {
-        console.error('Error flattening applicants:', error);
+        console.error("Error flattening applicants:", error);
         setIsLoading(false);
       }
     });
@@ -233,17 +261,25 @@ export function QueryProvider({ children }: QueryProviderProps) {
   }, []);
 
   const handleFilterAdd = useCallback((selection: FilterRowsSelection) => {
-    setFilterSelections(prev => [...prev, selection]);
+    setFilterSelections((prev) => [...prev, selection]);
   }, []);
 
   const handleFilterRemove = useCallback((filterId: string) => {
-    setFilterSelections(prev => prev.filter(filter => filter.id !== filterId));
+    setFilterSelections((prev) => prev.filter((filter) => filter.id !== filterId));
   }, []);
 
-  const handleFilterOperatorChange = useCallback((filterId: string, operator: 'AND' | 'OR') => {
-    setFilterSelections(prev => prev.map(filter =>
-      filter.id === filterId ? { ...filter, logicalOperator: operator } : filter
-    ));
+  const handleFilterOperatorChange = useCallback((filterId: string, operator: "AND" | "OR") => {
+    setFilterSelections((prev) =>
+      prev.map((filter) =>
+        filter.id === filterId ? { ...filter, logicalOperator: operator } : filter,
+      ),
+    );
+  }, []);
+
+  const handleFilterUpdate = useCallback((filterId: string, selection: FilterRowsSelection) => {
+    setFilterSelections((prev) =>
+      prev.map((filter) => (filter.id === filterId ? { ...selection, id: filterId } : filter)),
+    );
   }, []);
 
   const value = {
@@ -257,11 +293,13 @@ export function QueryProvider({ children }: QueryProviderProps) {
     filterSelections,
     sorting,
     tableData,
+    columnValueOptions,
     onColumnToggle: handleColumnToggle,
     onGroupByChange: setGroupBySelection,
     onFilterAdd: handleFilterAdd,
     onFilterRemove: handleFilterRemove,
     onFilterOperatorChange: handleFilterOperatorChange,
+    onFilterUpdate: handleFilterUpdate,
     onSortingChange: setSorting,
   };
 

@@ -1,13 +1,13 @@
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { QuestionTable } from "./question-table";
-import { useState } from "react";
-import { upsertDiscordQuestion } from "@/services/discord-questions";
 import type { DiscordQuestion } from "@/lib/firebase/types";
 import { useFactotum } from "@/providers/factotum-provider";
+import { upsertDiscordQuestion } from "@/services/discord-questions";
+import { useState } from "react";
 import { toast } from "sonner";
+import { QuestionTable } from "./question-table";
 
 export default function AddDiscordQuestions() {
   const [sponsor, setSponsor] = useState<string>("");
