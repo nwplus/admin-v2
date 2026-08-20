@@ -1,5 +1,13 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { PlusIcon, BookmarkIcon, SearchIcon, TagIcon, CalendarIcon, UserIcon, CodeIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -8,22 +16,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Loading } from "@/components/ui/loading";
-import { useQuery } from "@/providers/query-provider";
-import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FirebaseQuery } from "@/lib/firebase/types";
-import { 
-  subscribeToSavedQueries, 
-  upsertSavedQuery, 
-  deleteSavedQuery 
+import { useQuery } from "@/providers/query-provider";
+import {
+  deleteSavedQuery,
+  subscribeToSavedQueries,
+  upsertSavedQuery,
 } from "@/services/saved-queries";
+import {
+  BookmarkIcon,
+  CalendarIcon,
+  CodeIcon,
+  PlusIcon,
+  SearchIcon,
+  TagIcon,
+  UserIcon,
+} from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const TABS = {
   BROWSE: "browse",
@@ -36,7 +51,7 @@ const VALIDATION_ERRORS = {
   DESCRIPTION_MAX_LENGTH: "Description must be less than 100 characters",
 } as const;
 
-type TabValue = typeof TABS[keyof typeof TABS];
+type TabValue = (typeof TABS)[keyof typeof TABS];
 
 interface SavedQueriesProps {
   children: React.ReactNode;
@@ -58,15 +73,15 @@ interface ValidationError {
  */
 function validateSaveForm(form: SaveFormState): ValidationError[] {
   const errors: ValidationError[] = [];
-  
+
   if (!form.description.trim()) {
-    errors.push({ field: 'description', message: VALIDATION_ERRORS.DESCRIPTION_REQUIRED });
+    errors.push({ field: "description", message: VALIDATION_ERRORS.DESCRIPTION_REQUIRED });
   } else if (form.description.trim().length < 3) {
-    errors.push({ field: 'description', message: VALIDATION_ERRORS.DESCRIPTION_MIN_LENGTH });
+    errors.push({ field: "description", message: VALIDATION_ERRORS.DESCRIPTION_MIN_LENGTH });
   } else if (form.description.trim().length > 100) {
-    errors.push({ field: 'description', message: VALIDATION_ERRORS.DESCRIPTION_MAX_LENGTH });
+    errors.push({ field: "description", message: VALIDATION_ERRORS.DESCRIPTION_MAX_LENGTH });
   }
-  
+
   return errors;
 }
 
@@ -85,32 +100,32 @@ function parseQueryToString(query: FirebaseQuery): string {
   if (query.filterSelections.length > 0) {
     const whereConditions = query.filterSelections.map((filter, index) => {
       const operator = getFilterOperatorSymbol(filter.filterCondition);
-      const value = Number.isNaN(Number(filter.filterValue)) 
-        ? `'${filter.filterValue}'` 
+      const value = Number.isNaN(Number(filter.filterValue))
+        ? `'${filter.filterValue}'`
         : filter.filterValue;
-      
+
       let condition = `${filter.filterColumn} ${operator} ${value}`;
-      
+
       if (index > 0) {
-        const logicalOp = filter.logicalOperator || 'AND';
+        const logicalOp = filter.logicalOperator || "AND";
         condition = `${logicalOp} ${condition}`;
       }
-      
+
       return condition;
     });
-    
+
     parts.push(`WHERE ${whereConditions.join(" ")}`);
   }
 
   if (query.groupBySelection) {
     parts.push(`GROUP BY ${query.groupBySelection.groupByColumn}`);
-    parts.push(`AGGREGATE ${query.groupBySelection.aggregationFunction}(${query.groupBySelection.aggregationColumn})`);
+    parts.push(
+      `AGGREGATE ${query.groupBySelection.aggregationFunction}(${query.groupBySelection.aggregationColumn})`,
+    );
   }
 
   if (query.sorting.length > 0) {
-    const orderConditions = query.sorting.map(sort => 
-      `${sort.id} ${sort.desc ? 'DESC' : 'ASC'}`
-    );
+    const orderConditions = query.sorting.map((sort) => `${sort.id} ${sort.desc ? "DESC" : "ASC"}`);
     parts.push(`ORDER BY ${orderConditions.join(", ")}`);
   }
 
@@ -148,7 +163,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
   const [selectedTab, setSelectedTab] = useState<TabValue>(TABS.BROWSE);
   const [savedQueries, setSavedQueries] = useState<FirebaseQuery[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const [saveForm, setSaveForm] = useState<SaveFormState>({
     description: "",
     tags: "",
@@ -173,7 +188,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
 
     setIsLoading(true);
     let unsubscribe: (() => void) | null = null;
-    
+
     try {
       unsubscribe = subscribeToSavedQueries((queries) => {
         setSavedQueries(queries);
@@ -192,49 +207,61 @@ export function SavedQueries({ children }: SavedQueriesProps) {
 
   const filteredQueries = useMemo(() => {
     const searchLower = searchTerm.toLowerCase();
-    return savedQueries.filter(query =>
-      query.description?.toLowerCase().includes(searchLower) ||
-      query.tags?.some(tag => tag.toLowerCase().includes(searchLower))
+    return savedQueries.filter(
+      (query) =>
+        query.description?.toLowerCase().includes(searchLower) ||
+        query.tags?.some((tag) => tag.toLowerCase().includes(searchLower)),
     );
   }, [savedQueries, searchTerm]);
 
-  const handleApplyQuery = useCallback(async (query: FirebaseQuery) => {
-    try {
-      for (const filter of filterSelections) {
-        onFilterRemove(filter.id);
-      }
-      onGroupByChange(undefined);
-      onSortingChange([]);
-      
-      for (const filter of query.filterSelections) {
-        onFilterAdd(filter);
-      }
-      if (query.groupBySelection) {
-        onGroupByChange(query.groupBySelection);
-      }
-      onSortingChange(query.sorting);
-      
-      const currentColumns = new Set(selectedColumns);
-      const targetColumns = new Set(query.selectedColumns);
-      
-      for (const col of selectedColumns) {
-        if (!targetColumns.has(col)) {
-          onColumnToggle(col);
+  const handleApplyQuery = useCallback(
+    async (query: FirebaseQuery) => {
+      try {
+        for (const filter of filterSelections) {
+          onFilterRemove(filter.id);
         }
-      }
-      
-      for (const col of query.selectedColumns) {
-        if (!currentColumns.has(col)) {
-          onColumnToggle(col);
+        onGroupByChange(undefined);
+        onSortingChange([]);
+
+        for (const filter of query.filterSelections) {
+          onFilterAdd(filter);
         }
+        if (query.groupBySelection) {
+          onGroupByChange(query.groupBySelection);
+        }
+        onSortingChange(query.sorting);
+
+        const currentColumns = new Set(selectedColumns);
+        const targetColumns = new Set(query.selectedColumns);
+
+        for (const col of selectedColumns) {
+          if (!targetColumns.has(col)) {
+            onColumnToggle(col);
+          }
+        }
+
+        for (const col of query.selectedColumns) {
+          if (!currentColumns.has(col)) {
+            onColumnToggle(col);
+          }
+        }
+
+        setOpen(false);
+        toast.success(`Applied query: ${query.description}`);
+      } catch (error) {
+        toast.error("Failed to apply query");
       }
-      
-      setOpen(false);
-      toast.success(`Applied query: ${query.description}`);
-    } catch (error) {
-      toast.error("Failed to apply query");
-    }
-  }, [filterSelections, onFilterRemove, onGroupByChange, onSortingChange, selectedColumns, onColumnToggle, onFilterAdd]);
+    },
+    [
+      filterSelections,
+      onFilterRemove,
+      onGroupByChange,
+      onSortingChange,
+      selectedColumns,
+      onColumnToggle,
+      onFilterAdd,
+    ],
+  );
 
   const handleSaveCurrentQuery = async () => {
     const validationErrors = validateSaveForm(saveForm);
@@ -247,10 +274,10 @@ export function SavedQueries({ children }: SavedQueriesProps) {
     try {
       const tagsArray = saveForm.tags
         .split(",")
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
+        .map((tag) => tag.trim())
+        .filter((tag) => tag.length > 0);
 
-      const queryToSave: Omit<FirebaseQuery, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'> = {
+      const queryToSave: Omit<FirebaseQuery, "id" | "createdAt" | "updatedAt" | "createdBy"> = {
         description: saveForm.description.trim(),
         selectedColumns,
         filterSelections,
@@ -261,19 +288,19 @@ export function SavedQueries({ children }: SavedQueriesProps) {
       if (groupBySelection) {
         queryToSave.groupBySelection = groupBySelection;
       }
-      
+
       if (tagsArray.length > 0) {
         queryToSave.tags = tagsArray;
       }
 
       await upsertSavedQuery(queryToSave);
-      
+
       setSaveForm({
         description: "",
         tags: "",
         isPublic: false,
       });
-      
+
       setSelectedTab(TABS.BROWSE);
       toast.success("Query saved successfully!");
     } catch (error) {
@@ -286,8 +313,8 @@ export function SavedQueries({ children }: SavedQueriesProps) {
 
   const handleDeleteQuery = useCallback(async (queryId: string) => {
     try {
-      setSavedQueries(prev => prev.filter(query => query.id !== queryId));
-      
+      setSavedQueries((prev) => prev.filter((query) => query.id !== queryId));
+
       await deleteSavedQuery(queryId);
       toast.success("Query deleted successfully");
     } catch (error) {
@@ -312,25 +339,22 @@ export function SavedQueries({ children }: SavedQueriesProps) {
     return parseQueryToString(currentQuery);
   };
 
-  const hasCurrentQueryData = selectedColumns.length > 0 || 
-    filterSelections.length > 0 || 
-    groupBySelection || 
+  const hasCurrentQueryData =
+    selectedColumns.length > 0 ||
+    filterSelections.length > 0 ||
+    groupBySelection ||
     sorting.length > 0;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] max-w-5xl overflow-hidden">
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <BookmarkIcon className="h-5 w-5" />
             Saved Queries
           </DialogTitle>
-          <DialogDescription>
-            Browse, apply, and manage your saved queries.
-          </DialogDescription>
+          <DialogDescription>Browse, apply, and manage your saved queries.</DialogDescription>
         </DialogHeader>
 
         <Tabs
@@ -342,7 +366,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
             <TabsTrigger value={TABS.BROWSE}>Browse Queries</TabsTrigger>
             <TabsTrigger value={TABS.CREATE}>Save Current</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value={TABS.BROWSE} className="h-full flex-1">
             <div className="h-auto space-y-4">
               <div className="flex items-center gap-2">
@@ -369,7 +393,10 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                   </div>
                 ) : (
                   filteredQueries.map((query) => (
-                    <Card key={query.id} className="cursor-pointer transition-colors hover:bg-accent/50">
+                    <Card
+                      key={query.id}
+                      className="cursor-pointer transition-colors hover:bg-accent/50"
+                    >
                       <CardHeader className="pb-3">
                         <div className="flex items-start justify-between">
                           <CardTitle className="text-base">{query.description}</CardTitle>
@@ -403,7 +430,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                           </span>
                         </CardDescription>
                       </CardHeader>
-                      
+
                       <CardContent className="space-y-3 pb-3">
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 font-medium text-sm">
@@ -416,7 +443,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                             </pre>
                           </div>
                         </div>
-                        
+
                         {query.tags && query.tags.length > 0 && (
                           <div className="flex items-center gap-1">
                             <TagIcon className="h-3 w-3 text-muted-foreground" />
@@ -432,7 +459,7 @@ export function SavedQueries({ children }: SavedQueriesProps) {
                       </CardContent>
 
                       <CardFooter className="pt-0">
-                        <Button 
+                        <Button
                           onClick={() => handleApplyQuery(query)}
                           className="w-full"
                           size="sm"
@@ -448,80 +475,88 @@ export function SavedQueries({ children }: SavedQueriesProps) {
           </TabsContent>
 
           <TabsContent value={TABS.CREATE} className="space-y-4 overflow-y-auto">
-              {!hasCurrentQueryData ? (
-                <div className="mt-4 py-8 text-center text-muted-foreground">
-                  <p>No query configuration to save.</p>
-                  <p className="text-sm">Set up some filters, select columns, or configure sorting first.</p>
-                </div>
-              ) : (
-                <>
-                  <div className="mt-4 mb-6 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Description *</Label>
-                      <Input
-                        id="description"
-                        placeholder="Ex. Number of RSVP'd hackers"
-                        value={saveForm.description}
-                        onChange={(e) => setSaveForm(prev => ({ ...prev, description: e.target.value }))}
-                      />
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="tags">Tags (comma-separated)</Label>
-                      <Input
-                        id="tags"
-                        placeholder="e.g. accepted, nwHacks"
-                        value={saveForm.tags}
-                        onChange={(e) => setSaveForm(prev => ({ ...prev, tags: e.target.value }))}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="isPublic"
-                        checked={saveForm.isPublic}
-                        onCheckedChange={(checked) => setSaveForm(prev => ({ ...prev, isPublic: checked }))}
-                      />
-                      <Label htmlFor="isPublic">Make this query public (visible to all organizers)</Label>
-                    </div>
+            {!hasCurrentQueryData ? (
+              <div className="mt-4 py-8 text-center text-muted-foreground">
+                <p>No query configuration to save.</p>
+                <p className="text-sm">
+                  Set up some filters, select columns, or configure sorting first.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="mt-4 mb-6 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description *</Label>
+                    <Input
+                      id="description"
+                      placeholder="Ex. Number of RSVP'd hackers"
+                      value={saveForm.description}
+                      onChange={(e) =>
+                        setSaveForm((prev) => ({ ...prev, description: e.target.value }))
+                      }
+                    />
                   </div>
 
-                  <div className="mb-6 space-y-4">
-                    <div className="flex items-center gap-2 font-medium text-sm">
-                      <CodeIcon className="h-4 w-4" />
-                      Current Query Preview
-                    </div>
-                    <div className="max-h-[140px] overflow-x-auto rounded-md bg-muted p-4 font-mono text-sm">
-                      <pre className="whitespace-pre-wrap text-muted-foreground">
-                        {getCurrentQueryString()}
-                      </pre>
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (comma-separated)</Label>
+                    <Input
+                      id="tags"
+                      placeholder="e.g. accepted, nwHacks"
+                      value={saveForm.tags}
+                      onChange={(e) => setSaveForm((prev) => ({ ...prev, tags: e.target.value }))}
+                    />
                   </div>
-                  
-                  <Button 
-                    onClick={handleSaveCurrentQuery} 
-                    className="w-full"
-                    disabled={isSaving || !saveForm.description.trim()}
-                  >
-                    {isSaving ? (
-                      <>
-                        <div className="mr-2 h-4 w-4">
-                          <Loading />
-                        </div>
-                        Saving...
-                      </>
-                    ) : (
-                      <>
-                        <PlusIcon className="mr-2 h-4 w-4" />
-                        Save Current Query
-                      </>
-                    )}
-                  </Button>
-                </>
-              )}
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="isPublic"
+                      checked={saveForm.isPublic}
+                      onCheckedChange={(checked) =>
+                        setSaveForm((prev) => ({ ...prev, isPublic: checked }))
+                      }
+                    />
+                    <Label htmlFor="isPublic">
+                      Make this query public (visible to all organizers)
+                    </Label>
+                  </div>
+                </div>
+
+                <div className="mb-6 space-y-4">
+                  <div className="flex items-center gap-2 font-medium text-sm">
+                    <CodeIcon className="h-4 w-4" />
+                    Current Query Preview
+                  </div>
+                  <div className="max-h-[140px] overflow-x-auto rounded-md bg-muted p-4 font-mono text-sm">
+                    <pre className="whitespace-pre-wrap text-muted-foreground">
+                      {getCurrentQueryString()}
+                    </pre>
+                  </div>
+                </div>
+
+                <Button
+                  onClick={handleSaveCurrentQuery}
+                  className="w-full"
+                  disabled={isSaving || !saveForm.description.trim()}
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="mr-2 h-4 w-4">
+                        <Loading />
+                      </div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <PlusIcon className="mr-2 h-4 w-4" />
+                      Save Current Query
+                    </>
+                  )}
+                </Button>
+              </>
+            )}
           </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
   );
-} 
+}

@@ -18,10 +18,12 @@ export function QueryFilters({ availableColumns }: QueryFiltersProps) {
     filterSelections,
     onFilterAdd,
     onFilterRemove,
+    onFilterUpdate,
     onFilterOperatorChange,
     sorting,
     onSortingChange,
     applicants,
+    columnValueOptions,
   } = useQuery();
 
   const handleColumnsChange = (columns: string[]) => {
@@ -112,9 +114,11 @@ export function QueryFilters({ availableColumns }: QueryFiltersProps) {
           <FilterRows
             columns={columns}
             columnTypes={columnTypes}
+            columnValueOptions={columnValueOptions}
             filterSelections={filterSelections}
             onAddFilter={onFilterAdd}
             onRemoveFilter={onFilterRemove}
+            onFilterUpdate={onFilterUpdate}
             onFilterOperatorChange={onFilterOperatorChange}
           />
         </div>

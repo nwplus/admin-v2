@@ -1,7 +1,7 @@
-import { Check, Pencil } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
 import { useFactotum } from "@/providers/factotum-provider";
+import { Check, Pencil } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function EditInput({
   value,

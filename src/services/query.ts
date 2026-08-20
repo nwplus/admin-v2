@@ -115,6 +115,8 @@ export const flattenApplicantData = (
 
     // Terms and conditions
     MLHCodeOfConduct: applicant.termsAndConditions?.MLHCodeOfConduct || false,
+    MLHPrivacyPolicy: applicant.termsAndConditions?.MLHPrivacyPolicy || false,
+    MLHEmailSubscription: applicant.termsAndConditions?.MLHEmailSubscription || false,
     nwPlusPrivacyPolicy: applicant.termsAndConditions?.nwPlusPrivacyPolicy || false,
     shareWithSponsors: applicant.termsAndConditions?.shareWithSponsors || false,
     shareWithnwPlus: applicant.termsAndConditions?.shareWithnwPlus || false,
@@ -328,6 +330,62 @@ export interface FlattenedApplicant {
 
   [key: string]: string | number | boolean | Date | null | Record<string, boolean> | undefined; // extra keys for group-by results
 }
+
+export const CATEGORICAL_COLUMNS: ReadonlySet<string> = new Set([
+  "applicationStatus",
+  "educationLevel",
+  "major",
+  "role",
+  "dietaryRestriction",
+  "culturalBackground",
+  "school",
+  "gender",
+  "countryOfResidence",
+  "academicYear",
+  "canadianStatus",
+  "disability",
+  "haveTransExperience",
+  "indigenousIdentification",
+  "jobPosition",
+  "travellingToHackathon",
+  "engagementSource",
+  "ageByHackathon",
+  "graduation",
+]);
+
+export const MULTI_VALUE_COLUMNS: ReadonlySet<string> = new Set([
+  "major",
+  "gender",
+  "dietaryRestriction",
+  "culturalBackground",
+  "role",
+  "engagementSource",
+]);
+
+export const extractColumnValues = (applicants: FlattenedApplicant[]): Record<string, string[]> => {
+  const result: Record<string, string[]> = {};
+  for (const column of CATEGORICAL_COLUMNS) {
+    const values = new Set<string>();
+    const isMultiValue = MULTI_VALUE_COLUMNS.has(column);
+    for (const applicant of applicants) {
+      const raw = applicant[column];
+      if (raw === null || raw === undefined) continue;
+      if (isMultiValue) {
+        for (const token of String(raw).split(",")) {
+          const trimmed = token.trim();
+          if (trimmed) values.add(trimmed);
+        }
+      } else {
+        const trimmed = String(raw).trim();
+        if (trimmed) values.add(trimmed);
+      }
+    }
+    result[column] = [...values].sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: "base" }),
+    );
+  }
+  return result;
+};
 
 /**
  * Calculates all hackers' points from day-of events asynchronously

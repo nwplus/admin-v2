@@ -2,15 +2,15 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
+import { useQuery } from "@/providers/query-provider";
+import type { FlattenedApplicant } from "@/services/query";
+import { FileBarChart } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { FileBarChart } from "lucide-react";
-import type { FlattenedApplicant } from "@/services/query";
-import { useQuery } from "@/providers/query-provider";
 
 /**
  * Provides a button to randomly select a winner from accepted, attending applicants.

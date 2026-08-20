@@ -8,264 +8,357 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteRouteImport } from './routes/_auth/route'
+import { Route as SigninRouteImport } from './routes/signin'
+import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as AuthEvaluatorRouteImport } from './routes/_auth/evaluator'
+import { Route as AuthFactotumRouteImport } from './routes/_auth/factotum'
+import { Route as AuthFaqRouteImport } from './routes/_auth/faq'
+import { Route as AuthQueryRouteImport } from './routes/_auth/query'
+import { Route as AuthStatusChangerRouteImport } from './routes/_auth/status-changer'
+import { Route as AuthHackathonsHackathonIdRouteRouteImport } from './routes/_auth/hackathons/$hackathonId/route'
+import { Route as AuthStampbookIndexRouteImport } from './routes/_auth/stampbook/index'
+import { Route as AuthStampbookRaffleRouteImport } from './routes/_auth/stampbook/raffle'
+import { Route as AuthHackathonsHackathonIdIndexRouteImport } from './routes/_auth/hackathons/$hackathonId/index'
+import { Route as AuthHackathonsHackathonIdApplicationRouteImport } from './routes/_auth/hackathons/$hackathonId/application'
+import { Route as AuthHackathonsHackathonIdRewardsRouteImport } from './routes/_auth/hackathons/$hackathonId/rewards'
+import { Route as AuthHackathonsHackathonIdScheduleRouteImport } from './routes/_auth/hackathons/$hackathonId/schedule'
+import { Route as AuthHackathonsHackathonIdSettingsRouteImport } from './routes/_auth/hackathons/$hackathonId/settings'
+import { Route as AuthHackathonsHackathonIdSponsorsRouteImport } from './routes/_auth/hackathons/$hackathonId/sponsors'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as SigninImport } from './routes/signin'
-import { Route as AuthRouteImport } from './routes/_auth/route'
-import { Route as AuthIndexImport } from './routes/_auth/index'
-import { Route as AuthStatusChangerImport } from './routes/_auth/status-changer'
-import { Route as AuthQueryImport } from './routes/_auth/query'
-import { Route as AuthFaqImport } from './routes/_auth/faq'
-import { Route as AuthFactotumImport } from './routes/_auth/factotum'
-import { Route as AuthEvaluatorImport } from './routes/_auth/evaluator'
-import { Route as AuthStampbookIndexImport } from './routes/_auth/stampbook/index'
-import { Route as AuthStampbookRaffleImport } from './routes/_auth/stampbook/raffle'
-import { Route as AuthHackathonsHackathonIdRouteImport } from './routes/_auth/hackathons/$hackathonId/route'
-import { Route as AuthHackathonsHackathonIdIndexImport } from './routes/_auth/hackathons/$hackathonId/index'
-import { Route as AuthHackathonsHackathonIdSponsorsImport } from './routes/_auth/hackathons/$hackathonId/sponsors'
-import { Route as AuthHackathonsHackathonIdSettingsImport } from './routes/_auth/hackathons/$hackathonId/settings'
-import { Route as AuthHackathonsHackathonIdScheduleImport } from './routes/_auth/hackathons/$hackathonId/schedule'
-import { Route as AuthHackathonsHackathonIdRewardsImport } from './routes/_auth/hackathons/$hackathonId/rewards'
-import { Route as AuthHackathonsHackathonIdApplicationImport } from './routes/_auth/hackathons/$hackathonId/application'
-
-// Create/Update Routes
-
-const SigninRoute = SigninImport.update({
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigninRoute = SigninRouteImport.update({
   id: '/signin',
   path: '/signin',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthRouteRoute = AuthRouteImport.update({
-  id: '/_auth',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AuthIndexRoute = AuthIndexImport.update({
+const AuthIndexRoute = AuthIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthStatusChangerRoute = AuthStatusChangerImport.update({
-  id: '/status-changer',
-  path: '/status-changer',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
-const AuthQueryRoute = AuthQueryImport.update({
-  id: '/query',
-  path: '/query',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
-const AuthFaqRoute = AuthFaqImport.update({
-  id: '/faq',
-  path: '/faq',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
-const AuthFactotumRoute = AuthFactotumImport.update({
-  id: '/factotum',
-  path: '/factotum',
-  getParentRoute: () => AuthRouteRoute,
-} as any)
-
-const AuthEvaluatorRoute = AuthEvaluatorImport.update({
+const AuthEvaluatorRoute = AuthEvaluatorRouteImport.update({
   id: '/evaluator',
   path: '/evaluator',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthStampbookIndexRoute = AuthStampbookIndexImport.update({
-  id: '/stampbook/',
-  path: '/stampbook/',
+const AuthFactotumRoute = AuthFactotumRouteImport.update({
+  id: '/factotum',
+  path: '/factotum',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
-const AuthStampbookRaffleRoute = AuthStampbookRaffleImport.update({
-  id: '/stampbook/raffle',
-  path: '/stampbook/raffle',
+const AuthFaqRoute = AuthFaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-
+const AuthQueryRoute = AuthQueryRouteImport.update({
+  id: '/query',
+  path: '/query',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthStatusChangerRoute = AuthStatusChangerRouteImport.update({
+  id: '/status-changer',
+  path: '/status-changer',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthHackathonsHackathonIdRouteRoute =
-  AuthHackathonsHackathonIdRouteImport.update({
+  AuthHackathonsHackathonIdRouteRouteImport.update({
     id: '/hackathons/$hackathonId',
     path: '/hackathons/$hackathonId',
     getParentRoute: () => AuthRouteRoute,
   } as any)
-
+const AuthStampbookIndexRoute = AuthStampbookIndexRouteImport.update({
+  id: '/stampbook/',
+  path: '/stampbook/',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthStampbookRaffleRoute = AuthStampbookRaffleRouteImport.update({
+  id: '/stampbook/raffle',
+  path: '/stampbook/raffle',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
 const AuthHackathonsHackathonIdIndexRoute =
-  AuthHackathonsHackathonIdIndexImport.update({
+  AuthHackathonsHackathonIdIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
   } as any)
-
+const AuthHackathonsHackathonIdApplicationRoute =
+  AuthHackathonsHackathonIdApplicationRouteImport.update({
+    id: '/application',
+    path: '/application',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
+  } as any)
+const AuthHackathonsHackathonIdRewardsRoute =
+  AuthHackathonsHackathonIdRewardsRouteImport.update({
+    id: '/rewards',
+    path: '/rewards',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
+  } as any)
+const AuthHackathonsHackathonIdScheduleRoute =
+  AuthHackathonsHackathonIdScheduleRouteImport.update({
+    id: '/schedule',
+    path: '/schedule',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
+  } as any)
+const AuthHackathonsHackathonIdSettingsRoute =
+  AuthHackathonsHackathonIdSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
+  } as any)
 const AuthHackathonsHackathonIdSponsorsRoute =
-  AuthHackathonsHackathonIdSponsorsImport.update({
+  AuthHackathonsHackathonIdSponsorsRouteImport.update({
     id: '/sponsors',
     path: '/sponsors',
     getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
   } as any)
 
-const AuthHackathonsHackathonIdSettingsRoute =
-  AuthHackathonsHackathonIdSettingsImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
-  } as any)
-
-const AuthHackathonsHackathonIdScheduleRoute =
-  AuthHackathonsHackathonIdScheduleImport.update({
-    id: '/schedule',
-    path: '/schedule',
-    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
-  } as any)
-
-const AuthHackathonsHackathonIdRewardsRoute =
-  AuthHackathonsHackathonIdRewardsImport.update({
-    id: '/rewards',
-    path: '/rewards',
-    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
-  } as any)
-
-const AuthHackathonsHackathonIdApplicationRoute =
-  AuthHackathonsHackathonIdApplicationImport.update({
-    id: '/application',
-    path: '/application',
-    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
-  } as any)
-
-// Populate the FileRoutesByPath interface
+export interface FileRoutesByFullPath {
+  '/': typeof AuthIndexRoute
+  '/signin': typeof SigninRoute
+  '/evaluator': typeof AuthEvaluatorRoute
+  '/factotum': typeof AuthFactotumRoute
+  '/faq': typeof AuthFaqRoute
+  '/query': typeof AuthQueryRoute
+  '/status-changer': typeof AuthStatusChangerRoute
+  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
+  '/stampbook/raffle': typeof AuthStampbookRaffleRoute
+  '/stampbook/': typeof AuthStampbookIndexRoute
+  '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
+  '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
+  '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
+  '/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
+  '/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
+  '/hackathons/$hackathonId/': typeof AuthHackathonsHackathonIdIndexRoute
+}
+export interface FileRoutesByTo {
+  '/signin': typeof SigninRoute
+  '/evaluator': typeof AuthEvaluatorRoute
+  '/factotum': typeof AuthFactotumRoute
+  '/faq': typeof AuthFaqRoute
+  '/query': typeof AuthQueryRoute
+  '/status-changer': typeof AuthStatusChangerRoute
+  '/': typeof AuthIndexRoute
+  '/stampbook/raffle': typeof AuthStampbookRaffleRoute
+  '/stampbook': typeof AuthStampbookIndexRoute
+  '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
+  '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
+  '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
+  '/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
+  '/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
+  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdIndexRoute
+}
+export interface FileRoutesById {
+  __root__: typeof rootRouteImport
+  '/_auth': typeof AuthRouteRouteWithChildren
+  '/signin': typeof SigninRoute
+  '/_auth/evaluator': typeof AuthEvaluatorRoute
+  '/_auth/factotum': typeof AuthFactotumRoute
+  '/_auth/faq': typeof AuthFaqRoute
+  '/_auth/query': typeof AuthQueryRoute
+  '/_auth/status-changer': typeof AuthStatusChangerRoute
+  '/_auth/': typeof AuthIndexRoute
+  '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
+  '/_auth/stampbook/raffle': typeof AuthStampbookRaffleRoute
+  '/_auth/stampbook/': typeof AuthStampbookIndexRoute
+  '/_auth/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
+  '/_auth/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
+  '/_auth/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
+  '/_auth/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
+  '/_auth/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
+  '/_auth/hackathons/$hackathonId/': typeof AuthHackathonsHackathonIdIndexRoute
+}
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/signin'
+    | '/evaluator'
+    | '/factotum'
+    | '/faq'
+    | '/query'
+    | '/status-changer'
+    | '/hackathons/$hackathonId'
+    | '/stampbook/raffle'
+    | '/stampbook/'
+    | '/hackathons/$hackathonId/application'
+    | '/hackathons/$hackathonId/rewards'
+    | '/hackathons/$hackathonId/schedule'
+    | '/hackathons/$hackathonId/settings'
+    | '/hackathons/$hackathonId/sponsors'
+    | '/hackathons/$hackathonId/'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/signin'
+    | '/evaluator'
+    | '/factotum'
+    | '/faq'
+    | '/query'
+    | '/status-changer'
+    | '/'
+    | '/stampbook/raffle'
+    | '/stampbook'
+    | '/hackathons/$hackathonId/application'
+    | '/hackathons/$hackathonId/rewards'
+    | '/hackathons/$hackathonId/schedule'
+    | '/hackathons/$hackathonId/settings'
+    | '/hackathons/$hackathonId/sponsors'
+    | '/hackathons/$hackathonId'
+  id:
+    | '__root__'
+    | '/_auth'
+    | '/signin'
+    | '/_auth/evaluator'
+    | '/_auth/factotum'
+    | '/_auth/faq'
+    | '/_auth/query'
+    | '/_auth/status-changer'
+    | '/_auth/'
+    | '/_auth/hackathons/$hackathonId'
+    | '/_auth/stampbook/raffle'
+    | '/_auth/stampbook/'
+    | '/_auth/hackathons/$hackathonId/application'
+    | '/_auth/hackathons/$hackathonId/rewards'
+    | '/_auth/hackathons/$hackathonId/schedule'
+    | '/_auth/hackathons/$hackathonId/settings'
+    | '/_auth/hackathons/$hackathonId/sponsors'
+    | '/_auth/hackathons/$hackathonId/'
+  fileRoutesById: FileRoutesById
+}
+export interface RootRouteChildren {
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  SigninRoute: typeof SigninRoute
+}
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/_auth': {
       id: '/_auth'
       path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRoute
+      fullPath: '/'
+      preLoaderRoute: typeof AuthRouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/signin': {
       id: '/signin'
       path: '/signin'
       fullPath: '/signin'
-      preLoaderRoute: typeof SigninImport
-      parentRoute: typeof rootRoute
-    }
-    '/_auth/evaluator': {
-      id: '/_auth/evaluator'
-      path: '/evaluator'
-      fullPath: '/evaluator'
-      preLoaderRoute: typeof AuthEvaluatorImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/_auth/factotum': {
-      id: '/_auth/factotum'
-      path: '/factotum'
-      fullPath: '/factotum'
-      preLoaderRoute: typeof AuthFactotumImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/_auth/faq': {
-      id: '/_auth/faq'
-      path: '/faq'
-      fullPath: '/faq'
-      preLoaderRoute: typeof AuthFaqImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/_auth/query': {
-      id: '/_auth/query'
-      path: '/query'
-      fullPath: '/query'
-      preLoaderRoute: typeof AuthQueryImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/_auth/status-changer': {
-      id: '/_auth/status-changer'
-      path: '/status-changer'
-      fullPath: '/status-changer'
-      preLoaderRoute: typeof AuthStatusChangerImport
-      parentRoute: typeof AuthRouteImport
+      preLoaderRoute: typeof SigninRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/': {
       id: '/_auth/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthIndexImport
-      parentRoute: typeof AuthRouteImport
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/evaluator': {
+      id: '/_auth/evaluator'
+      path: '/evaluator'
+      fullPath: '/evaluator'
+      preLoaderRoute: typeof AuthEvaluatorRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/factotum': {
+      id: '/_auth/factotum'
+      path: '/factotum'
+      fullPath: '/factotum'
+      preLoaderRoute: typeof AuthFactotumRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/faq': {
+      id: '/_auth/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof AuthFaqRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/query': {
+      id: '/_auth/query'
+      path: '/query'
+      fullPath: '/query'
+      preLoaderRoute: typeof AuthQueryRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/status-changer': {
+      id: '/_auth/status-changer'
+      path: '/status-changer'
+      fullPath: '/status-changer'
+      preLoaderRoute: typeof AuthStatusChangerRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/_auth/hackathons/$hackathonId': {
       id: '/_auth/hackathons/$hackathonId'
       path: '/hackathons/$hackathonId'
       fullPath: '/hackathons/$hackathonId'
-      preLoaderRoute: typeof AuthHackathonsHackathonIdRouteImport
-      parentRoute: typeof AuthRouteImport
+      preLoaderRoute: typeof AuthHackathonsHackathonIdRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/stampbook/': {
+      id: '/_auth/stampbook/'
+      path: '/stampbook'
+      fullPath: '/stampbook/'
+      preLoaderRoute: typeof AuthStampbookIndexRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/_auth/stampbook/raffle': {
       id: '/_auth/stampbook/raffle'
       path: '/stampbook/raffle'
       fullPath: '/stampbook/raffle'
-      preLoaderRoute: typeof AuthStampbookRaffleImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/_auth/stampbook/': {
-      id: '/_auth/stampbook/'
-      path: '/stampbook'
-      fullPath: '/stampbook'
-      preLoaderRoute: typeof AuthStampbookIndexImport
-      parentRoute: typeof AuthRouteImport
-    }
-    '/_auth/hackathons/$hackathonId/application': {
-      id: '/_auth/hackathons/$hackathonId/application'
-      path: '/application'
-      fullPath: '/hackathons/$hackathonId/application'
-      preLoaderRoute: typeof AuthHackathonsHackathonIdApplicationImport
-      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
-    }
-    '/_auth/hackathons/$hackathonId/rewards': {
-      id: '/_auth/hackathons/$hackathonId/rewards'
-      path: '/rewards'
-      fullPath: '/hackathons/$hackathonId/rewards'
-      preLoaderRoute: typeof AuthHackathonsHackathonIdRewardsImport
-      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
-    }
-    '/_auth/hackathons/$hackathonId/schedule': {
-      id: '/_auth/hackathons/$hackathonId/schedule'
-      path: '/schedule'
-      fullPath: '/hackathons/$hackathonId/schedule'
-      preLoaderRoute: typeof AuthHackathonsHackathonIdScheduleImport
-      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
-    }
-    '/_auth/hackathons/$hackathonId/settings': {
-      id: '/_auth/hackathons/$hackathonId/settings'
-      path: '/settings'
-      fullPath: '/hackathons/$hackathonId/settings'
-      preLoaderRoute: typeof AuthHackathonsHackathonIdSettingsImport
-      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
-    }
-    '/_auth/hackathons/$hackathonId/sponsors': {
-      id: '/_auth/hackathons/$hackathonId/sponsors'
-      path: '/sponsors'
-      fullPath: '/hackathons/$hackathonId/sponsors'
-      preLoaderRoute: typeof AuthHackathonsHackathonIdSponsorsImport
-      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
+      preLoaderRoute: typeof AuthStampbookRaffleRouteImport
+      parentRoute: typeof AuthRouteRoute
     }
     '/_auth/hackathons/$hackathonId/': {
       id: '/_auth/hackathons/$hackathonId/'
       path: '/'
       fullPath: '/hackathons/$hackathonId/'
-      preLoaderRoute: typeof AuthHackathonsHackathonIdIndexImport
-      parentRoute: typeof AuthHackathonsHackathonIdRouteImport
+      preLoaderRoute: typeof AuthHackathonsHackathonIdIndexRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
+    }
+    '/_auth/hackathons/$hackathonId/application': {
+      id: '/_auth/hackathons/$hackathonId/application'
+      path: '/application'
+      fullPath: '/hackathons/$hackathonId/application'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdApplicationRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
+    }
+    '/_auth/hackathons/$hackathonId/rewards': {
+      id: '/_auth/hackathons/$hackathonId/rewards'
+      path: '/rewards'
+      fullPath: '/hackathons/$hackathonId/rewards'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdRewardsRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
+    }
+    '/_auth/hackathons/$hackathonId/schedule': {
+      id: '/_auth/hackathons/$hackathonId/schedule'
+      path: '/schedule'
+      fullPath: '/hackathons/$hackathonId/schedule'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdScheduleRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
+    }
+    '/_auth/hackathons/$hackathonId/settings': {
+      id: '/_auth/hackathons/$hackathonId/settings'
+      path: '/settings'
+      fullPath: '/hackathons/$hackathonId/settings'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdSettingsRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
+    }
+    '/_auth/hackathons/$hackathonId/sponsors': {
+      id: '/_auth/hackathons/$hackathonId/sponsors'
+      path: '/sponsors'
+      fullPath: '/hackathons/$hackathonId/sponsors'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdSponsorsRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
     }
   }
 }
-
-// Create and export the route tree
 
 interface AuthHackathonsHackathonIdRouteRouteChildren {
   AuthHackathonsHackathonIdApplicationRoute: typeof AuthHackathonsHackathonIdApplicationRoute
@@ -325,233 +418,10 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
   AuthRouteRouteChildren,
 )
 
-export interface FileRoutesByFullPath {
-  '': typeof AuthRouteRouteWithChildren
-  '/signin': typeof SigninRoute
-  '/evaluator': typeof AuthEvaluatorRoute
-  '/factotum': typeof AuthFactotumRoute
-  '/faq': typeof AuthFaqRoute
-  '/query': typeof AuthQueryRoute
-  '/status-changer': typeof AuthStatusChangerRoute
-  '/': typeof AuthIndexRoute
-  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
-  '/stampbook/raffle': typeof AuthStampbookRaffleRoute
-  '/stampbook': typeof AuthStampbookIndexRoute
-  '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
-  '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
-  '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
-  '/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
-  '/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
-  '/hackathons/$hackathonId/': typeof AuthHackathonsHackathonIdIndexRoute
-}
-
-export interface FileRoutesByTo {
-  '/signin': typeof SigninRoute
-  '/evaluator': typeof AuthEvaluatorRoute
-  '/factotum': typeof AuthFactotumRoute
-  '/faq': typeof AuthFaqRoute
-  '/query': typeof AuthQueryRoute
-  '/status-changer': typeof AuthStatusChangerRoute
-  '/': typeof AuthIndexRoute
-  '/stampbook/raffle': typeof AuthStampbookRaffleRoute
-  '/stampbook': typeof AuthStampbookIndexRoute
-  '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
-  '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
-  '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
-  '/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
-  '/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
-  '/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdIndexRoute
-}
-
-export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/_auth': typeof AuthRouteRouteWithChildren
-  '/signin': typeof SigninRoute
-  '/_auth/evaluator': typeof AuthEvaluatorRoute
-  '/_auth/factotum': typeof AuthFactotumRoute
-  '/_auth/faq': typeof AuthFaqRoute
-  '/_auth/query': typeof AuthQueryRoute
-  '/_auth/status-changer': typeof AuthStatusChangerRoute
-  '/_auth/': typeof AuthIndexRoute
-  '/_auth/hackathons/$hackathonId': typeof AuthHackathonsHackathonIdRouteRouteWithChildren
-  '/_auth/stampbook/raffle': typeof AuthStampbookRaffleRoute
-  '/_auth/stampbook/': typeof AuthStampbookIndexRoute
-  '/_auth/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
-  '/_auth/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
-  '/_auth/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
-  '/_auth/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
-  '/_auth/hackathons/$hackathonId/sponsors': typeof AuthHackathonsHackathonIdSponsorsRoute
-  '/_auth/hackathons/$hackathonId/': typeof AuthHackathonsHackathonIdIndexRoute
-}
-
-export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | ''
-    | '/signin'
-    | '/evaluator'
-    | '/factotum'
-    | '/faq'
-    | '/query'
-    | '/status-changer'
-    | '/'
-    | '/hackathons/$hackathonId'
-    | '/stampbook/raffle'
-    | '/stampbook'
-    | '/hackathons/$hackathonId/application'
-    | '/hackathons/$hackathonId/rewards'
-    | '/hackathons/$hackathonId/schedule'
-    | '/hackathons/$hackathonId/settings'
-    | '/hackathons/$hackathonId/sponsors'
-    | '/hackathons/$hackathonId/'
-  fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/signin'
-    | '/evaluator'
-    | '/factotum'
-    | '/faq'
-    | '/query'
-    | '/status-changer'
-    | '/'
-    | '/stampbook/raffle'
-    | '/stampbook'
-    | '/hackathons/$hackathonId/application'
-    | '/hackathons/$hackathonId/rewards'
-    | '/hackathons/$hackathonId/schedule'
-    | '/hackathons/$hackathonId/settings'
-    | '/hackathons/$hackathonId/sponsors'
-    | '/hackathons/$hackathonId'
-  id:
-    | '__root__'
-    | '/_auth'
-    | '/signin'
-    | '/_auth/evaluator'
-    | '/_auth/factotum'
-    | '/_auth/faq'
-    | '/_auth/query'
-    | '/_auth/status-changer'
-    | '/_auth/'
-    | '/_auth/hackathons/$hackathonId'
-    | '/_auth/stampbook/raffle'
-    | '/_auth/stampbook/'
-    | '/_auth/hackathons/$hackathonId/application'
-    | '/_auth/hackathons/$hackathonId/rewards'
-    | '/_auth/hackathons/$hackathonId/schedule'
-    | '/_auth/hackathons/$hackathonId/settings'
-    | '/_auth/hackathons/$hackathonId/sponsors'
-    | '/_auth/hackathons/$hackathonId/'
-  fileRoutesById: FileRoutesById
-}
-
-export interface RootRouteChildren {
-  AuthRouteRoute: typeof AuthRouteRouteWithChildren
-  SigninRoute: typeof SigninRoute
-}
-
 const rootRouteChildren: RootRouteChildren = {
   AuthRouteRoute: AuthRouteRouteWithChildren,
   SigninRoute: SigninRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_auth",
-        "/signin"
-      ]
-    },
-    "/_auth": {
-      "filePath": "_auth/route.tsx",
-      "children": [
-        "/_auth/evaluator",
-        "/_auth/factotum",
-        "/_auth/faq",
-        "/_auth/query",
-        "/_auth/status-changer",
-        "/_auth/",
-        "/_auth/hackathons/$hackathonId",
-        "/_auth/stampbook/raffle",
-        "/_auth/stampbook/"
-      ]
-    },
-    "/signin": {
-      "filePath": "signin.tsx"
-    },
-    "/_auth/evaluator": {
-      "filePath": "_auth/evaluator.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/factotum": {
-      "filePath": "_auth/factotum.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/faq": {
-      "filePath": "_auth/faq.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/query": {
-      "filePath": "_auth/query.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/status-changer": {
-      "filePath": "_auth/status-changer.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/": {
-      "filePath": "_auth/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/hackathons/$hackathonId": {
-      "filePath": "_auth/hackathons/$hackathonId/route.tsx",
-      "parent": "/_auth",
-      "children": [
-        "/_auth/hackathons/$hackathonId/application",
-        "/_auth/hackathons/$hackathonId/rewards",
-        "/_auth/hackathons/$hackathonId/schedule",
-        "/_auth/hackathons/$hackathonId/settings",
-        "/_auth/hackathons/$hackathonId/sponsors",
-        "/_auth/hackathons/$hackathonId/"
-      ]
-    },
-    "/_auth/stampbook/raffle": {
-      "filePath": "_auth/stampbook/raffle.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/stampbook/": {
-      "filePath": "_auth/stampbook/index.tsx",
-      "parent": "/_auth"
-    },
-    "/_auth/hackathons/$hackathonId/application": {
-      "filePath": "_auth/hackathons/$hackathonId/application.tsx",
-      "parent": "/_auth/hackathons/$hackathonId"
-    },
-    "/_auth/hackathons/$hackathonId/rewards": {
-      "filePath": "_auth/hackathons/$hackathonId/rewards.tsx",
-      "parent": "/_auth/hackathons/$hackathonId"
-    },
-    "/_auth/hackathons/$hackathonId/schedule": {
-      "filePath": "_auth/hackathons/$hackathonId/schedule.tsx",
-      "parent": "/_auth/hackathons/$hackathonId"
-    },
-    "/_auth/hackathons/$hackathonId/settings": {
-      "filePath": "_auth/hackathons/$hackathonId/settings.tsx",
-      "parent": "/_auth/hackathons/$hackathonId"
-    },
-    "/_auth/hackathons/$hackathonId/sponsors": {
-      "filePath": "_auth/hackathons/$hackathonId/sponsors.tsx",
-      "parent": "/_auth/hackathons/$hackathonId"
-    },
-    "/_auth/hackathons/$hackathonId/": {
-      "filePath": "_auth/hackathons/$hackathonId/index.tsx",
-      "parent": "/_auth/hackathons/$hackathonId"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

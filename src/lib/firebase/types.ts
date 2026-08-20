@@ -43,7 +43,12 @@ export type ApplicationStatus =
   | "acceptedAndAttending"
   | "acceptedUnRSVP";
 
-export type FAQCategory = "General" | "Logistics" | "Teams & Projects" | "Miscellaneous";
+export type FAQCategory =
+  | "General"
+  | "Logistics"
+  | "Projects"
+  | "Teams & Projects"
+  | "Miscellaneous";
 type ApplicantContributionRole = "developer" | "designer" | "productManager" | "other";
 export type ApplicantContribution = Record<ApplicantContributionRole, boolean>;
 
@@ -283,6 +288,8 @@ export interface Applicant {
   };
   termsAndConditions?: {
     MLHCodeOfConduct?: boolean;
+    MLHPrivacyPolicy?: boolean;
+    MLHEmailSubscription?: boolean;
     nwPlusPrivacyPolicy?: boolean;
     shareWithSponsors?: boolean;
     shareWithnwPlus?: boolean;
@@ -713,4 +720,35 @@ export interface RaffleEntrant {
   preferredName: string;
   lastName: string;
   entries: number;
+}
+
+/**
+ * Document shape for each entry doc in the
+ * Hackathons/blacklist/entries Firestore subcollection.
+ */
+export interface BlacklistEntry {
+  /** Stored as-is; comparison is always done case-insensitively at runtime. */
+  email: string;
+  firstName: string;
+  lastName: string;
+  /** The hackathon slug / name where the ban was issued. */
+  bannedHackathon?: string;
+  /** Optional free-text notes visible to evaluators. */
+  notes?: string;
+}
+
+/**
+ * Produced at runtime by matchApplicantsToBlacklist().
+ * Joins the applicant record with the blacklist entry so the
+ * UI can render all required fields without mutating Firestore.
+ */
+export interface BlacklistMatch {
+  /** The matched applicant's Firestore document ID. */
+  applicantId: string;
+  /** Full display name resolved from basicInfo. */
+  applicantName: string;
+  /** Normalised email (lowercased + trimmed). */
+  email: string;
+  /** The blacklist record that produced this match. */
+  entry: BlacklistEntry;
 }

@@ -1,8 +1,8 @@
-import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
-import { subscribeToApplicants, flattenApplicantData } from "@/services/query";
-import type { FlattenedApplicant } from "@/services/query";
 import type { Hackathon } from "@/lib/firebase/types";
+import { flattenApplicantData, subscribeToApplicants } from "@/services/query";
+import type { FlattenedApplicant } from "@/services/query";
+import { type ReactNode, createContext, useContext, useEffect, useState } from "react";
 
 export interface ApplicantContextType {
   hackathons: Hackathon[];

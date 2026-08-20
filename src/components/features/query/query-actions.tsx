@@ -1,28 +1,23 @@
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useQuery } from "@/providers/query-provider";
+import type { FlattenedApplicant } from "@/services/query";
+import { Download, FileBarChart, MoreVertical } from "lucide-react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
-import { Download, FileBarChart, MoreVertical } from "lucide-react";
-import type { FlattenedApplicant } from "@/services/query";
-import { useQuery } from "@/providers/query-provider";
 
 /**
  * Dropdown menu combining Export and Raffle actions
@@ -65,7 +60,7 @@ export function QueryActions() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     toast.success("CSV file downloaded successfully");
   }, [tableData, selectedHackathon]);
 
@@ -89,9 +84,9 @@ export function QueryActions() {
   }, [tableData]);
 
   const hasData = tableData.length > 0;
-  const eligibleForRaffle = hasData && tableData.some(
-    (applicant) => applicant.applicationStatus === "acceptedAndAttending"
-  );
+  const eligibleForRaffle =
+    hasData &&
+    tableData.some((applicant) => applicant.applicationStatus === "acceptedAndAttending");
 
   return (
     <>
@@ -100,9 +95,10 @@ export function QueryActions() {
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenuTrigger asChild>
-                <button 
+                <button
                   type="button"
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-100 focus:outline-none">
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-gray-100 focus:outline-none"
+                >
                   <MoreVertical className="h-5 w-5 text-gray-600" />
                   <span className="sr-only">More actions</span>
                 </button>
@@ -155,4 +151,4 @@ export function QueryActions() {
       </Dialog>
     </>
   );
-} 
+}

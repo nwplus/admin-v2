@@ -136,6 +136,7 @@ export function FAQDialog({ open, onClose, activeFaq, hackathons }: FAQDialogPro
                       <SelectItem value="General">General</SelectItem>
                       <SelectItem value="Logistics">Logistics</SelectItem>
                       <SelectItem value="Teams & Projects">Teams & Projects</SelectItem>
+                      <SelectItem value="Projects">Projects</SelectItem>
                       <SelectItem value="Miscellaneous">Miscellaneous</SelectItem>
                     </SelectContent>
                   </Select>

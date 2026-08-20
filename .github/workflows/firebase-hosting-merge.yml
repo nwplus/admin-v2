@@ -1,31 +1,40 @@
-name: Deploy to Firebase Hosting on merge
+name: Deploy Firebase Hosting
+
 on:
   push:
     branches: [main, dev]
+
+permissions:
+  contents: read
+
 jobs:
   build_and_deploy:
+    name: Build and deploy
     runs-on: ubuntu-latest
+    concurrency:
+      group: admin-v2-${{ github.ref_name }}
+      cancel-in-progress: false
     env:
-      IS_PRODUCTION: ${{ endsWith(github.ref, 'main') }}
+      IS_PRODUCTION: ${{ github.ref == 'refs/heads/main' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v6
         with:
-          version: 9.12.3
+          run_install: false
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with: 
-          node-version: '22'
-          cache: 'pnpm'
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Can use secrets manager in GH instead
-      - name: Build Admin!
-        run: pnpm build:staging
+      - name: Build application
+        run: pnpm build
         env:
           VITE_FIREBASE_API_KEY: ${{ env.IS_PRODUCTION == 'true' && secrets.FIREBASE_API_KEY || secrets.DEV_FIREBASE_API_KEY }}
           VITE_FIREBASE_AUTH_DOMAIN: ${{ env.IS_PRODUCTION == 'true' && secrets.FIREBASE_AUTH_DOMAIN || secrets.DEV_FIREBASE_AUTH_DOMAIN }}

@@ -1,0 +1,22 @@
+packages:
+  - "."
+
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - brace-expansion@1.1.18
+trustPolicy: no-downgrade
+trustPolicyIgnoreAfter: 525600
+trustLockfile: false
+blockExoticSubdeps: true
+
+overrides:
+  "brace-expansion@<1.1.18": 1.1.18
+  "tmp@<0.2.7": 0.2.7
+  "uuid@<11.1.1": 11.1.1
+
+allowBuilds:
+  "@biomejs/biome": true
+  "@firebase/util": true
+  "@tailwindcss/oxide": true
+  esbuild: true
+  protobufjs: true

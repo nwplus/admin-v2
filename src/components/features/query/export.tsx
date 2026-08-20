@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@/providers/query-provider";
 import { Download } from "lucide-react";
 import { useCallback } from "react";
-import { useQuery } from "@/providers/query-provider";
 
 /**
  * Provides an button to export queried applicant (table) data to a CSV file.

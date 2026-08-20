@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -8,8 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { X } from "lucide-react";
 import type { SortingState } from "@tanstack/react-table";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface SortByProps {
   columns: string[];

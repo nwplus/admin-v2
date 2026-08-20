@@ -139,10 +139,10 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
       } as HackathonRewards;
 
       const upsertedReward = await upsertReward(
-        activeHackathon, 
-        rewardData, 
-        imageFile, 
-        activeReward?.key
+        activeHackathon,
+        rewardData,
+        imageFile,
+        activeReward?.key,
       );
       if (!upsertedReward) throw new Error("Error upserting a reward");
 
@@ -151,9 +151,7 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
       close();
     } catch (error) {
       console.error("Error upserting a reward", error);
-      toast(
-        `Something went wrong ${activeReward?.key ? "editing" : "creating"} this reward`,
-      );
+      toast(`Something went wrong ${activeReward?.key ? "editing" : "creating"} this reward`);
     } finally {
       setLoading(false);
     }
@@ -171,8 +169,8 @@ export function RewardDialog({ open, onClose, activeReward }: RewardDialogProps)
   };
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onOpenChange={(state) => {
         if (!state) close();
       }}

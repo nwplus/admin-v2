@@ -1,7 +1,7 @@
-import { collection, doc, setDoc, Timestamp, onSnapshot, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/client";
 import { auth } from "@/lib/firebase/client";
 import type { DiscordQuestion } from "@/lib/firebase/types";
+import { Timestamp, collection, deleteDoc, doc, onSnapshot, setDoc } from "firebase/firestore";
 import { query } from "firebase/firestore";
 
 const questionsRef = (server: string) =>
@@ -83,6 +83,6 @@ export const deleteDiscordQuestion = async (server: string, questionId?: string)
       ),
     );
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
 };
