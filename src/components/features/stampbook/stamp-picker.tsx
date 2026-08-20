@@ -14,7 +14,7 @@ interface StampPickerProps {
 }
 
 /**
- * searchable checkbox list of a hackathon's stamps, shared by the raffle and export dialogs
+ * Searchable checkbox list of a hackathon's stamps, shared by the raffle and export dialogs
  */
 export function StampPicker({
   stamps,

@@ -695,6 +695,10 @@ export interface RaffleSettings {
   lastModified?: Timestamp;
   lastModifiedBy?: string;
 }
+
+/**
+ * Derived, never stored: one hacker in the raffle pool, built by `buildRaffleEntrants`
+ */
 export interface RaffleEntrant {
   email: string;
   preferredName: string;

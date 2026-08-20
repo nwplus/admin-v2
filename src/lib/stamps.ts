@@ -14,14 +14,10 @@ export const SOCIALS_NAME_FALLBACK = "User";
 /**
  * Reads the stamp IDs one Socials document has unlocked for a hackathon
  *
- * Interestingly, the portal has written this field a few different ways, so we read all
- * the following:
- * - a flat array
- * - a map keyed by hackathon document ID
- * - a map keyed by hackathon slug
- *
- * @param unlockedStamps the raw `unlockedStamps` field off a Socials document
- * @param hackathonId hackathon ID
+ * The portal has written this field three different ways over the years, so all are read:
+ * a flat array, a map keyed by hackathon document ID, and a map keyed by hackathon slug
+ * @param unlockedStamps - the raw `unlockedStamps` field off a Socials document
+ * @param hackathonId - hackathon ID
  * @returns the stamp IDs this hacker has collected for the hackathon
  */
 export const readUnlockedStamps = (unlockedStamps: unknown, hackathonId: string): string[] => {

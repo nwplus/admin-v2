@@ -35,10 +35,10 @@ export class RaffleSlotTakenError extends Error {
 
 /**
  * Utility function that returns a hackathon's raffle prizes as realtime data
- * @param hackathon hackathon ID
- * @param callback
- * @param onError called when the subscription fails, so the page can say so rather than
- * looking like a hackathon with no prizes set up
+ * @param hackathon - hackathon ID
+ * @param callback - the function used to ingest the data
+ * @param onError - called when the subscription fails, so the page can say so rather than
+ *  looking like a hackathon with no prizes set up
  * @returns a function to be called on dismount
  */
 export const subscribeToRafflePrizes = (
@@ -65,9 +65,9 @@ export const subscribeToRafflePrizes = (
 
 /**
  * Utility function that updates or adds a raffle prize, depending on if an id argument is passed
- * @param hackathon hackathon ID
- * @param prize the prize to upsert
- * @param id optional existing prize ID for updates
+ * @param hackathon - hackathon ID
+ * @param prize - the prize to upsert
+ * @param id - optional existing prize ID for updates
  * @returns the upserted prize document ref
  */
 export const upsertRafflePrize = async (
@@ -99,8 +99,8 @@ export const upsertRafflePrize = async (
 
 /**
  * Deletes a raffle prize
- * @param hackathon hackathon ID
- * @param id the ID of the prize to delete
+ * @param hackathon - hackathon ID
+ * @param id - the ID of the prize to delete
  */
 export const deleteRafflePrize = async (hackathon: string, id: string) => {
   if (!id) return;
@@ -114,10 +114,10 @@ export const deleteRafflePrize = async (hackathon: string, id: string) => {
 
 /**
  * Utility function that returns a hackathon's raffle winners as realtime data, newest first
- * @param hackathon hackathon ID
- * @param callback
- * @param onError called when the subscription fails, so a draw is never run against a
- * winners log that only looks empty
+ * @param hackathon - hackathon ID
+ * @param callback - the function used to ingest the data
+ * @param onError - called when the subscription fails, so a draw is never run against a
+ *  winners log that only looks empty
  * @returns a function to be called on dismount
  */
 export const subscribeToRaffleWinners = (
@@ -143,10 +143,9 @@ export const subscribeToRaffleWinners = (
 
 /**
  * Logs a confirmed raffle winner into one of the prize's slots
- *
- * @param hackathon hackathon ID
- * @param winner the winner to log
- * @param slot the prize slot to claim, from `nextPrizeSlot`
+ * @param hackathon - hackathon ID
+ * @param winner - the winner to log
+ * @param slot - the prize slot to claim, from `nextPrizeSlot`
  * @returns the created winner document ref
  * @throws RaffleSlotTakenError when another draw already claimed the slot
  */
@@ -184,8 +183,8 @@ export const addRaffleWinner = async (
 
 /**
  * Deletes a logged raffle winner, for undoing a mislogged draw
- * @param hackathon hackathon ID
- * @param id the ID of the winner to delete
+ * @param hackathon - hackathon ID
+ * @param id - the ID of the winner to delete
  */
 export const deleteRaffleWinner = async (hackathon: string, id: string) => {
   if (!id) return;
@@ -199,10 +198,10 @@ export const deleteRaffleWinner = async (hackathon: string, id: string) => {
 
 /**
  * Utility function that returns a hackathon's raffle settings as realtime data
- * @param hackathon hackathon ID
- * @param callback
- * @param onError called when the subscription fails, so an unreadable settings document is
- * not mistaken for a raffle with no eligible stamps chosen
+ * @param hackathon - hackathon ID
+ * @param callback - the function used to ingest the data
+ * @param onError - called when the subscription fails, so an unreadable settings document is
+ *  not mistaken for a raffle with no eligible stamps chosen
  * @returns a function to be called on dismount
  */
 export const subscribeToRaffleSettings = (
@@ -225,8 +224,8 @@ export const subscribeToRaffleSettings = (
 
 /**
  * Saves which stamps count as raffle entries for a hackathon
- * @param hackathon hackathon ID
- * @param eligibleStampIds the IDs of the stamps that count as entries
+ * @param hackathon - hackathon ID
+ * @param eligibleStampIds - the IDs of the stamps that count as entries
  */
 export const saveRaffleSettings = async (hackathon: string, eligibleStampIds: string[]) => {
   try {
@@ -245,14 +244,13 @@ export const saveRaffleSettings = async (hackathon: string, eligibleStampIds: st
   }
 };
 
-// for efficiency, caches names for the page lifetime
+// applicant names rarely change mid-event, so they are cached for the page lifetime
 const applicantNameCache = new Map<string, Map<string, ApplicantName>>();
 
 /**
  * Fetches the name fields we can recover for each applicant, keyed by lowercased email
- *
- * @param hackathon hackathon ID
- * @param refresh re-reads the Applicants collection instead of using the cached names
+ * @param hackathon - hackathon ID
+ * @param refresh - re-reads the Applicants collection instead of using the cached names
  * @returns a map of lowercased email to applicant name fields
  */
 const fetchApplicantNames = async (
@@ -282,9 +280,9 @@ const fetchApplicantNames = async (
 
 /**
  * Builds the raffle pool for a hackathon, where each eligible stamp a hacker collected is one entry
- * @param hackathon hackathon ID
- * @param eligibleStampIds the IDs of the stamps that count as entries
- * @param refreshNames re-reads applicant names as well as stamps, for an explicit refresh
+ * @param hackathon - hackathon ID
+ * @param eligibleStampIds - the IDs of the stamps that count as entries
+ * @param refreshNames - re-reads applicant names as well as stamps, for an explicit refresh
  * @returns the raffle pool, one entrant per hacker
  */
 export const fetchRaffleEntrants = async (
