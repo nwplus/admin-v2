@@ -1,9 +1,8 @@
-import { RafflePrizesDialog } from "@/components/features/raffle/raffle-prizes-dialog";
-import { RaffleStage } from "@/components/features/raffle/raffle-stage";
+import { RaffleDrawPanel } from "@/components/features/raffle/raffle-draw-panel";
+import { RafflePrizesCard } from "@/components/features/raffle/raffle-prizes-card";
 import { RaffleStampsDialog } from "@/components/features/raffle/raffle-stamps-dialog";
-import { RaffleWinnersPanel } from "@/components/features/raffle/raffle-winners-panel";
+import { RaffleWinnersLog } from "@/components/features/raffle/raffle-winners-log";
 import { PageHeader } from "@/components/graphy/typo";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -56,7 +55,6 @@ function RafflePage() {
   const [poolLoading, setPoolLoading] = useState<boolean>(false);
   const [poolFetchedAt, setPoolFetchedAt] = useState<Date | null>(null);
   const [showEmails, setShowEmails] = useState<boolean>(false);
-  const [prizesOpen, setPrizesOpen] = useState<boolean>(false);
   const [stampsOpen, setStampsOpen] = useState<boolean>(false);
   const requestRef = useRef<number>(0);
 
@@ -100,7 +98,6 @@ function RafflePage() {
     };
   }, [selectedHackathon]);
 
-  // fetched only on change, refreshed on demand
   const loadPool = useCallback(async (hackathon: string, stampIds: string[], refresh = false) => {
     if (!hackathon) {
       setEntrants([]);
@@ -132,12 +129,9 @@ function RafflePage() {
 
   return (
     <>
-      <div className="flex h-full w-full flex-col gap-3">
+      <div className="flex w-full flex-col gap-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <PageHeader className="flex items-center gap-3">
-            Raffle
-            {selectedHackathon && <Badge variant="secondary">{selectedHackathon}</Badge>}
-          </PageHeader>
+          <PageHeader className="font-medium">Raffle</PageHeader>
           <div className="flex items-center gap-2">
             <Select value={selectedHackathon} onValueChange={setSelectedHackathon}>
               <SelectTrigger className="w-48">
@@ -153,15 +147,25 @@ function RafflePage() {
             </Select>
             <Button variant="outline" asChild>
               <Link to="/stampbook">
-                <ArrowLeft className="mr-2 h-4 w-4" />
+                <ArrowLeft className="size-4" />
                 Stampbook
               </Link>
             </Button>
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col gap-4 lg:flex-row">
-          <RaffleStage
+        <div className="flex flex-col gap-16 lg:flex-row">
+          <section className="flex flex-col gap-4 lg:w-[523px]">
+            <PageHeader className="font-medium">Set Prizes</PageHeader>
+            <RafflePrizesCard
+              hackathon={selectedHackathon}
+              prizes={prizes}
+              winners={winners}
+              className="flex-1"
+            />
+          </section>
+
+          <RaffleDrawPanel
             key={selectedHackathon}
             hackathon={selectedHackathon}
             prizes={prizes}
@@ -170,37 +174,28 @@ function RafflePage() {
             eligibleStampCount={eligibleStampIds.length}
             poolLoading={poolLoading}
             poolFetchedAt={poolFetchedAt}
-            showEmails={showEmails}
             onRefreshPool={() => loadPool(selectedHackathon, eligibleStampIds, true)}
-            onManagePrizes={() => setPrizesOpen(true)}
             onManageStamps={() => setStampsOpen(true)}
-          />
-          <RaffleWinnersPanel
-            hackathon={selectedHackathon}
-            winners={winners}
-            showEmails={showEmails}
-            onToggleEmails={() => setShowEmails((shown) => !shown)}
+            className="lg:w-[482px]"
           />
         </div>
+
+        <RaffleWinnersLog
+          hackathon={selectedHackathon}
+          winners={winners}
+          showEmails={showEmails}
+          onToggleEmails={setShowEmails}
+        />
       </div>
 
       {selectedHackathon && (
-        <>
-          <RafflePrizesDialog
-            open={prizesOpen}
-            onClose={() => setPrizesOpen(false)}
-            hackathon={selectedHackathon}
-            prizes={prizes}
-            winners={winners}
-          />
-          <RaffleStampsDialog
-            open={stampsOpen}
-            onClose={() => setStampsOpen(false)}
-            hackathon={selectedHackathon}
-            stamps={stamps}
-            eligibleStampIds={eligibleStampIds}
-          />
-        </>
+        <RaffleStampsDialog
+          open={stampsOpen}
+          onClose={() => setStampsOpen(false)}
+          hackathon={selectedHackathon}
+          stamps={stamps}
+          eligibleStampIds={eligibleStampIds}
+        />
       )}
     </>
   );
