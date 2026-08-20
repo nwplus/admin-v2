@@ -74,7 +74,7 @@ function RafflePage() {
   useEffect(() => {
     if (!selectedHackathon) return;
 
-    // one toast per subscription error, not one per subscription
+    // share one toast id so three failing subscriptions don't stack three toasts
     const onError = () =>
       toast.error("Couldn't load the raffle, you may not have access to this hackathon", {
         id: "raffle-subscription-error",
@@ -147,7 +147,7 @@ function RafflePage() {
             </Select>
             <Button variant="outline" asChild>
               <Link to="/stampbook">
-                <ArrowLeft className="size-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Stampbook
               </Link>
             </Button>
@@ -156,7 +156,7 @@ function RafflePage() {
 
         <div className="flex flex-col gap-16 lg:flex-row">
           <section className="flex flex-col gap-4 lg:w-[523px]">
-            <PageHeader className="font-medium">Set Prizes</PageHeader>
+            <h2 className="font-medium text-3xl">Set Prizes</h2>
             <RafflePrizesCard
               hackathon={selectedHackathon}
               prizes={prizes}

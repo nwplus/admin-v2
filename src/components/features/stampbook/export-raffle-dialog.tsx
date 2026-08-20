@@ -15,9 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
-import type { Hackathon, Stamp } from "@/lib/firebase/types";
+import type { Hackathon, HackerStampEntry, Stamp } from "@/lib/firebase/types";
 import { downloadCSV, obfuscateEmail } from "@/lib/utils";
-import { type HackerStampEntry, fetchHackersWithStamps } from "@/services/stamps";
+import { fetchHackersWithStamps } from "@/services/stamps";
 import { Download, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -36,7 +36,7 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
   const [selectedHackathon, setSelectedHackathon] = useState<string>("");
   const [selectedStampIds, setSelectedStampIds] = useState<string[]>([]);
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const unsub = subscribeToHackathons(setHackathons);

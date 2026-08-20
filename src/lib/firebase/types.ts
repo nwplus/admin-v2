@@ -654,6 +654,15 @@ export interface Stamp {
 }
 
 /**
+ * Derived, never stored: one stamp a hacker has collected, built by `fetchHackersWithStamps`
+ */
+export interface HackerStampEntry {
+  displayName: string;
+  email: string;
+  stampId: string;
+}
+
+/**
  * Sub-collection: /Hackathons/[hackathon]/RafflePrizes
  *
  * A prize that can be drawn for on the raffle page, pre-populated before the event

@@ -1,14 +1,5 @@
 import { getHackathonType } from "@/lib/utils";
 
-/**
- * Represents a user's collected stamp entry
- */
-export interface HackerStampEntry {
-  displayName: string;
-  email: string;
-  stampId: string;
-}
-
 export const SOCIALS_NAME_FALLBACK = "User";
 
 /**

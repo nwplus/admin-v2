@@ -1,5 +1,4 @@
 import { RaffleWinnerDialog } from "@/components/features/raffle/raffle-winner-dialog";
-import { PageHeader } from "@/components/graphy/typo";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -77,7 +76,7 @@ export function RaffleDrawPanel({
 
   return (
     <section className={cn("flex flex-col gap-4", className)}>
-      <PageHeader className="font-medium">Live Raffle</PageHeader>
+      <h2 className="font-medium text-3xl">Live Raffle</h2>
       <p className="text-lg text-muted-foreground">Select a prize and draw a winner.</p>
 
       <div className="flex flex-wrap items-start gap-8">
@@ -114,7 +113,7 @@ export function RaffleDrawPanel({
             disabled={!!disabledReason}
             title={disabledReason ?? undefined}
           >
-            <Gift className="size-4" />
+            <Gift className="h-4 w-4" />
             Draw Winner
           </Button>
         </div>

@@ -1,5 +1,10 @@
-import type { RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
-import { type HackerStampEntry, SOCIALS_NAME_FALLBACK } from "@/lib/stamps";
+import type {
+  HackerStampEntry,
+  RaffleEntrant,
+  RafflePrize,
+  RaffleWinner,
+} from "@/lib/firebase/types";
+import { SOCIALS_NAME_FALLBACK } from "@/lib/stamps";
 
 export type StampEntry = Pick<HackerStampEntry, "displayName" | "email">;
 

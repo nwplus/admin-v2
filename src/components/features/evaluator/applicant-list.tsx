@@ -26,17 +26,13 @@ export function ApplicantList() {
   const filteredApplicants = useMemo(() => {
     let list = applicants || [];
     list = filterApplicantsByStatus(list, selectedStatuses);
+    // slice first, the filters above can hand back the provider's array untouched
     return filterApplicantsBySearch(list, searchTerm)
       .slice()
       .sort((a, b) => {
-        const aSubmissionMs = a.submission?.submittedAt?.toMillis?.() ?? 0;
-        const bSubmissionMs = b.submission?.submittedAt?.toMillis?.() ?? 0;
-
-        if (aSubmissionMs !== bSubmissionMs) {
-          return aSubmissionMs - bSubmissionMs;
-        }
-
-        return a._id.localeCompare(b._id);
+        const aSubmittedMs = a.submission?.submittedAt?.toMillis?.() ?? 0;
+        const bSubmittedMs = b.submission?.submittedAt?.toMillis?.() ?? 0;
+        return aSubmittedMs - bSubmittedMs || a._id.localeCompare(b._id);
       });
   }, [applicants, searchTerm, selectedStatuses]);
 

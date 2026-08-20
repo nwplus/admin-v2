@@ -37,9 +37,8 @@ export function RaffleWinnerDialog({
   const [confirming, setConfirming] = useState<boolean>(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // the draw effect keys off `open` alone, so it must reach these through a ref:
-  // `onClose` is a fresh arrow on every parent render, and a winners snapshot landing
-  // mid-shuffle would otherwise restart the draw and re-pick a different winner
+  // the draw effect keys off `open` alone, so it reads these through a ref instead:
+  // a re-render mid-shuffle would otherwise restart the draw and pick a different winner
   const latest = useRef({ drawPool, onClose });
   latest.current = { drawPool, onClose };
 
@@ -169,14 +168,14 @@ export function RaffleWinnerDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={confirming}>
-            <X className="size-4" />
+            <X className="h-4 w-4" />
             Cancel
           </Button>
           <Button onClick={confirmWinner} disabled={drawing || confirming}>
             {confirming ? (
-              <Loader2 className="size-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Check className="size-4" />
+              <Check className="h-4 w-4" />
             )}
             Confirm Winner
           </Button>

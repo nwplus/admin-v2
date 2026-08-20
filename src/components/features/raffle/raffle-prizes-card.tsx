@@ -160,7 +160,7 @@ export function RafflePrizesCard({ hackathon, prizes, winners, className }: Raff
             ) : (
               prizes.map((prize) => {
                 const drawn = drawnCountForPrize(winners, prize._id);
-                // bound to a local so the non-null narrowing survives into the callbacks
+                // a local so TypeScript keeps the narrowing inside the callbacks below
                 const draft = editing?.id === prize._id ? editing : null;
 
                 if (draft) {
@@ -195,7 +195,7 @@ export function RafflePrizesCard({ hackathon, prizes, winners, className }: Raff
                           onClick={() => saveEdit(prize)}
                           aria-label="Save prize"
                         >
-                          <Check className="size-4" />
+                          <Check className="h-4 w-4" />
                         </Button>
                       </TableCell>
                       <TableCell className="px-2 py-1.5">
@@ -206,7 +206,7 @@ export function RafflePrizesCard({ hackathon, prizes, winners, className }: Raff
                           onClick={cancelEdit}
                           aria-label="Cancel editing prize"
                         >
-                          <X className="size-4" />
+                          <X className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -231,7 +231,7 @@ export function RafflePrizesCard({ hackathon, prizes, winners, className }: Raff
                         onClick={() => startEdit(prize)}
                         aria-label={`Edit ${prize.name}`}
                       >
-                        <Pencil className="size-4" />
+                        <Pencil className="h-4 w-4" />
                       </Button>
                     </TableCell>
                     <TableCell className="px-2 py-2">
@@ -246,7 +246,7 @@ export function RafflePrizesCard({ hackathon, prizes, winners, className }: Raff
                         }
                         onConfirm={() => onDelete(prize)}
                       >
-                        <Trash2 className="size-4 text-destructive" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </Confirm>
                     </TableCell>
                   </TableRow>
@@ -289,7 +289,7 @@ export function RafflePrizesCard({ hackathon, prizes, winners, className }: Raff
             )}
           />
           <Button type="submit" disabled={loading} className="mt-6">
-            <Plus className="size-4" />
+            <Plus className="h-4 w-4" />
             Add
           </Button>
         </form>

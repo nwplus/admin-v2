@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/graphy/typo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Confirm } from "@/components/ui/confirm";
@@ -54,7 +53,7 @@ export function RaffleWinnersLog({
   return (
     <section className={cn("flex flex-col gap-4", className)}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <PageHeader className="font-medium">Winners Log</PageHeader>
+        <h2 className="font-medium text-3xl">Winners Log</h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Switch id="show-email" checked={showEmails} onCheckedChange={onToggleEmails} />
@@ -63,7 +62,7 @@ export function RaffleWinnersLog({
             </Label>
           </div>
           <Button variant="outline" onClick={handleExport} disabled={winners.length === 0}>
-            <Download className="size-4" />
+            <Download className="h-4 w-4" />
             Export CSV
           </Button>
         </div>
@@ -120,7 +119,7 @@ export function RaffleWinnersLog({
                         description={`${winner.preferredName} will be removed from the log for "${winner.prizeName}", freeing the prize up to be drawn again.`}
                         onConfirm={() => handleDelete(winner)}
                       >
-                        <Trash2 className="size-4 text-destructive" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </Confirm>
                     </TableCell>
                   </TableRow>

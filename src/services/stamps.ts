@@ -7,8 +7,8 @@ import {
   uploadStampImage,
   uploadStampQR,
 } from "@/lib/firebase/storage";
-import type { Stamp } from "@/lib/firebase/types";
-import { type HackerStampEntry, SOCIALS_NAME_FALLBACK, readUnlockedStamps } from "@/lib/stamps";
+import type { HackerStampEntry, Stamp } from "@/lib/firebase/types";
+import { SOCIALS_NAME_FALLBACK, readUnlockedStamps } from "@/lib/stamps";
 import {
   type DocumentReference,
   Timestamp,
@@ -22,8 +22,6 @@ import {
   runTransaction,
   updateDoc,
 } from "firebase/firestore";
-
-export type { HackerStampEntry };
 
 /**
  * Utility function that returns Stamps collection realtime data
