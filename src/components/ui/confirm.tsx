@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import type { VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
 import {
   AlertDialog,
@@ -24,8 +25,8 @@ export function Confirm({
   onConfirm,
 }: {
   header?: string;
-  variant?: "destructive" | "default" | "outline";
-  size?: "sm" | "default" | "lg" | "icon" | null;
+  variant?: VariantProps<typeof buttonVariants>["variant"];
+  size?: VariantProps<typeof buttonVariants>["size"];
   description?: string;
   className?: string;
   children?: ReactNode;
