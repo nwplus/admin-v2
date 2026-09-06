@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import type { RaffleWinner } from "@/lib/firebase/types";
 import { generateWinnersCSV } from "@/lib/raffle";
-import { cn, downloadCSV, obfuscateEmail } from "@/lib/utils";
+import { cn, downloadCSV } from "@/lib/utils";
 import { deleteRaffleWinner } from "@/services/raffle";
 import { Download, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -82,16 +82,21 @@ export function RaffleWinnersLog({
                 <TableHead className="h-10 px-2 font-medium text-muted-foreground text-sm">
                   Last Name
                 </TableHead>
-                <TableHead className="h-10 px-2 font-medium text-muted-foreground text-sm">
-                  Email
-                </TableHead>
+                {showEmails && (
+                  <TableHead className="h-10 px-2 font-medium text-muted-foreground text-sm">
+                    Email
+                  </TableHead>
+                )}
                 <TableHead className="h-10 w-8 px-2" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {winners.length === 0 ? (
                 <TableRow className="hover:bg-transparent">
-                  <TableCell colSpan={5} className="py-8 text-center text-muted-foreground text-sm">
+                  <TableCell
+                    colSpan={showEmails ? 5 : 4}
+                    className="py-8 text-center text-muted-foreground text-sm"
+                  >
                     No winners drawn yet. They'll show up here as you confirm each draw.
                   </TableCell>
                 </TableRow>
@@ -107,9 +112,11 @@ export function RaffleWinnersLog({
                     <TableCell className="px-2 py-2 font-medium text-sm">
                       {winner.lastName || "—"}
                     </TableCell>
-                    <TableCell className="px-2 py-2 font-medium text-sm">
-                      {showEmails ? winner.email : obfuscateEmail(winner.email)}
-                    </TableCell>
+                    {showEmails && (
+                      <TableCell className="px-2 py-2 font-medium text-sm">
+                        {winner.email}
+                      </TableCell>
+                    )}
                     <TableCell className="px-2 py-2">
                       <Confirm
                         variant="ghost"
