@@ -353,6 +353,8 @@ export type HackerApplicationQuestionFormInputField =
   | "haveTransExperience"
   | "identifyAsUnderrepresented"
   | "indigenousIdentification"
+  | "legalFirstName"
+  | "legalLastName"
   | "phoneNumber"
   | "preferredName"
   | "pronouns"

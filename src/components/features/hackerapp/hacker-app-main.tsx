@@ -8,7 +8,7 @@ import { useHackerApplication } from "@/providers/hacker-application-provider";
 import { updateHackerAppSectionQuestions } from "@/services/hacker-application";
 import { type SetStateAction, useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { SHOW_FORM_INPUT } from "./hacker-app-question";
+import { LEGAL_NAME_FORM_INPUTS, SHOW_FORM_INPUT } from "./hacker-app-question";
 import { HackerAppSection } from "./hacker-app-section";
 
 export type HackerApplicationFormQuestions = {
@@ -61,6 +61,12 @@ const cleanSectionData = (data: HackerApplicationQuestion[]): HackerApplicationQ
  * @returns true is valid
  */
 const validateSectionData = (data: HackerApplicationQuestion[]): boolean => {
+  const hasFullLegalName = data.some((question) => question.type === "Full Legal Name");
+  const hasSplitLegalName = data.some(
+    (question) => question.formInput && LEGAL_NAME_FORM_INPUTS.includes(question.formInput),
+  );
+  if (hasFullLegalName && hasSplitLegalName) return false;
+
   for (const question of data) {
     // Title and type are necessary
     if (!question.title || (!question.type && question.content === undefined)) return false;
@@ -107,9 +113,14 @@ export function HackerAppMain() {
       .map((q) => q.formInput)
       .filter((f): f is HackerApplicationQuestionFormInputField => f !== undefined);
 
+    const formInput = new Set(allFormInputs);
+    if (allQuestionTypes.includes("Full Legal Name")) {
+      for (const field of LEGAL_NAME_FORM_INPUTS) formInput.add(field);
+    }
+
     return {
       questionType: new Set(allQuestionTypes),
-      formInput: new Set(allFormInputs),
+      formInput,
     };
   }, [draft]);
 
