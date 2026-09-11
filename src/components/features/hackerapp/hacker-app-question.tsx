@@ -16,6 +16,7 @@ import type {
   HackerApplicationQuestion,
   HackerApplicationQuestionFormInputField,
   HackerApplicationQuestionType,
+  HackerApplicationSections,
 } from "@/lib/firebase/types";
 import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Plus, Trash } from "lucide-react";
@@ -45,6 +46,11 @@ const QUESTION_TYPES_UNIQUE: HackerApplicationQuestionType[] = [
   "Country",
 ];
 
+export const LEGAL_NAME_FORM_INPUTS: readonly HackerApplicationQuestionFormInputField[] = [
+  "legalFirstName",
+  "legalLastName",
+];
+
 // TODO: reorganize type and form input type?
 const FORM_INPUT_OPTIONS: HackerApplicationQuestionFormInputField[] = [
   "academicYear",
@@ -60,6 +66,8 @@ const FORM_INPUT_OPTIONS: HackerApplicationQuestionFormInputField[] = [
   "haveTransExperience",
   "identifyAsUnderrepresented",
   "indigenousIdentification",
+  "legalFirstName",
+  "legalLastName",
   "phoneNumber",
   "preferredName",
   "pronouns",
@@ -81,6 +89,7 @@ const SHOW_MAX_CHAR: HackerApplicationQuestionType[] = ["Long Answer"];
 
 interface HackerAppQuestionProps {
   index: number;
+  section: HackerApplicationSections;
   question: HackerApplicationQuestion;
   isContent?: boolean;
   isLast?: boolean;
@@ -97,6 +106,7 @@ interface HackerAppQuestionProps {
 
 export const HackerAppQuestion = memo(function HackerAppQuestion({
   index,
+  section,
   question,
   isContent,
   isLast = false,
@@ -137,11 +147,18 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
     }
   }, [index, question.options, onChange]);
 
+  const hasSplitLegalName = LEGAL_NAME_FORM_INPUTS.some((field) =>
+    usedFieldsRegistry.formInput.has(field),
+  );
   const usableQuestionTypes = QUESTION_TYPES?.filter(
-    (qt) => !QUESTION_TYPES_UNIQUE.includes(qt) || !usedFieldsRegistry.questionType.has(qt),
+    (qt) =>
+      (qt !== "Full Legal Name" || !hasSplitLegalName) &&
+      (!QUESTION_TYPES_UNIQUE.includes(qt) || !usedFieldsRegistry.questionType.has(qt)),
   );
   const usableFormInputs = FORM_INPUT_OPTIONS?.filter(
-    (fi) => !usedFieldsRegistry.formInput.has(fi),
+    (fi) =>
+      !usedFieldsRegistry.formInput.has(fi) &&
+      (section === "BasicInfo" || !LEGAL_NAME_FORM_INPUTS.includes(fi)),
   );
   const isQuestionTypeDisabled = Boolean(
     question.type && QUESTION_TYPES_UNIQUE.includes(question.type),

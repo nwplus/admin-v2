@@ -82,6 +82,7 @@ export function HackerAppSection({
             <HackerAppQuestion
               key={`${q._id}_${title}`}
               index={i}
+              section={section}
               question={q}
               isContent={section === "Welcome"}
               isLast={i === data.length - 1}
