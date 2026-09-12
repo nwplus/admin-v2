@@ -53,6 +53,9 @@ export const flattenApplicantData = (
     lastName: applicant.basicInfo?.legalLastName || applicant.basicInfo?.lastName || "",
     email: applicant.basicInfo?.email || "",
     phoneNumber: applicant.basicInfo?.phoneNumber || "",
+    phoneNumberOwnerNameAndRelationship:
+      applicant.basicInfo?.phoneNumberOwnerNameAndRelationship || "",
+    parentOrGuardianPhoneNumber: applicant.basicInfo?.parentOrGuardianPhoneNumber || "",
     school: applicant.basicInfo?.school || "",
     major: isLegacyFormat
       ? (applicant.basicInfo?.major as string) || ""
@@ -267,6 +270,8 @@ export interface FlattenedApplicant {
   lastName: string;
   email: string;
   phoneNumber: string;
+  phoneNumberOwnerNameAndRelationship: string;
+  parentOrGuardianPhoneNumber: string;
   school: string;
   major: string;
   educationLevel: string;

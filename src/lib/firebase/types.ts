@@ -186,6 +186,8 @@ export interface Applicant {
     location: string; // city
     major: ApplicantMajor | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
+    phoneNumberOwnerNameAndRelationship?: string;
+    parentOrGuardianPhoneNumber?: string;
     school: string; // should be typed
     travellingToHackathon: string;
     // demographic fields
