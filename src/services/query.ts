@@ -65,13 +65,7 @@ export const flattenApplicantData = (
         ),
     educationLevel: applicant.basicInfo?.educationLevel || "",
     graduation: applicant.basicInfo?.graduation || "",
-    gender:
-      typeof applicant.basicInfo?.gender === "string"
-        ? applicant.basicInfo.gender
-        : createStringFromSelection(
-            applicant.basicInfo?.gender as Record<string, boolean> | undefined,
-            "",
-          ),
+    gender: createStringFromSelection(applicant.basicInfo?.gender),
     isOfLegalAge: computedIsOfLegalAge(applicant),
     travellingToHackathon: applicant.basicInfo?.travellingToHackathon || "",
     culturalBackground: returnTrueKey(
