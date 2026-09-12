@@ -1,8 +1,6 @@
-import type { Applicant } from "@/lib/firebase/types";
+import type { Applicant, RubricType } from "@/lib/firebase/types";
 
 export const BEGINNER_MAX_PREV_HACKATHONS = 1;
-
-export type ExperienceGroup = "beginner" | "experienced";
 
 export interface AcceptanceRatio {
   total?: number;
@@ -41,15 +39,13 @@ export const parsePrevHackathons = (numHackathonsAttended?: string) => {
   return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
 };
 
-export const getExperienceGroup = (applicant: Applicant): ExperienceGroup =>
+export const getExperienceGroup = (applicant: Applicant): RubricType =>
   parsePrevHackathons(applicant.skills?.numHackathonsAttended) <= BEGINNER_MAX_PREV_HACKATHONS
     ? "beginner"
     : "experienced";
 
-export const groupByExperience = (
-  applicants: Applicant[],
-): Record<ExperienceGroup, Applicant[]> => {
-  const groups: Record<ExperienceGroup, Applicant[]> = { beginner: [], experienced: [] };
+export const groupByExperience = (applicants: Applicant[]): Record<RubricType, Applicant[]> => {
+  const groups: Record<RubricType, Applicant[]> = { beginner: [], experienced: [] };
   for (const applicant of applicants) {
     groups[getExperienceGroup(applicant)].push(applicant);
   }
