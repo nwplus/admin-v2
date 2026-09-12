@@ -238,6 +238,7 @@ export interface Applicant {
     comment?: string;
     lastUpdated?: Timestamp;
     lastUpdatedBy?: string;
+    rubricType?: RubricType;
     scores?: Record<string, ApplicantScoreItem>;
     totalScore?: number;
     totalZScore?: number;
@@ -302,6 +303,8 @@ export interface ApplicantScoreItem {
   normalizedScore?: number;
   score?: number;
 }
+
+export type RubricType = "beginner" | "experienced";
 
 export interface ScoringCriteria {
   label: string;
