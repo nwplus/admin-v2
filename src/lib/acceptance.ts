@@ -39,10 +39,13 @@ export const parsePrevHackathons = (numHackathonsAttended?: string) => {
   return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
 };
 
-export const getExperienceGroup = (applicant: Applicant): RubricType =>
-  parsePrevHackathons(applicant.skills?.numHackathonsAttended) <= BEGINNER_MAX_PREV_HACKATHONS
+export const getDefaultRubricType = (numHackathonsAttended?: string): RubricType =>
+  parsePrevHackathons(numHackathonsAttended) <= BEGINNER_MAX_PREV_HACKATHONS
     ? "beginner"
     : "experienced";
+
+export const getExperienceGroup = (applicant: Applicant): RubricType =>
+  applicant.score?.rubricType || getDefaultRubricType(applicant.skills?.numHackathonsAttended);
 
 export const groupByExperience = (applicants: Applicant[]): Record<RubricType, Applicant[]> => {
   const groups: Record<RubricType, Applicant[]> = { beginner: [], experienced: [] };
