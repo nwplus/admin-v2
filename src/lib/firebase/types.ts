@@ -257,6 +257,12 @@ export interface Applicant {
     resume?: string;
     numHackathonsAttended?: string;
     contributionRole?: ApplicantContribution;
+    longAnswers1?: string;
+    longAnswers2?: string;
+    longAnswers3?: string;
+    longAnswers4?: string;
+    longAnswers5?: string;
+    longAnswers6?: string;
   };
   status?: {
     // could do some clean up here
