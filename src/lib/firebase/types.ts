@@ -246,7 +246,7 @@ export interface Applicant {
   };
   questionnaire?: {
     engagementSource?: string | Record<string, boolean>;
-    eventsAttended?: string[];
+    eventsAttended?: Record<string, boolean>; // select all, so a map not a list
     friendEmail?: string;
     otherEngagementSource?: string;
   };
