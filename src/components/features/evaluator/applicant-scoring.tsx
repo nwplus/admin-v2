@@ -191,6 +191,9 @@ export function ApplicantScoring() {
               </Label>
             </div>
           </RadioGroup>
+          <div className="text-neutral-500 text-xs">
+            Previous hackathons reported: {focusedApplicant.skills?.numHackathonsAttended ?? "N/A"}
+          </div>
         </div>
         {scoringCriteria?.map(
           (criteria) =>
