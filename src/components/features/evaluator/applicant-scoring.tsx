@@ -8,7 +8,7 @@ import { getExperienceGroup } from "@/lib/acceptance";
 import type { ApplicantScoreItem, RubricType, ScoringCriteria } from "@/lib/firebase/types";
 import { useAuth } from "@/providers/auth-provider";
 import { useEvaluator } from "@/providers/evaluator-provider";
-import { updateApplicant } from "@/services/evaluator";
+import { saveDefaultRubricType, updateApplicant } from "@/services/evaluator";
 import { Timestamp } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 
@@ -37,9 +37,23 @@ export function ApplicantScoring() {
   }, [focusedApplicant]);
 
   useEffect(() => {
-    if (!focusedApplicant) return;
-    setRubricType(getExperienceGroup(focusedApplicant));
-  }, [focusedApplicant]);
+    if (!focusedApplicant?._id) return;
+
+    const defaultRubricType = getExperienceGroup(focusedApplicant);
+    setRubricType(defaultRubricType);
+    if (focusedApplicant.score?.rubricType) return;
+
+    let cancelled = false;
+    saveDefaultRubricType(hackathon, focusedApplicant._id, defaultRubricType)
+      .then((saved) => {
+        if (!cancelled) setRubricType(saved);
+      })
+      .catch((err) => console.error("Error saving default rubric type: ", err));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hackathon, focusedApplicant]);
 
   const handleRubricTypeChange = async (value: RubricType) => {
     if (!focusedApplicant?._id) return;
