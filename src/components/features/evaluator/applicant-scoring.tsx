@@ -43,6 +43,7 @@ export function ApplicantScoring() {
     setRubricType(defaultRubricType);
     if (focusedApplicant.score?.rubricType) return;
 
+    // another evaluator might save first, so show whatever actually ended up in firestore
     let cancelled = false;
     saveDefaultRubricType(hackathon, focusedApplicant._id, defaultRubricType)
       .then((saved) => {
