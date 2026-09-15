@@ -39,14 +39,23 @@ export const parsePrevHackathons = (numHackathonsAttended?: string) => {
   return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
 };
 
+/**
+ * guesses a rubric type from how many hackathons they've been to
+ */
 export const getDefaultRubricType = (numHackathonsAttended?: string): RubricType =>
   parsePrevHackathons(numHackathonsAttended) <= BEGINNER_MAX_PREV_HACKATHONS
     ? "beginner"
     : "experienced";
 
+/**
+ * uses the rubric type saved by an evaluator, otherwise falls back to the default
+ */
 export const getExperienceGroup = (applicant: Applicant): RubricType =>
   applicant.score?.rubricType || getDefaultRubricType(applicant.skills?.numHackathonsAttended);
 
+/**
+ * splits applicants into beginner and experienced groups
+ */
 export const groupByExperience = (applicants: Applicant[]): Record<RubricType, Applicant[]> => {
   const groups: Record<RubricType, Applicant[]> = { beginner: [], experienced: [] };
   for (const applicant of applicants) {
