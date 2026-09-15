@@ -154,6 +154,13 @@ export const updateApplicant = async (hackathon: string, applicantId: string, up
   }
 };
 
+/**
+ * Utility function to save an applicant's default rubric type, unless one is already set
+ * @param hackathon - of the applicant
+ * @param applicantId - of the applicant
+ * @param rubricType - the default to save
+ * @returns the rubric type now saved on the applicant
+ */
 export const saveDefaultRubricType = async (
   hackathon: string,
   applicantId: string,
