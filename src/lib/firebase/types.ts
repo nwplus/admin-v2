@@ -335,7 +335,8 @@ export interface InternalWebsitesCMS {
  *
  *  Hacker app
  */
-export type HackerApplicationSections = "BasicInfo" | "Questionnaire" | "Skills" | "Welcome";
+export const HACKER_APP_SECTIONS = ["BasicInfo", "Questionnaire", "Skills", "Welcome"] as const;
+export type HackerApplicationSections = (typeof HACKER_APP_SECTIONS)[number];
 export type HackerApplicationQuestionType =
   | "Long Answer"
   | "Portfolio"
