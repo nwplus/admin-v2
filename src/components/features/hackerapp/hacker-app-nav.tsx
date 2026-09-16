@@ -77,21 +77,6 @@ export function HackerAppNav({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* <SidebarGroup>
-          <SidebarGroupLabel>Actions</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Button className="transition-all hover:bg-theme/90 hover:text-white active:bg-theme/80 active:text-white">
-                    Save all
-                  </Button>
-                </SidebarMenuButton>
-                <div className="p-2 text-neutral-500 text-xs">Last saved</div>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup> */}
       </SidebarContent>
     </Sidebar>
   );
