@@ -348,29 +348,49 @@ export type HackerApplicationQuestionType =
   | "School"
   | "Major"
   | "Country";
-export type HackerApplicationQuestionFormInputField =
-  | "academicYear"
-  | "ageByHackathon"
-  | "canadianStatus"
-  | "culturalBackground"
-  | "dietaryRestriction"
-  | "disability"
-  | "educationLevel"
-  | "email"
-  | "gender"
-  | "graduation"
-  | "haveTransExperience"
-  | "identifyAsUnderrepresented"
-  | "indigenousIdentification"
-  | "legalFirstName"
-  | "legalLastName"
-  | "phoneNumber"
-  | "preferredName"
-  | "pronouns"
-  | "race"
-  | "jobPosition"
-  | "connectPlus"
-  | "travellingToHackathon";
+// keep in sync with portal-v2 src/lib/firebase/types/hacker-app-questions.ts, which renders these
+export const FORM_INPUT_FIELDS = [
+  "academicYear",
+  "ageByHackathon",
+  "canadianStatus",
+  "culturalBackground",
+  "dietaryRestriction",
+  "disability",
+  "educationLevel",
+  "email",
+  "gender",
+  "graduation",
+  "haveTransExperience",
+  "identifyAsUnderrepresented",
+  "indigenousIdentification",
+  "legalFirstName",
+  "legalLastName",
+  "phoneNumber",
+  "phoneNumberOwnerNameAndRelationship",
+  "parentOrGuardianPhoneNumber",
+  "preferredName",
+  "pronouns",
+  "race",
+  "jobPosition",
+  "connectPlus",
+  "travellingToHackathon",
+  "engagementSource",
+  "eventsAttended",
+  "friendEmail",
+  "contributionRole",
+  "numHackathonsAttended",
+  "longAnswers1",
+  "longAnswers2",
+  "longAnswers3",
+  "longAnswers4",
+  "longAnswers5",
+  "longAnswers6",
+] as const;
+export type HackerApplicationQuestionFormInputField = (typeof FORM_INPUT_FIELDS)[number];
+export interface HackerApplicationQuestionCondition {
+  sourceFormInput: HackerApplicationQuestionFormInputField;
+  values: string[];
+}
 export interface HackerApplicationQuestion {
   _id?: string; // internal
   title?: string;
