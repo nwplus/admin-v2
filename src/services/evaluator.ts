@@ -167,7 +167,7 @@ export const saveDefaultRubricType = async (
   rubricType: RubricType,
 ) => {
   const applicantRef = doc(db, "Hackathons", hackathon, "Applicants", applicantId);
-  
+
   return runTransaction(db, async (transaction) => {
     const applicantSnap = await transaction.get(applicantRef);
     if (!applicantSnap.exists()) return rubricType;
