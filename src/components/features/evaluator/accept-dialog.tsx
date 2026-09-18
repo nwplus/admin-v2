@@ -416,8 +416,8 @@ export function AcceptDialog() {
                 </div>
               </div>
               <p className="text-muted-foreground text-xs">
-                Beginners have attended 0–1 hackathons, everyone else counts as experienced. Leave
-                these blank to accept every applicant matching the filters.
+                Hackers are grouped by the Beginner / Experienced selection saved in the evaluator.
+                Leave these blank to accept every applicant matching the filters.
               </p>
             </div>
             {plan && <AcceptancePreview plan={plan} total={activePreview?.total} />}
