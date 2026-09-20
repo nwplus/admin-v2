@@ -402,7 +402,12 @@ export interface HackerApplicationQuestion {
   required?: boolean;
   type?: HackerApplicationQuestionType;
   maxWords?: string; // b/c portal uses it
+  condition?: HackerApplicationQuestionCondition;
 }
+export type HackerApplicationFormQuestions = Record<
+  HackerApplicationSections,
+  HackerApplicationQuestion[]
+>;
 export type HackerApplicationMetadataInfo = {
   lastEditedAt: Timestamp;
   lastEditedBy: string;
