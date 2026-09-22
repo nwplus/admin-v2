@@ -1,4 +1,5 @@
 import type {
+  HackerApplicationFormQuestions,
   HackerApplicationQuestion,
   HackerApplicationQuestionFormInputField,
   HackerApplicationQuestionType,
@@ -8,27 +9,19 @@ import { useHackerApplication } from "@/providers/hacker-application-provider";
 import { updateHackerAppSectionQuestions } from "@/services/hacker-application";
 import { type SetStateAction, useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { LEGAL_NAME_FORM_INPUTS, SHOW_FORM_INPUT } from "./hacker-app-question";
+import {
+  buildConditionSources,
+  findConditionIssues,
+  nonEmptyOptions,
+} from "./hacker-app-conditions";
+import { SHOW_FORM_INPUT } from "./hacker-app-question";
 import { HackerAppSection } from "./hacker-app-section";
-
-export type HackerApplicationFormQuestions = {
-  BasicInfo: HackerApplicationQuestion[];
-  Questionnaire: HackerApplicationQuestion[];
-  Skills: HackerApplicationQuestion[];
-  Welcome: HackerApplicationQuestion[];
-};
+import { LEGAL_NAME_FORM_INPUTS, SECTIONS } from "./hacker-app-sections";
 
 export type UsedFieldsRegistry = {
   formInput: Set<HackerApplicationQuestionFormInputField>;
   questionType: Set<HackerApplicationQuestionType>;
 };
-
-const sections = [
-  { id: "Welcome", title: "Welcome", description: "Welcome the hackers!" },
-  { id: "BasicInfo", title: "Basics", description: "Basic hacker information" },
-  { id: "Skills", title: "Skills", description: "Skill and contribution questions" },
-  { id: "Questionnaire", title: "Questionnaire", description: "For waiver and statistics" },
-] as const;
 
 const EMPTY_QUESTION: HackerApplicationQuestion = {
   title: "",
@@ -39,37 +32,47 @@ const EMPTY_QUESTION: HackerApplicationQuestion = {
 };
 
 /**
- * Helper that removes any empty options on option type questions
+ * Helper that removes any empty options on option type questions and normalizes conditions
  * @param data - the section's questions
  * @returns same data type, but cleaned
  */
-const cleanSectionData = (data: HackerApplicationQuestion[]): HackerApplicationQuestion[] => {
-  return data.map((question) => {
-    if (question.options) {
-      return {
-        ...question,
-        options: question.options.filter((option) => option.trim() !== ""),
+const cleanSectionData = (data: HackerApplicationQuestion[]): HackerApplicationQuestion[] =>
+  data.map((question) => {
+    const cleaned = { ...question };
+
+    if (question.options) cleaned.options = nonEmptyOptions(question.options);
+
+    if (question.condition) {
+      cleaned.condition = {
+        ...question.condition,
+        values: [
+          ...new Set(question.condition.values.map((value) => value.trim()).filter(Boolean)),
+        ],
       };
     }
-    return question;
+
+    return cleaned;
   });
-};
 
 /**
  * Helper that does rough validation
  * @param data - the section's questions
- * @returns true is valid
+ * @returns why the section can't be saved, or null when it's valid
  */
-const validateSectionData = (data: HackerApplicationQuestion[]): boolean => {
+const validateSectionData = (data: HackerApplicationQuestion[]): string | null => {
   const hasFullLegalName = data.some((question) => question.type === "Full Legal Name");
   const hasSplitLegalName = data.some(
     (question) => question.formInput && LEGAL_NAME_FORM_INPUTS.includes(question.formInput),
   );
-  if (hasFullLegalName && hasSplitLegalName) return false;
+  if (hasFullLegalName && hasSplitLegalName) {
+    return "A section can't mix Full Legal Name with separate legal name fields";
+  }
 
-  for (const question of data) {
+  for (const [index, question] of data.entries()) {
     // Title and type are necessary
-    if (!question.title || (!question.type && question.content === undefined)) return false;
+    if (!question.title || (!question.type && question.content === undefined)) {
+      return `Question ${index + 1} is missing a title or type`;
+    }
 
     // If the type is of general, then a form field needs to be specified
     if (
@@ -77,10 +80,14 @@ const validateSectionData = (data: HackerApplicationQuestion[]): boolean => {
       SHOW_FORM_INPUT.includes(question?.type) &&
       (!question?.formInput || question?.formInput.trim() === "")
     ) {
-      return false;
+      return `"${question.title}" needs a form input field`;
+    }
+
+    if (question.condition && !question.condition.values.length) {
+      return `"${question.title}" has a condition with no answers selected`;
     }
   }
-  return true;
+  return null;
 };
 
 export function HackerAppMain() {
@@ -101,6 +108,8 @@ export function HackerAppMain() {
   // Saving occurs on this level, so keep a local copy of the form
   const [draft, setDraft] = useState<HackerApplicationFormQuestions>(formData);
   const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  const conditionSources = useMemo(() => buildConditionSources(draft), [draft]);
 
   const usedFieldsRegistry: UsedFieldsRegistry = useMemo(() => {
     const allQuestions = Object.values(draft).flat() as HackerApplicationQuestion[];
@@ -207,11 +216,11 @@ export function HackerAppMain() {
    * @param value - the updated value
    */
   const handleChangeQuestionField = useCallback(
-    (
+    <K extends keyof HackerApplicationQuestion>(
       section: HackerApplicationSections,
       index: number,
-      field: keyof HackerApplicationQuestion,
-      value: string | boolean | string[],
+      field: K,
+      value: HackerApplicationQuestion[K],
     ) => {
       setSectionQuestions(section, (data) => {
         const updatedData = [...data];
@@ -225,17 +234,25 @@ export function HackerAppMain() {
   const handleSave = async (section: HackerApplicationSections) => {
     if (isSaving) return;
 
-    if (!validateSectionData(cleanSectionData(draft[section]))) {
-      toast("Please make sure all Form Input values have been selected");
+    const cleaned = cleanSectionData(draft[section]);
+
+    const error = validateSectionData(cleaned);
+    if (error) {
+      toast.error(error);
       return;
     }
+
+    const afterSave = { ...formData, [section]: cleaned };
+    const [issue] = findConditionIssues(afterSave, buildConditionSources(afterSave));
+    if (issue) {
+      const where = SECTIONS.find(({ id }) => id === issue.section)?.title ?? issue.section;
+      toast.error(`${where} — "${issue.title}": ${issue.detail}`);
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await updateHackerAppSectionQuestions(
-        activeHackathonName,
-        section,
-        cleanSectionData(draft[section]),
-      );
+      await updateHackerAppSectionQuestions(activeHackathonName, section, cleaned);
       toast("Application section saved!");
     } catch (error) {
       console.error(error);
@@ -247,7 +264,7 @@ export function HackerAppMain() {
 
   return (
     <div ref={containerRef} className="flex w-full flex-col gap-3 ">
-      {sections.map(({ id, title, description }) => (
+      {SECTIONS.map(({ id, title, description }) => (
         <HackerAppSection
           key={id}
           section={id}
@@ -260,15 +277,14 @@ export function HackerAppMain() {
           onMoveQuestion={(fromIndex: number, toIndex: number) =>
             handleMoveQuestion(id, fromIndex, toIndex)
           }
-          onChangeQuestionField={(
-            index: number,
-            field: keyof HackerApplicationQuestion,
-            value: string | boolean | string[],
-          ) => handleChangeQuestionField(id, index, field, value)}
+          onChangeQuestionField={(index, field, value) =>
+            handleChangeQuestionField(id, index, field, value)
+          }
           onSave={() => handleSave(id)}
           isSaving={isSaving}
           isSectionUpdated={isSectionUpdated(id)}
           usedFieldsRegistry={usedFieldsRegistry}
+          conditionSources={conditionSources}
         />
       ))}
     </div>
