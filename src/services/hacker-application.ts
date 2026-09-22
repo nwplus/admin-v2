@@ -1,5 +1,7 @@
 import { auth, db } from "@/lib/firebase/client";
+import { HACKER_APP_SECTIONS } from "@/lib/firebase/types";
 import type {
+  HackerApplicationFormQuestions,
   HackerApplicationMetadata,
   HackerApplicationQuestion,
   HackerApplicationSections,
@@ -40,10 +42,9 @@ export const subscribeToHackerAppDoc = (
  */
 export const subscribeToHackerAppQuestions = (
   hackathonName: string,
-  callback: (data: Record<HackerApplicationSections, HackerApplicationQuestion[]>) => void,
+  callback: (data: HackerApplicationFormQuestions) => void,
 ) => {
-  const sections = ["BasicInfo", "Questionnaire", "Skills", "Welcome"] as const;
-  const data: Record<HackerApplicationSections, HackerApplicationQuestion[]> = {
+  const data: HackerApplicationFormQuestions = {
     BasicInfo: [],
     Questionnaire: [],
     Skills: [],
@@ -52,7 +53,7 @@ export const subscribeToHackerAppQuestions = (
   const unsubscribers: (() => void)[] = [];
   const loadedSections = new Set<string>();
 
-  for (const section of sections) {
+  for (const section of HACKER_APP_SECTIONS) {
     const unsubscribe = onSnapshot(
       query(collection(db, "HackerAppQuestions", hackathonName, section)),
       (snapshot) => {
@@ -61,7 +62,7 @@ export const subscribeToHackerAppQuestions = (
           ...doc.data(),
         }));
         loadedSections.add(section);
-        if (loadedSections.size === sections.length) {
+        if (loadedSections.size === HACKER_APP_SECTIONS.length) {
           callback(data);
         }
       },
