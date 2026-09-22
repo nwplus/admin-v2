@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Confirm } from "@/components/ui/confirm";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { FORM_INPUT_FIELDS } from "@/lib/firebase/types";
 import type {
   HackerApplicationQuestion,
   HackerApplicationQuestionFormInputField,
@@ -22,7 +24,14 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronUp, Plus, Trash } from "lucide-react";
 import { type ReactNode, memo, useEffect } from "react";
 import { Editor } from "../editor";
+import {
+  type ConditionSource,
+  conditionValueLabel,
+  getConditionIssue,
+  getEligibleSources,
+} from "./hacker-app-conditions";
 import type { UsedFieldsRegistry } from "./hacker-app-main";
+import { LEGAL_NAME_FORM_INPUTS, isFormInputAllowedInSection } from "./hacker-app-sections";
 
 const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "Long Answer",
@@ -46,37 +55,6 @@ const QUESTION_TYPES_UNIQUE: HackerApplicationQuestionType[] = [
   "Country",
 ];
 
-export const LEGAL_NAME_FORM_INPUTS: readonly HackerApplicationQuestionFormInputField[] = [
-  "legalFirstName",
-  "legalLastName",
-];
-
-// TODO: reorganize type and form input type?
-const FORM_INPUT_OPTIONS: HackerApplicationQuestionFormInputField[] = [
-  "academicYear",
-  "ageByHackathon",
-  "canadianStatus",
-  "culturalBackground",
-  "dietaryRestriction",
-  "disability",
-  "educationLevel",
-  "email",
-  "gender",
-  "graduation",
-  "haveTransExperience",
-  "identifyAsUnderrepresented",
-  "indigenousIdentification",
-  "legalFirstName",
-  "legalLastName",
-  "phoneNumber",
-  "preferredName",
-  "pronouns",
-  "race",
-  "jobPosition",
-  "connectPlus",
-  "travellingToHackathon",
-];
-
 export const SHOW_FORM_INPUT: HackerApplicationQuestionType[] = [
   "Multiple Choice",
   "Select All",
@@ -96,12 +74,13 @@ interface HackerAppQuestionProps {
   onAdd: (index: number) => void;
   onMove: (fromIndex: number, toIndex: number) => void;
   onRemove: (index: number) => void;
-  onChange: (
+  onChange: <K extends keyof HackerApplicationQuestion>(
     index: number,
-    field: keyof HackerApplicationQuestion,
-    value: string | boolean | string[],
+    field: K,
+    value: HackerApplicationQuestion[K],
   ) => void;
   usedFieldsRegistry: UsedFieldsRegistry;
+  conditionSources: ConditionSource[];
 }
 
 export const HackerAppQuestion = memo(function HackerAppQuestion({
@@ -115,6 +94,7 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
   onRemove,
   onChange,
   usedFieldsRegistry,
+  conditionSources,
 }: HackerAppQuestionProps) {
   /**
    * Helper function to properly modify options array before sending it up
@@ -155,15 +135,31 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
       (qt !== "Full Legal Name" || !hasSplitLegalName) &&
       (!QUESTION_TYPES_UNIQUE.includes(qt) || !usedFieldsRegistry.questionType.has(qt)),
   );
-  const usableFormInputs = FORM_INPUT_OPTIONS?.filter(
-    (fi) =>
-      !usedFieldsRegistry.formInput.has(fi) &&
-      (section === "BasicInfo" || !LEGAL_NAME_FORM_INPUTS.includes(fi)),
+  const usableFormInputs = FORM_INPUT_FIELDS.filter(
+    (fi) => !usedFieldsRegistry.formInput.has(fi) && isFormInputAllowedInSection(fi, section),
   );
   const isQuestionTypeDisabled = Boolean(
     question.type && QUESTION_TYPES_UNIQUE.includes(question.type),
   );
   const isFormInputDisabled = Boolean(question.formInput);
+
+  const condition = question.condition;
+  const eligibleSources = getEligibleSources(conditionSources, section, index);
+  const conditionSource = eligibleSources.find((s) => s.formInput === condition?.sourceFormInput);
+  const conditionIssue = getConditionIssue(question, eligibleSources);
+  const conditionValueOptions = [
+    ...new Set([...(conditionSource?.options ?? []), ...(condition?.values ?? [])]),
+  ];
+  const canToggleCondition = eligibleSources.length > 0 || Boolean(condition);
+
+  const handleConditionToggle = (enabled: boolean) => {
+    const nearest = eligibleSources.at(-1);
+    onChange(
+      index,
+      "condition",
+      enabled && nearest ? { sourceFormInput: nearest.formInput, values: [] } : undefined,
+    );
+  };
 
   return !isContent ? (
     <div className="relative flex flex-col gap-3">
@@ -238,7 +234,7 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
           <Select
             onValueChange={(v) => {
               if (isQuestionTypeDisabled) return;
-              onChange(index, "type", v);
+              onChange(index, "type", v as HackerApplicationQuestionType);
             }}
             defaultValue={question.type}
             disabled={isQuestionTypeDisabled}
@@ -270,7 +266,7 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
                 <Select
                   onValueChange={(v) => {
                     if (isFormInputDisabled) return;
-                    onChange(index, "formInput", v);
+                    onChange(index, "formInput", v as HackerApplicationQuestionFormInputField);
                   }}
                   defaultValue={question.formInput}
                   disabled={isFormInputDisabled}
@@ -334,6 +330,74 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
             )}
           </>
         )}
+
+        <Field>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Field className="flex-row">
+                <Switch
+                  checked={Boolean(condition)}
+                  disabled={!canToggleCondition}
+                  onCheckedChange={handleConditionToggle}
+                />
+                <Label>Only show this question conditionally</Label>
+              </Field>
+            </TooltipTrigger>
+            {!canToggleCondition && (
+              <TooltipContent side="right">
+                Add a multiple choice or dropdown question before this one first
+              </TooltipContent>
+            )}
+          </Tooltip>
+
+          {condition && (
+            <div className="flex flex-col gap-3 rounded-tl-xs rounded-tr-xl rounded-br-xl rounded-bl-xs border-theme/70 border-l-4 bg-theme/2 px-3 py-3">
+              <Field>
+                <Label>Show when</Label>
+                <Select
+                  value={conditionSource?.formInput ?? ""}
+                  onValueChange={(v) =>
+                    onChange(index, "condition", {
+                      sourceFormInput: v as HackerApplicationQuestionFormInputField,
+                      values: [],
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-full bg-background">
+                    <SelectValue placeholder="Select a question" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {eligibleSources.map((source) => (
+                      <SelectItem key={source.formInput} value={source.formInput}>
+                        <div className="flex flex-col items-start">
+                          <span className="line-clamp-1">{source.title}</span>
+                          <span className="text-muted-foreground text-xs">{source.formInput}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <Label>is answered with any of</Label>
+                <MultiSelect
+                  options={conditionValueOptions.map((o) => ({
+                    label: conditionValueLabel(o),
+                    value: o,
+                  }))}
+                  selected={condition.values}
+                  onChange={(values) => onChange(index, "condition", { ...condition, values })}
+                  placeholder="Select answers..."
+                  className="bg-background"
+                />
+              </Field>
+              <div className="text-muted-foreground text-sm">
+                Hidden questions are not required, even when Required is on.
+              </div>
+              {conditionIssue && <div className="text-destructive text-sm">{conditionIssue}</div>}
+            </div>
+          )}
+        </Field>
       </div>
 
       <div className="flex w-full justify-center">
