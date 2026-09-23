@@ -77,6 +77,10 @@ export const subscribeToHackerAppQuestions = (
   };
 };
 
+// firestore throws on an explicit undefined, which is what clearing an optional field leaves
+const stripUndefined = (question: HackerApplicationQuestion) =>
+  Object.fromEntries(Object.entries(question).filter(([, value]) => value !== undefined));
+
 /**
  * Utility function that updates all the questions in a hacker app section
  * @param hackathonName - document under HackerAppQuestions
@@ -103,7 +107,7 @@ export const updateHackerAppSectionQuestions = async (
       section,
       index.toString().padStart(3, "0"),
     );
-    batch.set(newDocRef, question);
+    batch.set(newDocRef, stripUndefined(question));
   });
   await batch.commit();
 
