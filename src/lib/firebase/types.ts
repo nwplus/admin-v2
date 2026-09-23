@@ -100,6 +100,14 @@ export interface HackathonDayOf {
   lastModifiedBy?: string;
 }
 
+export interface PreHackathonWorkshop {
+  _id?: string;
+  eventId?: string;
+  name?: string;
+  lastModified?: Timestamp;
+  lastModifiedBy?: string;
+}
+
 /**
  *  Sub-collection: /Hackathon/[hackathon]/Projects
  *
