@@ -1,8 +1,6 @@
-import type { Applicant } from "@/lib/firebase/types";
+import type { Applicant, RubricType } from "@/lib/firebase/types";
 
 export const BEGINNER_MAX_PREV_HACKATHONS = 1;
-
-export type ExperienceGroup = "beginner" | "experienced";
 
 export interface AcceptanceRatio {
   total?: number;
@@ -41,15 +39,25 @@ export const parsePrevHackathons = (numHackathonsAttended?: string) => {
   return Number.isNaN(parsed) || parsed < 0 ? 0 : parsed;
 };
 
-export const getExperienceGroup = (applicant: Applicant): ExperienceGroup =>
-  parsePrevHackathons(applicant.skills?.numHackathonsAttended) <= BEGINNER_MAX_PREV_HACKATHONS
+/**
+ * guesses a rubric type from how many hackathons they've been to
+ */
+export const getDefaultRubricType = (numHackathonsAttended?: string): RubricType =>
+  parsePrevHackathons(numHackathonsAttended) <= BEGINNER_MAX_PREV_HACKATHONS
     ? "beginner"
     : "experienced";
 
-export const groupByExperience = (
-  applicants: Applicant[],
-): Record<ExperienceGroup, Applicant[]> => {
-  const groups: Record<ExperienceGroup, Applicant[]> = { beginner: [], experienced: [] };
+/**
+ * uses the rubric type saved by an evaluator, otherwise falls back to the default
+ */
+export const getExperienceGroup = (applicant: Applicant): RubricType =>
+  applicant.score?.rubricType || getDefaultRubricType(applicant.skills?.numHackathonsAttended);
+
+/**
+ * splits applicants into beginner and experienced groups
+ */
+export const groupByExperience = (applicants: Applicant[]): Record<RubricType, Applicant[]> => {
+  const groups: Record<RubricType, Applicant[]> = { beginner: [], experienced: [] };
   for (const applicant of applicants) {
     groups[getExperienceGroup(applicant)].push(applicant);
   }
