@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useRouterState } from "@tanstack/react-router";
 import { Clipboard, FileUser, NotepadText, Text } from "lucide-react";
+import { SECTIONS } from "./hacker-app-sections";
 
 const ICONS_MAP = {
   nwHacks: NwHacksIcon,
@@ -20,28 +21,12 @@ const ICONS_MAP = {
   HackCamp: HackCampIcon,
 };
 
-const SECTION_NAV = [
-  {
-    id: "Welcome",
-    label: "Welcome",
-    icon: Text,
-  },
-  {
-    id: "BasicInfo",
-    label: "Basics",
-    icon: Clipboard,
-  },
-  {
-    id: "Skills",
-    label: "Skills",
-    icon: FileUser,
-  },
-  {
-    id: "Questionnaire",
-    label: "Questionaire",
-    icon: NotepadText,
-  },
-];
+const SECTION_ICONS = {
+  Welcome: Text,
+  BasicInfo: Clipboard,
+  Skills: FileUser,
+  Questionnaire: NotepadText,
+};
 
 export function HackerAppNav({
   hackathonData: [hackathon, year],
@@ -72,18 +57,18 @@ export function HackerAppNav({
           <SidebarGroupLabel>Sections</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="font-[500]">
-              {SECTION_NAV.map((item) => {
-                const IconComponent = item.icon;
+              {SECTIONS.map(({ id, title }) => {
+                const IconComponent = SECTION_ICONS[id];
                 return (
-                  <SidebarMenuItem key={item.id}>
+                  <SidebarMenuItem key={id}>
                     <SidebarMenuButton
                       asChild
-                      isActive={router.location.hash === item.id}
+                      isActive={router.location.hash === id}
                       className="transition-all"
                     >
-                      <a href={`#${item.id}`}>
+                      <a href={`#${id}`}>
                         <IconComponent />
-                        {item.label}
+                        {title}
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -92,21 +77,6 @@ export function HackerAppNav({
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {/* <SidebarGroup>
-          <SidebarGroupLabel>Actions</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Button className="transition-all hover:bg-theme/90 hover:text-white active:bg-theme/80 active:text-white">
-                    Save all
-                  </Button>
-                </SidebarMenuButton>
-                <div className="p-2 text-neutral-500 text-xs">Last saved</div>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup> */}
       </SidebarContent>
     </Sidebar>
   );

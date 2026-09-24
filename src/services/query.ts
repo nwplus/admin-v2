@@ -53,6 +53,9 @@ export const flattenApplicantData = (
     lastName: applicant.basicInfo?.legalLastName || applicant.basicInfo?.lastName || "",
     email: applicant.basicInfo?.email || "",
     phoneNumber: applicant.basicInfo?.phoneNumber || "",
+    phoneNumberOwnerNameAndRelationship:
+      applicant.basicInfo?.phoneNumberOwnerNameAndRelationship || "",
+    parentOrGuardianPhoneNumber: applicant.basicInfo?.parentOrGuardianPhoneNumber || "",
     school: applicant.basicInfo?.school || "",
     major: isLegacyFormat
       ? (applicant.basicInfo?.major as string) || ""
@@ -62,13 +65,7 @@ export const flattenApplicantData = (
         ),
     educationLevel: applicant.basicInfo?.educationLevel || "",
     graduation: applicant.basicInfo?.graduation || "",
-    gender:
-      typeof applicant.basicInfo?.gender === "string"
-        ? applicant.basicInfo.gender
-        : createStringFromSelection(
-            applicant.basicInfo?.gender as Record<string, boolean> | undefined,
-            "",
-          ),
+    gender: createStringFromSelection(applicant.basicInfo?.gender),
     isOfLegalAge: computedIsOfLegalAge(applicant),
     travellingToHackathon: applicant.basicInfo?.travellingToHackathon || "",
     culturalBackground: returnTrueKey(
@@ -105,12 +102,11 @@ export const flattenApplicantData = (
     firstTimeHacker: applicant.skills?.numHackathonsAttended === "0" || false,
 
     // Engagement source
-    engagementSource: isLegacyFormat
-      ? (applicant.questionnaire?.engagementSource as string) || ""
-      : createStringFromSelection(
-          applicant.questionnaire?.engagementSource as Record<string, boolean> | undefined,
-          applicant.questionnaire?.otherEngagementSource || "",
-        ),
+    engagementSource: createStringFromSelection(
+      applicant.questionnaire?.engagementSource,
+      applicant.questionnaire?.otherEngagementSource || "",
+    ),
+    eventsAttended: createStringFromSelection(applicant.questionnaire?.eventsAttended),
     friendEmail: applicant.questionnaire?.friendEmail || "",
 
     // Terms and conditions
@@ -243,7 +239,7 @@ export const getAvailableColumns = (): string[] => {
     questionnaire: {
       engagementSource: "",
       friendEmail: "",
-      eventsAttended: [],
+      eventsAttended: {},
     },
     termsAndConditions: {
       MLHCodeOfConduct: false,
@@ -267,6 +263,8 @@ export interface FlattenedApplicant {
   lastName: string;
   email: string;
   phoneNumber: string;
+  phoneNumberOwnerNameAndRelationship: string;
+  parentOrGuardianPhoneNumber: string;
   school: string;
   major: string;
   educationLevel: string;
@@ -302,6 +300,7 @@ export interface FlattenedApplicant {
 
   // Questionnaire
   engagementSource: string;
+  eventsAttended: string;
   friendEmail: string;
 
   // Terms and conditions
@@ -349,6 +348,7 @@ export const CATEGORICAL_COLUMNS: ReadonlySet<string> = new Set([
   "jobPosition",
   "travellingToHackathon",
   "engagementSource",
+  "eventsAttended",
   "ageByHackathon",
   "graduation",
 ]);
@@ -360,6 +360,7 @@ export const MULTI_VALUE_COLUMNS: ReadonlySet<string> = new Set([
   "culturalBackground",
   "role",
   "engagementSource",
+  "eventsAttended",
 ]);
 
 export const extractColumnValues = (applicants: FlattenedApplicant[]): Record<string, string[]> => {
