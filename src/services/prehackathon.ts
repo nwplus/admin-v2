@@ -58,7 +58,8 @@ export const deletePreHackathonWorkshop = async (hackathon: string, eventId: str
   try {
     await deleteDoc(doc(db, "Hackathons", hackathon, "PreHackathonWorkshops", eventId));
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    throw error;
   }
 };
 
