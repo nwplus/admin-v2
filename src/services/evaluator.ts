@@ -1,5 +1,10 @@
 import { db } from "@/lib/firebase/client";
-import type { Applicant, ApplicantContribution, InternalWebsitesCMS } from "@/lib/firebase/types";
+import type {
+  Applicant,
+  ApplicantContribution,
+  InternalWebsitesCMS,
+  RubricType,
+} from "@/lib/firebase/types";
 import { flattenApplicantData } from "@/services/query";
 import {
   type Timestamp,
@@ -10,6 +15,7 @@ import {
   getDocs,
   onSnapshot,
   query,
+  runTransaction,
   setDoc,
   updateDoc,
   where,
@@ -146,6 +152,32 @@ export const updateApplicant = async (hackathon: string, applicantId: string, up
   } catch (err) {
     console.error("Error updating applicant: ", err);
   }
+};
+
+/**
+ * Utility function to save an applicant's default rubric type, unless one is already set
+ * @param hackathon - of the applicant
+ * @param applicantId - of the applicant
+ * @param rubricType - the default to save
+ * @returns the rubric type now saved on the applicant
+ */
+export const saveDefaultRubricType = async (
+  hackathon: string,
+  applicantId: string,
+  rubricType: RubricType,
+) => {
+  const applicantRef = doc(db, "Hackathons", hackathon, "Applicants", applicantId);
+
+  return runTransaction(db, async (transaction) => {
+    const applicantSnap = await transaction.get(applicantRef);
+    if (!applicantSnap.exists()) return rubricType;
+
+    const applicant = applicantSnap.data() as Applicant;
+    if (applicant.score?.rubricType) return applicant.score.rubricType;
+
+    transaction.set(applicantRef, { score: { rubricType } }, { merge: true });
+    return rubricType;
+  });
 };
 
 /**

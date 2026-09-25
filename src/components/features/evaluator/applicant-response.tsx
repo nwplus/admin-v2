@@ -16,6 +16,13 @@ export function ApplicantResponse() {
     );
   }
 
+  const visibleFields = RESPONSE_VISIBLE_FIELDS.filter(
+    (fieldConfig) =>
+      fieldConfig.type !== "long" ||
+      fieldConfig.field in questionLabels ||
+      getNestedValue(focusedApplicant, fieldConfig.field) !== undefined,
+  );
+
   return (
     <Card key={focusedApplicant?._id}>
       <CardHeader>
@@ -23,7 +30,7 @@ export function ApplicantResponse() {
         <CardDescription>ID: {focusedApplicant?._id}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {RESPONSE_VISIBLE_FIELDS.map((fieldConfig) => (
+        {visibleFields.map((fieldConfig) => (
           <Response
             key={fieldConfig.field}
             label={questionLabels[fieldConfig.field] || fieldConfig.label}

@@ -76,10 +76,15 @@ export const returnTrueKey = (booleanMap: Record<string, boolean> | undefined): 
  * @returns a comma-separated string of selected keys
  */
 export const createStringFromSelection = (
-  selection: Record<string, boolean> | undefined,
+  selection: string | string[] | Record<string, boolean> | undefined,
   additionalText = "",
 ): string => {
   if (!selection) return "";
+  // older apps stored these as a string or a list, Object.entries would shred both
+  if (typeof selection === "string") {
+    return selection === "other" && additionalText ? additionalText : selection;
+  }
+  if (Array.isArray(selection)) return selection.join(", ");
 
   let trueKeys = Object.entries(selection)
     .filter(([_, value]) => value)

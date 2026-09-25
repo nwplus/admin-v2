@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebouncedSave } from "@/hooks/use-debounce-save";
-import type { ApplicantScoreItem, ScoringCriteria } from "@/lib/firebase/types";
+import { getExperienceGroup } from "@/lib/acceptance";
+import type { ApplicantScoreItem, RubricType, ScoringCriteria } from "@/lib/firebase/types";
 import { useAuth } from "@/providers/auth-provider";
 import { useEvaluator } from "@/providers/evaluator-provider";
-import { updateApplicant } from "@/services/evaluator";
+import { saveDefaultRubricType, updateApplicant } from "@/services/evaluator";
 import { Timestamp } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 
@@ -16,6 +18,7 @@ export function ApplicantScoring() {
   const enabledScoringCriteria = scoringCriteria.filter((criteria) => !criteria.isDisabled);
 
   const [scores, setScores] = useState<Record<string, ApplicantScoreItem>>({});
+  const [rubricType, setRubricType] = useState<RubricType | null>(null);
   const [comment, setComment] = useState<string>("");
   const [metadata, setMetadata] = useState<{
     lastUpdated?: Timestamp;
@@ -32,6 +35,45 @@ export function ApplicantScoring() {
       lastUpdatedBy: focusedApplicant?.score?.lastUpdatedBy,
     });
   }, [focusedApplicant]);
+
+  useEffect(() => {
+    if (!focusedApplicant?._id) return;
+
+    const defaultRubricType = getExperienceGroup(focusedApplicant);
+    setRubricType(defaultRubricType);
+    if (focusedApplicant.score?.rubricType) return;
+
+    // another evaluator might save first, so show whatever actually ended up in firestore
+    let cancelled = false;
+    saveDefaultRubricType(hackathon, focusedApplicant._id, defaultRubricType)
+      .then((saved) => {
+        if (!cancelled) setRubricType(saved);
+      })
+      .catch((err) => console.error("Error saving default rubric type: ", err));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hackathon, focusedApplicant]);
+
+  const handleRubricTypeChange = async (value: RubricType) => {
+    if (!focusedApplicant?._id) return;
+
+    const newMetadata = {
+      lastUpdated: Timestamp.now(),
+      lastUpdatedBy: user?.email ?? "err",
+    };
+
+    setRubricType(value);
+    setMetadata(newMetadata);
+
+    await updateApplicant(hackathon, focusedApplicant._id, {
+      score: {
+        rubricType: value,
+        ...newMetadata,
+      },
+    });
+  };
 
   const handleScoreChange = async (field: string, value: number) => {
     if (saving) return;
@@ -143,6 +185,31 @@ export function ApplicantScoring() {
         <CardTitle>Scoring</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-grow flex-col gap-5 overflow-auto">
+        <div className="flex flex-col gap-1.5">
+          <Label id="rubric-type">Beginner / Experienced</Label>
+          <RadioGroup
+            aria-labelledby="rubric-type"
+            value={rubricType ?? ""}
+            onValueChange={(value) => handleRubricTypeChange(value as RubricType)}
+            className="flex gap-4"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="beginner" id="rubric-type-beginner" />
+              <Label htmlFor="rubric-type-beginner" className="font-normal">
+                Beginner
+              </Label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="experienced" id="rubric-type-experienced" />
+              <Label htmlFor="rubric-type-experienced" className="font-normal">
+                Experienced
+              </Label>
+            </div>
+          </RadioGroup>
+          <div className="text-neutral-500 text-xs">
+            Previous hackathons reported: {focusedApplicant.skills?.numHackathonsAttended ?? "N/A"}
+          </div>
+        </div>
         {scoringCriteria?.map(
           (criteria) =>
             !criteria.isDisabled && (
