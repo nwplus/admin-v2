@@ -181,7 +181,7 @@ export function HackerAppMain() {
     (section: HackerApplicationSections, index: number) =>
       setSectionQuestions(section, (data) => [
         ...data.slice(0, index + 1),
-        EMPTY_QUESTION,
+        { ...EMPTY_QUESTION, _id: crypto.randomUUID() },
         ...data.slice(index + 1),
       ]),
     [setSectionQuestions],
