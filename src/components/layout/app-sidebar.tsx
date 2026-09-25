@@ -5,6 +5,7 @@ import {
   BadgeCheck,
   Bot,
   Calendar,
+  CalendarCheck,
   DollarSign,
   FileText,
   HelpCircle,
@@ -111,6 +112,11 @@ export const generateHackathonNavigation = (hackathons: Hackathon[]) => {
           label: "Schedule",
           href: `/hackathons/${hackathon._id}/schedule`,
           icon: Calendar,
+        },
+        {
+          label: "Attendance",
+          href: `/hackathons/${hackathon._id}/attendance`,
+          icon: CalendarCheck,
         },
         {
           label: "Rewards",
