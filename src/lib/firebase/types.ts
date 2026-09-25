@@ -194,6 +194,8 @@ export interface Applicant {
     location: string; // city
     major: ApplicantMajor | Record<string, boolean>;
     phoneNumber: string; // "+1 XXX-XXX-XXXX"
+    phoneNumberOwnerNameAndRelationship?: string;
+    parentOrGuardianPhoneNumber?: string;
     school: string; // should be typed
     travellingToHackathon: string;
     // demographic fields
@@ -253,7 +255,7 @@ export interface Applicant {
   };
   questionnaire?: {
     engagementSource?: string | Record<string, boolean>;
-    eventsAttended?: string[];
+    eventsAttended?: Record<string, boolean>; // select all, so a map not a list
     friendEmail?: string;
     otherEngagementSource?: string;
   };
@@ -264,6 +266,12 @@ export interface Applicant {
     resume?: string;
     numHackathonsAttended?: string;
     contributionRole?: ApplicantContribution;
+    longAnswers1?: string;
+    longAnswers2?: string;
+    longAnswers3?: string;
+    longAnswers4?: string;
+    longAnswers5?: string;
+    longAnswers6?: string;
   };
   status?: {
     // could do some clean up here
@@ -338,7 +346,8 @@ export interface InternalWebsitesCMS {
  *
  *  Hacker app
  */
-export type HackerApplicationSections = "BasicInfo" | "Questionnaire" | "Skills" | "Welcome";
+export const HACKER_APP_SECTIONS = ["BasicInfo", "Questionnaire", "Skills", "Welcome"] as const;
+export type HackerApplicationSections = (typeof HACKER_APP_SECTIONS)[number];
 export type HackerApplicationQuestionType =
   | "Long Answer"
   | "Portfolio"
@@ -350,29 +359,49 @@ export type HackerApplicationQuestionType =
   | "School"
   | "Major"
   | "Country";
-export type HackerApplicationQuestionFormInputField =
-  | "academicYear"
-  | "ageByHackathon"
-  | "canadianStatus"
-  | "culturalBackground"
-  | "dietaryRestriction"
-  | "disability"
-  | "educationLevel"
-  | "email"
-  | "gender"
-  | "graduation"
-  | "haveTransExperience"
-  | "identifyAsUnderrepresented"
-  | "indigenousIdentification"
-  | "legalFirstName"
-  | "legalLastName"
-  | "phoneNumber"
-  | "preferredName"
-  | "pronouns"
-  | "race"
-  | "jobPosition"
-  | "connectPlus"
-  | "travellingToHackathon";
+// keep in sync with portal-v2 src/lib/firebase/types/hacker-app-questions.ts, which renders these
+export const FORM_INPUT_FIELDS = [
+  "academicYear",
+  "ageByHackathon",
+  "canadianStatus",
+  "culturalBackground",
+  "dietaryRestriction",
+  "disability",
+  "educationLevel",
+  "email",
+  "gender",
+  "graduation",
+  "haveTransExperience",
+  "identifyAsUnderrepresented",
+  "indigenousIdentification",
+  "legalFirstName",
+  "legalLastName",
+  "phoneNumber",
+  "phoneNumberOwnerNameAndRelationship",
+  "parentOrGuardianPhoneNumber",
+  "preferredName",
+  "pronouns",
+  "race",
+  "jobPosition",
+  "connectPlus",
+  "travellingToHackathon",
+  "engagementSource",
+  "eventsAttended",
+  "friendEmail",
+  "contributionRole",
+  "numHackathonsAttended",
+  "longAnswers1",
+  "longAnswers2",
+  "longAnswers3",
+  "longAnswers4",
+  "longAnswers5",
+  "longAnswers6",
+] as const;
+export type HackerApplicationQuestionFormInputField = (typeof FORM_INPUT_FIELDS)[number];
+export interface HackerApplicationQuestionCondition {
+  sourceFormInput: HackerApplicationQuestionFormInputField;
+  values: string[];
+}
 export interface HackerApplicationQuestion {
   _id?: string; // internal
   title?: string;
@@ -384,7 +413,12 @@ export interface HackerApplicationQuestion {
   required?: boolean;
   type?: HackerApplicationQuestionType;
   maxWords?: string; // b/c portal uses it
+  condition?: HackerApplicationQuestionCondition;
 }
+export type HackerApplicationFormQuestions = Record<
+  HackerApplicationSections,
+  HackerApplicationQuestion[]
+>;
 export type HackerApplicationMetadataInfo = {
   lastEditedAt: Timestamp;
   lastEditedBy: string;

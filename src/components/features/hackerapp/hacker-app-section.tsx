@@ -15,6 +15,7 @@ import type {
   HackerApplicationSections,
 } from "@/lib/firebase/types";
 import { Plus } from "lucide-react";
+import type { ConditionSource } from "./hacker-app-conditions";
 import type { UsedFieldsRegistry } from "./hacker-app-main";
 import { HackerAppQuestion } from "./hacker-app-question";
 
@@ -27,12 +28,13 @@ interface HackerAppSectionProps {
   onRemoveQuestion: (index: number) => void;
   onAddQuestion: (index: number) => void;
   onMoveQuestion: (fromIndex: number, toIndex: number) => void;
-  onChangeQuestionField: (
+  onChangeQuestionField: <K extends keyof HackerApplicationQuestion>(
     index: number,
-    field: keyof HackerApplicationQuestion,
-    value: string | boolean | string[],
+    field: K,
+    value: HackerApplicationQuestion[K],
   ) => void;
   onSave: () => void;
+  conditionSources: ConditionSource[];
   isSaving: boolean;
   isSectionUpdated: boolean;
   usedFieldsRegistry: UsedFieldsRegistry;
@@ -49,6 +51,7 @@ export function HackerAppSection({
   onMoveQuestion,
   onChangeQuestionField,
   onSave,
+  conditionSources,
   isSaving,
   isSectionUpdated,
   usedFieldsRegistry,
@@ -91,6 +94,7 @@ export function HackerAppSection({
               onRemove={onRemoveQuestion}
               onChange={onChangeQuestionField}
               usedFieldsRegistry={usedFieldsRegistry}
+              conditionSources={conditionSources}
             />
           ))}
           {!data.length && (
