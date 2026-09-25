@@ -350,7 +350,11 @@ export type HackerApplicationQuestionType =
   | "Dropdown"
   | "School"
   | "Major"
-  | "Country";
+  | "Country"
+  | "Github"
+  | "LinkedIn"
+  | "Portfolio Website"
+  | "Resume";
 // keep in sync with portal-v2 src/lib/firebase/types/hacker-app-questions.ts, which renders these
 export const FORM_INPUT_FIELDS = [
   "academicYear",

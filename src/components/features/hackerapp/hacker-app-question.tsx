@@ -44,6 +44,10 @@ const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "School",
   "Major",
   "Country",
+  "Github",
+  "LinkedIn",
+  "Portfolio Website",
+  "Resume",
 ];
 
 // Question types that if selected, bricks the select field and locks in the value
@@ -53,6 +57,10 @@ const QUESTION_TYPES_UNIQUE: HackerApplicationQuestionType[] = [
   "School",
   "Major",
   "Country",
+  "Github",
+  "LinkedIn",
+  "Portfolio Website",
+  "Resume",
 ];
 
 export const SHOW_FORM_INPUT: HackerApplicationQuestionType[] = [
