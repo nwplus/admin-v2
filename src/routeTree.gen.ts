@@ -22,6 +22,7 @@ import { Route as AuthStampbookIndexRouteImport } from './routes/_auth/stampbook
 import { Route as AuthStampbookRaffleRouteImport } from './routes/_auth/stampbook/raffle'
 import { Route as AuthHackathonsHackathonIdIndexRouteImport } from './routes/_auth/hackathons/$hackathonId/index'
 import { Route as AuthHackathonsHackathonIdApplicationRouteImport } from './routes/_auth/hackathons/$hackathonId/application'
+import { Route as AuthHackathonsHackathonIdAttendanceRouteImport } from './routes/_auth/hackathons/$hackathonId/attendance'
 import { Route as AuthHackathonsHackathonIdRewardsRouteImport } from './routes/_auth/hackathons/$hackathonId/rewards'
 import { Route as AuthHackathonsHackathonIdScheduleRouteImport } from './routes/_auth/hackathons/$hackathonId/schedule'
 import { Route as AuthHackathonsHackathonIdSettingsRouteImport } from './routes/_auth/hackathons/$hackathonId/settings'
@@ -94,6 +95,12 @@ const AuthHackathonsHackathonIdApplicationRoute =
     path: '/application',
     getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
   } as any)
+const AuthHackathonsHackathonIdAttendanceRoute =
+  AuthHackathonsHackathonIdAttendanceRouteImport.update({
+    id: '/attendance',
+    path: '/attendance',
+    getParentRoute: () => AuthHackathonsHackathonIdRouteRoute,
+  } as any)
 const AuthHackathonsHackathonIdRewardsRoute =
   AuthHackathonsHackathonIdRewardsRouteImport.update({
     id: '/rewards',
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/stampbook/raffle': typeof AuthStampbookRaffleRoute
   '/stampbook/': typeof AuthStampbookIndexRoute
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
+  '/hackathons/$hackathonId/attendance': typeof AuthHackathonsHackathonIdAttendanceRoute
   '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
   '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
   '/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
@@ -148,6 +156,7 @@ export interface FileRoutesByTo {
   '/stampbook/raffle': typeof AuthStampbookRaffleRoute
   '/stampbook': typeof AuthStampbookIndexRoute
   '/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
+  '/hackathons/$hackathonId/attendance': typeof AuthHackathonsHackathonIdAttendanceRoute
   '/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
   '/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
   '/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
@@ -168,6 +177,7 @@ export interface FileRoutesById {
   '/_auth/stampbook/raffle': typeof AuthStampbookRaffleRoute
   '/_auth/stampbook/': typeof AuthStampbookIndexRoute
   '/_auth/hackathons/$hackathonId/application': typeof AuthHackathonsHackathonIdApplicationRoute
+  '/_auth/hackathons/$hackathonId/attendance': typeof AuthHackathonsHackathonIdAttendanceRoute
   '/_auth/hackathons/$hackathonId/rewards': typeof AuthHackathonsHackathonIdRewardsRoute
   '/_auth/hackathons/$hackathonId/schedule': typeof AuthHackathonsHackathonIdScheduleRoute
   '/_auth/hackathons/$hackathonId/settings': typeof AuthHackathonsHackathonIdSettingsRoute
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/stampbook/raffle'
     | '/stampbook/'
     | '/hackathons/$hackathonId/application'
+    | '/hackathons/$hackathonId/attendance'
     | '/hackathons/$hackathonId/rewards'
     | '/hackathons/$hackathonId/schedule'
     | '/hackathons/$hackathonId/settings'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/stampbook/raffle'
     | '/stampbook'
     | '/hackathons/$hackathonId/application'
+    | '/hackathons/$hackathonId/attendance'
     | '/hackathons/$hackathonId/rewards'
     | '/hackathons/$hackathonId/schedule'
     | '/hackathons/$hackathonId/settings'
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
     | '/_auth/stampbook/raffle'
     | '/_auth/stampbook/'
     | '/_auth/hackathons/$hackathonId/application'
+    | '/_auth/hackathons/$hackathonId/attendance'
     | '/_auth/hackathons/$hackathonId/rewards'
     | '/_auth/hackathons/$hackathonId/schedule'
     | '/_auth/hackathons/$hackathonId/settings'
@@ -329,6 +342,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthHackathonsHackathonIdApplicationRouteImport
       parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
     }
+    '/_auth/hackathons/$hackathonId/attendance': {
+      id: '/_auth/hackathons/$hackathonId/attendance'
+      path: '/attendance'
+      fullPath: '/hackathons/$hackathonId/attendance'
+      preLoaderRoute: typeof AuthHackathonsHackathonIdAttendanceRouteImport
+      parentRoute: typeof AuthHackathonsHackathonIdRouteRoute
+    }
     '/_auth/hackathons/$hackathonId/rewards': {
       id: '/_auth/hackathons/$hackathonId/rewards'
       path: '/rewards'
@@ -362,6 +382,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthHackathonsHackathonIdRouteRouteChildren {
   AuthHackathonsHackathonIdApplicationRoute: typeof AuthHackathonsHackathonIdApplicationRoute
+  AuthHackathonsHackathonIdAttendanceRoute: typeof AuthHackathonsHackathonIdAttendanceRoute
   AuthHackathonsHackathonIdRewardsRoute: typeof AuthHackathonsHackathonIdRewardsRoute
   AuthHackathonsHackathonIdScheduleRoute: typeof AuthHackathonsHackathonIdScheduleRoute
   AuthHackathonsHackathonIdSettingsRoute: typeof AuthHackathonsHackathonIdSettingsRoute
@@ -373,6 +394,8 @@ const AuthHackathonsHackathonIdRouteRouteChildren: AuthHackathonsHackathonIdRout
   {
     AuthHackathonsHackathonIdApplicationRoute:
       AuthHackathonsHackathonIdApplicationRoute,
+    AuthHackathonsHackathonIdAttendanceRoute:
+      AuthHackathonsHackathonIdAttendanceRoute,
     AuthHackathonsHackathonIdRewardsRoute:
       AuthHackathonsHackathonIdRewardsRoute,
     AuthHackathonsHackathonIdScheduleRoute:
