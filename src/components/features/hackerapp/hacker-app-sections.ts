@@ -47,6 +47,8 @@ const SECTION_BY_FORM_INPUT: Partial<
   phoneNumber: "BasicInfo",
   phoneNumberOwnerNameAndRelationship: "BasicInfo",
   preferredName: "BasicInfo",
+  pronouns: "BasicInfo",
+  race: "BasicInfo",
   travellingToHackathon: "BasicInfo",
 
   contributionRole: "Skills",
