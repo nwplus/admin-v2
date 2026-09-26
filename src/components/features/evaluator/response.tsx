@@ -65,30 +65,29 @@ const BooleanMap = ({ value }: { value?: Record<string, boolean> }) => {
 };
 
 const LinkField = ({ href }: { href?: string }) => {
+  const value = href ?? "";
+  const isUrl = /^https?:\/\//i.test(value.trim());
+
   const handleClipboard = () => {
-    if (!href) return;
-    navigator.clipboard.writeText(href);
+    if (!value) return;
+    navigator.clipboard.writeText(value);
     toast("Copied link to clipboard!");
   };
 
-  const hasLink = Boolean(href);
+  if (!isUrl) {
+    return <Input value={value} readOnly placeholder={value ? undefined : "No response"} />;
+  }
 
   return (
     <div className="relative flex items-center gap-2">
-      <a
-        href={hasLink ? href : undefined}
-        target="_blank"
-        rel="noreferrer noopener"
-        className={cn(
-          buttonVariants({ variant: "outline" }),
-          "flex-grow justify-between",
-          !hasLink && "pointer-events-none cursor-not-allowed opacity-50",
-        )}
-      >
-        <div className="flex-1 truncate">{hasLink ? "Open link in new tab" : "No response"}</div>
-        {hasLink && <ExternalLink />}
+      <a href={value} target="_blank" rel="noreferrer noopener" className={cn(
+        buttonVariants({ variant: "outline" }),
+        "flex-grow justify-between",
+      )}>
+        <div className="flex-1 truncate">Open link in new tab</div>
+        <ExternalLink />
       </a>
-      <Button size="icon" variant="outline" onClick={handleClipboard} disabled={!hasLink}>
+      <Button size="icon" variant="outline" onClick={handleClipboard}>
         <Link />
       </Button>
     </div>
