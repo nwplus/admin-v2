@@ -114,10 +114,12 @@ const LinkField = ({ href }: { href?: string }) => {
 
   return (
     <div className="relative flex items-center gap-2">
-      <a href={value} target="_blank" rel="noreferrer noopener" className={cn(
-        buttonVariants({ variant: "outline" }),
-        "flex-grow justify-between",
-      )}>
+      <a
+        href={value}
+        target="_blank"
+        rel="noreferrer noopener"
+        className={cn(buttonVariants({ variant: "outline" }), "flex-grow justify-between")}
+      >
         <div className="flex-1 truncate">Open link in new tab</div>
         <ExternalLink />
       </a>
