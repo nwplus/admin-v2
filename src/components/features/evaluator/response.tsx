@@ -44,10 +44,12 @@ export function Response({ label, type, response, userId }: ResponseProps) {
         <Input value={response as string} readOnly />
       ) : type === "booleanMap" ? (
         <BooleanMap value={response as Record<string, boolean>} />
+      ) : type === "resume" ? (
+        <ResumeField href={resumeLink ?? (response as string)} loading={loading} />
       ) : loading ? (
         <Skeleton />
       ) : (
-        <LinkField href={resumeLink ?? (response as string)} />
+        <LinkField href={response as string} />
       )}
     </div>
   );
@@ -60,6 +62,38 @@ const BooleanMap = ({ value }: { value?: Record<string, boolean> }) => {
         Object.entries(value)
           .filter(([_, value]) => value === true)
           .map(([key, _]) => <Badge key={key}>{key}</Badge>)}
+    </div>
+  );
+};
+
+const ResumeField = ({ href, loading }: { href?: string; loading: boolean }) => {
+  if (loading) return <Skeleton />;
+
+  const value = href ?? "";
+  if (!value.trim()) {
+    return <Input value="" readOnly placeholder="No response" />;
+  }
+
+  const handleClipboard = () => {
+    navigator.clipboard.writeText(value);
+    toast("Copied link to clipboard!");
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <Badge>Uploaded</Badge>
+      <a
+        href={value}
+        target="_blank"
+        rel="noreferrer noopener"
+        className={cn(buttonVariants({ variant: "outline" }), "gap-2")}
+      >
+        View resume
+        <ExternalLink />
+      </a>
+      <Button size="icon" variant="outline" onClick={handleClipboard}>
+        <Link />
+      </Button>
     </div>
   );
 };
