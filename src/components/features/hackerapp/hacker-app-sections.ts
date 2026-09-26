@@ -74,10 +74,6 @@ export const isFormInputAllowedInSection = (
 export const QUESTION_TYPE_SECTION: Partial<
   Record<HackerApplicationQuestionType, HackerApplicationSections>
 > = {
-  "Full Legal Name": "BasicInfo",
-  School: "BasicInfo",
-  Major: "BasicInfo",
-  Country: "BasicInfo",
   Portfolio: "Skills",
   Github: "Skills",
   LinkedIn: "Skills",
