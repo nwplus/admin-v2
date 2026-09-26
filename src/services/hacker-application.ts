@@ -58,8 +58,8 @@ export const subscribeToHackerAppQuestions = (
       query(collection(db, "HackerAppQuestions", hackathonName, section)),
       (snapshot) => {
         data[section] = snapshot.docs.map((doc) => ({
-          _id: doc.id,
           ...doc.data(),
+          _id: doc.id,
         }));
         loadedSections.add(section);
         if (loadedSections.size === HACKER_APP_SECTIONS.length) {
