@@ -52,7 +52,6 @@ const SECTION_BY_FORM_INPUT: Partial<
   travellingToHackathon: "BasicInfo",
 
   contributionRole: "Skills",
-  connectPlus: "Skills",
   numHackathonsAttended: "Skills",
   longAnswers1: "Skills",
   longAnswers2: "Skills",
