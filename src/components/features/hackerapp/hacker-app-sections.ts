@@ -1,5 +1,6 @@
 import type {
   HackerApplicationQuestionFormInputField,
+  HackerApplicationQuestionType,
   HackerApplicationSections,
 } from "@/lib/firebase/types";
 
@@ -67,5 +68,27 @@ export const isFormInputAllowedInSection = (
   section: HackerApplicationSections,
 ): boolean => {
   const pinned = SECTION_BY_FORM_INPUT[formInput];
+  return pinned === undefined || pinned === section;
+};
+
+export const QUESTION_TYPE_SECTION: Partial<
+  Record<HackerApplicationQuestionType, HackerApplicationSections>
+> = {
+  "Full Legal Name": "BasicInfo",
+  School: "BasicInfo",
+  Major: "BasicInfo",
+  Country: "BasicInfo",
+  Portfolio: "Skills",
+  Github: "Skills",
+  LinkedIn: "Skills",
+  "Portfolio Website": "Skills",
+  Resume: "Skills",
+};
+
+export const isQuestionTypeAllowedInSection = (
+  questionType: HackerApplicationQuestionType,
+  section: HackerApplicationSections,
+): boolean => {
+  const pinned = QUESTION_TYPE_SECTION[questionType];
   return pinned === undefined || pinned === section;
 };

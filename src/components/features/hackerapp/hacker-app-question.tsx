@@ -31,7 +31,11 @@ import {
   getEligibleSources,
 } from "./hacker-app-conditions";
 import type { UsedFieldsRegistry } from "./hacker-app-main";
-import { LEGAL_NAME_FORM_INPUTS, isFormInputAllowedInSection } from "./hacker-app-sections";
+import {
+  LEGAL_NAME_FORM_INPUTS,
+  isFormInputAllowedInSection,
+  isQuestionTypeAllowedInSection,
+} from "./hacker-app-sections";
 
 const QUESTION_TYPES: HackerApplicationQuestionType[] = [
   "Long Answer",
@@ -140,6 +144,7 @@ export const HackerAppQuestion = memo(function HackerAppQuestion({
   );
   const usableQuestionTypes = QUESTION_TYPES?.filter(
     (qt) =>
+      isQuestionTypeAllowedInSection(qt, section) &&
       (qt !== "Full Legal Name" || !hasSplitLegalName) &&
       (!QUESTION_TYPES_UNIQUE.includes(qt) || !usedFieldsRegistry.questionType.has(qt)),
   );
