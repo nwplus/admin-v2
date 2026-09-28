@@ -47,6 +47,8 @@ const SECTION_BY_FORM_INPUT: Partial<
   phoneNumber: "BasicInfo",
   phoneNumberOwnerNameAndRelationship: "BasicInfo",
   preferredName: "BasicInfo",
+  pronouns: "BasicInfo",
+  race: "BasicInfo",
   travellingToHackathon: "BasicInfo",
 
   contributionRole: "Skills",
@@ -74,6 +76,10 @@ export const isFormInputAllowedInSection = (
 export const QUESTION_TYPE_SECTION: Partial<
   Record<HackerApplicationQuestionType, HackerApplicationSections>
 > = {
+  "Full Legal Name": "BasicInfo",
+  School: "BasicInfo",
+  Major: "BasicInfo",
+  Country: "BasicInfo",
   Portfolio: "Skills",
   Github: "Skills",
   LinkedIn: "Skills",
