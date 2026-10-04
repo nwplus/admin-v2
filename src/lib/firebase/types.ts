@@ -163,6 +163,7 @@ export interface HackathonSponsors {
   lastmodBy?: string;
   link?: string;
   name?: string;
+  order?: number | null; // manual position; unset sponsors fall back to tier order
   tier?: HackathonSponsorTiers;
 }
 export type HackathonSponsorTiers =
