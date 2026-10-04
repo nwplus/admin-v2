@@ -1,3 +1,4 @@
+import { ReorderSponsorsDialog } from "@/components/features/sponsors/reorder-sponsors-dialog";
 import { SponsorDialog } from "@/components/features/sponsors/sponsor-dialog";
 import { SponsorsTable } from "@/components/features/sponsors/sponsors-table";
 import { PageHeader } from "@/components/graphy/typo";
@@ -7,7 +8,7 @@ import type { HackathonSponsors } from "@/lib/firebase/types";
 import { useHackathon } from "@/providers/hackathon-provider";
 import { subscribeToSponsors } from "@/services/sponsors";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { ArrowUpDown, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_auth/hackathons/$hackathonId/sponsors")({
@@ -19,15 +20,12 @@ function SponsorsComponent() {
 
   const [sponsors, setSponsors] = useState<HackathonSponsors[]>([]);
   const [open, setOpen] = useState<boolean>(false);
+  const [reorderOpen, setReorderOpen] = useState<boolean>(false);
 
   useEffect(() => {
     if (!activeHackathon) return;
 
-    const unsubQuestions = subscribeToSponsors(activeHackathon, (sponsors: HackathonSponsors[]) => {
-      setSponsors(sponsors);
-    });
-
-    return () => unsubQuestions();
+    return subscribeToSponsors(activeHackathon, setSponsors);
   }, [activeHackathon]);
 
   return (
@@ -38,14 +36,25 @@ function SponsorsComponent() {
             Sponsors
             <Badge variant="secondary">{activeHackathon}</Badge>
           </PageHeader>
-          <Button onClick={() => setOpen(true)}>
-            <Plus />
-            Add Sponsor
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setReorderOpen(true)}>
+              <ArrowUpDown />
+              Reorder
+            </Button>
+            <Button onClick={() => setOpen(true)}>
+              <Plus />
+              Add Sponsor
+            </Button>
+          </div>
         </div>
         <SponsorsTable sponsors={sponsors} />
       </div>
       <SponsorDialog open={open} onClose={() => setOpen(false)} />
+      <ReorderSponsorsDialog
+        open={reorderOpen}
+        sponsors={sponsors}
+        onClose={() => setReorderOpen(false)}
+      />
     </>
   );
 }
