@@ -220,7 +220,9 @@ export function QueryProvider({ children }: QueryProviderProps) {
     const unsubscribe = subscribeToHackathons((hackathons) => {
       setHackathons(hackathons);
       if (hackathons.length > 0 && !selectedHackathon) {
-        setSelectedHackathon(hackathons[hackathons.length - 2]._id);
+        // TEMP-FIX: default to HackCamp2026
+        const fallback = hackathons.find((h) => h._id === "HackCamp2026");
+        setSelectedHackathon(fallback?._id ?? hackathons[hackathons.length - 2]._id);
       }
     });
     return () => unsubscribe();
