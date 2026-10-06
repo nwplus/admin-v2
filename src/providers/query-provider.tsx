@@ -224,7 +224,8 @@ export function QueryProvider({ children }: QueryProviderProps) {
     return () => unsubscribe();
   }, []);
 
-   // Default to the CMS Active Hackathon (InternalWebsites/CMS),aluator / Status Changer.
+  // Default to the CMS Active Hackathon (InternalWebsites/CMS),
+  // same source as Evaluator / Status Changer.
   useEffect(() => {
     if (selectedHackathon) return;
     let cancelled = false;
