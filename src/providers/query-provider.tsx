@@ -8,6 +8,7 @@ import type {
   GroupBySelection,
   Hackathon,
 } from "@/lib/firebase/types";
+import { getAdminFlags } from "@/services/evaluator";
 import type { FlattenedApplicant } from "@/services/query";
 import {
   calculateApplicantPoints,
@@ -217,15 +218,29 @@ export function QueryProvider({ children }: QueryProviderProps) {
   }, [applicants, filterSelections, groupBySelection]);
 
   useEffect(() => {
-    const unsubscribe = subscribeToHackathons((hackathons) => {
-      setHackathons(hackathons);
-      if (hackathons.length > 0 && !selectedHackathon) {
-        // TEMP-FIX: default to HackCamp2026
-        const fallback = hackathons.find((h) => h._id === "HackCamp2026");
-        setSelectedHackathon(fallback?._id ?? hackathons[hackathons.length - 2]._id);
-      }
+    const unsubscribe = subscribeToHackathons((docs) => {
+      setHackathons(docs);
     });
     return () => unsubscribe();
+  }, []);
+
+   // Default to the CMS Active Hackathon (InternalWebsites/CMS),aluator / Status Changer.
+  useEffect(() => {
+    if (selectedHackathon) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const adminConfig = await getAdminFlags();
+        if (!cancelled && adminConfig?.activeHackathon) {
+          setSelectedHackathon(adminConfig.activeHackathon);
+        }
+      } catch (e) {
+        console.error("Failed to fetch active hackathon from CMS:", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [selectedHackathon]);
 
   useEffect(() => {
