@@ -258,6 +258,12 @@ export interface Applicant {
     totalZScore?: number;
   };
   questionnaire?: {
+    educationLevel?: string;
+    jobPosition?: string;
+    gender?: string | Record<string, boolean>;
+    haveTransExperience?: string;
+    indigenousIdentification?: string;
+    disability?: string;
     race?: Record<string, boolean>;
     engagementSource?: string | Record<string, boolean>;
     eventsAttended?: Record<string, boolean>; // select all, so a map not a list

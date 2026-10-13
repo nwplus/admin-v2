@@ -1,6 +1,11 @@
 import { db } from "@/lib/firebase/client";
 import type { Applicant, HackathonDayOf } from "@/lib/firebase/types";
-import { createStringFromSelection, returnTrueKey, splitHackathon } from "@/lib/utils";
+import {
+  createStringFromSelection,
+  getApplicantEducationLevel,
+  returnTrueKey,
+  splitHackathon,
+} from "@/lib/utils";
 import { collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 
 /**
@@ -35,16 +40,12 @@ export const flattenApplicantData = (
   const [, year] = hackathon ? splitHackathon(hackathon) : [undefined, undefined];
   const hackathonYear = year ? Number.parseInt(year) : 2025;
   const isLegacyFormat = hackathonYear < 2024 || hackathon === "nwHacks2024";
-  const reportedHackathons = String(applicant.skills?.numHackathonsAttended ?? "").trim();
-  const numHackathonsAttended =
-    reportedHackathons !== "" && Number.isFinite(Number(reportedHackathons))
-      ? Number(reportedHackathons)
-      : null;
+  const numHackathonsAttended = String(applicant.skills?.numHackathonsAttended ?? "").trim();
 
   const computedIsOfLegalAge = (applicant: Applicant) => {
     const rawAge = applicant.basicInfo?.ageByHackathon;
-    if (rawAge === "<=16") return false;
-    if (rawAge === ">24") return true;
+    if (rawAge === "<=16" || rawAge === "≤16") return false;
+    if (rawAge === ">24" || rawAge === "≥25") return true;
 
     const numericAge = typeof rawAge === "number" ? rawAge : Number(rawAge);
     return numericAge >= 19;
@@ -70,9 +71,11 @@ export const flattenApplicantData = (
           applicant.basicInfo?.major as Record<string, boolean> | undefined,
           "",
         ),
-    educationLevel: applicant.basicInfo?.educationLevel || "",
+    educationLevel: getApplicantEducationLevel(applicant),
     graduation: applicant.basicInfo?.graduation || "",
-    gender: createStringFromSelection(applicant.basicInfo?.gender),
+    gender: createStringFromSelection(
+      applicant.questionnaire?.gender ?? applicant.basicInfo?.gender,
+    ),
     pronouns: createStringFromSelection(applicant.basicInfo?.pronouns),
     race: createStringFromSelection(applicant.basicInfo?.race ?? applicant.questionnaire?.race),
     identifyAsUnderrepresented: applicant.basicInfo?.identifyAsUnderrepresented ?? "",
@@ -90,10 +93,20 @@ export const flattenApplicantData = (
     academicYear: applicant.basicInfo?.academicYear || "",
     canadianStatus: applicant.basicInfo?.canadianStatus || "",
     countryOfResidence: applicant.basicInfo?.countryOfResidence || "",
-    disability: applicant.basicInfo?.disability || "",
-    haveTransExperience: applicant.basicInfo?.haveTransExperience || "",
-    indigenousIdentification: applicant.basicInfo?.indigenousIdentification || "",
-    jobPosition: applicant.skills?.jobPosition ?? applicant.basicInfo?.jobPosition ?? "",
+    disability: applicant.questionnaire?.disability ?? applicant.basicInfo?.disability ?? "",
+    haveTransExperience:
+      applicant.questionnaire?.haveTransExperience ??
+      applicant.basicInfo?.haveTransExperience ??
+      "",
+    indigenousIdentification:
+      applicant.questionnaire?.indigenousIdentification ??
+      applicant.basicInfo?.indigenousIdentification ??
+      "",
+    jobPosition:
+      applicant.questionnaire?.jobPosition ??
+      applicant.skills?.jobPosition ??
+      applicant.basicInfo?.jobPosition ??
+      "",
     marketingFeatureCheck: applicant.basicInfo?.marketingFeatureCheck || false,
     mediaConsentCheck: applicant.basicInfo?.mediaConsentCheck || false,
     safewalkCheck: applicant.basicInfo?.safewalkCheck || false,
@@ -118,7 +131,7 @@ export const flattenApplicantData = (
     longAnswers6: applicant.skills?.longAnswers6 || "",
 
     numHackathonsAttended,
-    firstTimeHacker: numHackathonsAttended === 0,
+    firstTimeHacker: numHackathonsAttended === "0",
 
     // Engagement source
     engagementSource: createStringFromSelection(
@@ -328,7 +341,7 @@ export interface FlattenedApplicant {
   longAnswers4: string;
   longAnswers5: string;
   longAnswers6: string;
-  numHackathonsAttended: number | null;
+  numHackathonsAttended: string;
   firstTimeHacker: boolean;
 
   // Questionnaire
@@ -384,6 +397,7 @@ export const CATEGORICAL_COLUMNS: ReadonlySet<string> = new Set([
   "eventsAttended",
   "ageByHackathon",
   "graduation",
+  "numHackathonsAttended",
 ]);
 
 export const MULTI_VALUE_COLUMNS: ReadonlySet<string> = new Set([
