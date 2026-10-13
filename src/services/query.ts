@@ -35,6 +35,11 @@ export const flattenApplicantData = (
   const [, year] = hackathon ? splitHackathon(hackathon) : [undefined, undefined];
   const hackathonYear = year ? Number.parseInt(year) : 2025;
   const isLegacyFormat = hackathonYear < 2024 || hackathon === "nwHacks2024";
+  const reportedHackathons = String(applicant.skills?.numHackathonsAttended ?? "").trim();
+  const numHackathonsAttended =
+    reportedHackathons !== "" && Number.isFinite(Number(reportedHackathons))
+      ? Number(reportedHackathons)
+      : null;
 
   const computedIsOfLegalAge = (applicant: Applicant) => {
     const rawAge = applicant.basicInfo?.ageByHackathon;
@@ -49,8 +54,10 @@ export const flattenApplicantData = (
     // Basic Info
     ageByHackathon: applicant.basicInfo?.ageByHackathon || "",
     firstName: applicant.basicInfo?.legalFirstName || applicant.basicInfo?.firstName || "",
+    legalFirstName: applicant.basicInfo?.legalFirstName || "",
     preferredName: applicant.basicInfo?.preferredName || "",
     lastName: applicant.basicInfo?.legalLastName || applicant.basicInfo?.lastName || "",
+    legalLastName: applicant.basicInfo?.legalLastName || "",
     email: applicant.basicInfo?.email || "",
     phoneNumber: applicant.basicInfo?.phoneNumber || "",
     phoneNumberOwnerNameAndRelationship:
@@ -66,6 +73,9 @@ export const flattenApplicantData = (
     educationLevel: applicant.basicInfo?.educationLevel || "",
     graduation: applicant.basicInfo?.graduation || "",
     gender: createStringFromSelection(applicant.basicInfo?.gender),
+    pronouns: createStringFromSelection(applicant.basicInfo?.pronouns),
+    race: createStringFromSelection(applicant.basicInfo?.race ?? applicant.questionnaire?.race),
+    identifyAsUnderrepresented: applicant.basicInfo?.identifyAsUnderrepresented ?? "",
     isOfLegalAge: computedIsOfLegalAge(applicant),
     travellingToHackathon: applicant.basicInfo?.travellingToHackathon || "",
     culturalBackground: returnTrueKey(
@@ -83,7 +93,7 @@ export const flattenApplicantData = (
     disability: applicant.basicInfo?.disability || "",
     haveTransExperience: applicant.basicInfo?.haveTransExperience || "",
     indigenousIdentification: applicant.basicInfo?.indigenousIdentification || "",
-    jobPosition: applicant.basicInfo?.jobPosition || "",
+    jobPosition: applicant.skills?.jobPosition ?? applicant.basicInfo?.jobPosition ?? "",
     marketingFeatureCheck: applicant.basicInfo?.marketingFeatureCheck || false,
     mediaConsentCheck: applicant.basicInfo?.mediaConsentCheck || false,
     safewalkCheck: applicant.basicInfo?.safewalkCheck || false,
@@ -94,12 +104,21 @@ export const flattenApplicantData = (
 
     // Skills
     role: returnTrueKey(applicant.skills?.contributionRole),
+    contributionRole: createStringFromSelection(applicant.skills?.contributionRole),
     github: applicant.skills?.github || "",
     linkedin: applicant.skills?.linkedin || "",
     portfolio: applicant.skills?.portfolio || "",
     resume: applicant.skills?.resume || "",
+    connectPlus: applicant.skills?.connectPlus ?? "",
+    longAnswers1: applicant.skills?.longAnswers1 || "",
+    longAnswers2: applicant.skills?.longAnswers2 || "",
+    longAnswers3: applicant.skills?.longAnswers3 || "",
+    longAnswers4: applicant.skills?.longAnswers4 || "",
+    longAnswers5: applicant.skills?.longAnswers5 || "",
+    longAnswers6: applicant.skills?.longAnswers6 || "",
 
-    firstTimeHacker: applicant.skills?.numHackathonsAttended === "0" || false,
+    numHackathonsAttended,
+    firstTimeHacker: numHackathonsAttended === 0,
 
     // Engagement source
     engagementSource: createStringFromSelection(
@@ -259,8 +278,10 @@ export const getAvailableColumns = (): string[] => {
 export interface FlattenedApplicant {
   // Basic Info
   firstName: string;
+  legalFirstName: string;
   preferredName: string;
   lastName: string;
+  legalLastName: string;
   email: string;
   phoneNumber: string;
   phoneNumberOwnerNameAndRelationship: string;
@@ -270,6 +291,9 @@ export interface FlattenedApplicant {
   educationLevel: string;
   graduation: string | number;
   gender: string;
+  pronouns: string;
+  race: string;
+  identifyAsUnderrepresented: boolean | string;
   ageByHackathon: string;
   isOfLegalAge: boolean;
   travellingToHackathon: string;
@@ -292,10 +316,19 @@ export interface FlattenedApplicant {
 
   // Skills
   role: string;
+  contributionRole: string;
   github: string;
   linkedin: string;
   portfolio: string;
   resume: string;
+  connectPlus: boolean | string;
+  longAnswers1: string;
+  longAnswers2: string;
+  longAnswers3: string;
+  longAnswers4: string;
+  longAnswers5: string;
+  longAnswers6: string;
+  numHackathonsAttended: number | null;
   firstTimeHacker: boolean;
 
   // Questionnaire
