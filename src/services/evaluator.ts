@@ -5,6 +5,7 @@ import type {
   InternalWebsitesCMS,
   RubricType,
 } from "@/lib/firebase/types";
+import { getApplicantEducationLevel } from "@/lib/utils";
 import { flattenApplicantData } from "@/services/query";
 import {
   type Timestamp,
@@ -419,18 +420,24 @@ export const getApplicantsToAccept = async (
 
     // range of hackathons attended
     if (!applicant?.skills) return;
-    const numHackathonsAttended = applicant.skills?.numHackathonsAttended;
+    const reportedHackathons = String(applicant.skills?.numHackathonsAttended ?? "").trim();
+    const numHackathonsAttended = Number(reportedHackathons.replace(/\+$/, ""));
     if (
-      (minPrevHacks !== undefined && Number(numHackathonsAttended) < Number(minPrevHacks)) ||
-      (maxPrevHacks !== undefined && Number(numHackathonsAttended) > Number(maxPrevHacks))
+      (minPrevHacks !== undefined || maxPrevHacks !== undefined) &&
+      (reportedHackathons === "" ||
+        !Number.isInteger(numHackathonsAttended) ||
+        numHackathonsAttended < 0 ||
+        (minPrevHacks !== undefined && numHackathonsAttended < minPrevHacks) ||
+        (maxPrevHacks !== undefined &&
+          (numHackathonsAttended > maxPrevHacks || reportedHackathons.endsWith("+"))))
     ) {
       return false;
     }
 
     // range for year level
     if (!applicant.basicInfo) return false;
-    const yearLevel = applicant.basicInfo?.educationLevel;
-    if (yearLevels && yearLevels.length > 0 && !yearLevels.includes(yearLevel)) {
+    const yearLevel = getApplicantEducationLevel(applicant);
+    if (yearLevels && yearLevels.length > 0 && (!yearLevel || !yearLevels.includes(yearLevel))) {
       return false;
     }
 

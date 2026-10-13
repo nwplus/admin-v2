@@ -20,14 +20,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { type AcceptancePlan, planAcceptance } from "@/lib/acceptance";
+import { getApplicantEducationLevel } from "@/lib/utils";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { acceptApplicants, getApplicantsToAccept } from "@/services/evaluator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { CONTRIBUTION_ROLE_OPTIONS, YEAR_LEVEL_OPTIONS } from "./constants";
+import { CONTRIBUTION_ROLE_OPTIONS } from "./constants";
 
 const blankToUndefined = (value?: string) =>
   value === undefined || value.trim() === "" ? undefined : Number(value);
@@ -108,7 +109,14 @@ interface Preview {
 }
 
 export function AcceptDialog() {
-  const { hackathon } = useEvaluator();
+  const { hackathon, applicants } = useEvaluator();
+  const yearLevelOptions = useMemo(
+    () =>
+      [...new Set(applicants.map(getApplicantEducationLevel).filter(Boolean))]
+        .sort((a, b) => a.localeCompare(b))
+        .map((value) => ({ label: value, value })),
+    [applicants],
+  );
   const experiencedPercentageId = useId();
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -286,6 +294,9 @@ export function AcceptDialog() {
                 )}
               />
             </div>
+            <p className="text-muted-foreground text-sm">
+              A “2+” answer only matches a minimum of 2 or less with no maximum.
+            </p>
             <FormField
               control={form.control}
               name="contributionRoles"
@@ -315,7 +326,7 @@ export function AcceptDialog() {
                     <FormLabel>Year levels</FormLabel>
                     <FormControl>
                       <MultiSelect
-                        options={YEAR_LEVEL_OPTIONS}
+                        options={yearLevelOptions}
                         selected={field.value || []}
                         onChange={field.onChange}
                         placeholder="Select year levels..."

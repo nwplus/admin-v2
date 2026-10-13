@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getNestedValue } from "@/lib/utils";
+import { getApplicantEducationLevel, getNestedValue } from "@/lib/utils";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { RESPONSE_VISIBLE_FIELDS } from "./constants";
 import { Response, type ResponseType } from "./response";
@@ -35,7 +35,11 @@ export function ApplicantResponse() {
             key={fieldConfig.field}
             label={questionLabels[fieldConfig.field] || fieldConfig.label}
             type={fieldConfig.type as ResponseType}
-            response={getNestedValue(focusedApplicant, fieldConfig.field)}
+            response={
+              fieldConfig.field === "basicInfo.educationLevel"
+                ? getApplicantEducationLevel(focusedApplicant)
+                : getNestedValue(focusedApplicant, fieldConfig.field)
+            }
             userId={focusedApplicant?._id}
           />
         ))}
