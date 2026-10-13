@@ -39,7 +39,7 @@ export function QueryActions() {
         headers
           .map((header) => {
             const value = row[header];
-            if (typeof value === "string" && (value.includes(",") || value.includes('"'))) {
+            if (typeof value === "string" && /[",\r\n]/.test(value)) {
               return `"${value.replace(/"/g, '""')}"`;
             }
             return value;

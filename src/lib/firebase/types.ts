@@ -186,6 +186,9 @@ export interface Applicant {
     firstName?: string;
     lastName?: string;
     preferredName?: string;
+    pronouns?: Record<string, boolean>;
+    race?: Record<string, boolean>;
+    identifyAsUnderrepresented?: boolean;
     legalFirstName: string;
     legalLastName: string;
     gender: string | Record<string, boolean>;
@@ -255,12 +258,15 @@ export interface Applicant {
     totalZScore?: number;
   };
   questionnaire?: {
+    race?: Record<string, boolean>;
     engagementSource?: string | Record<string, boolean>;
     eventsAttended?: Record<string, boolean>; // select all, so a map not a list
     friendEmail?: string;
     otherEngagementSource?: string;
   };
   skills?: {
+    connectPlus?: boolean;
+    jobPosition?: string;
     github?: string;
     linkedin?: string;
     portfolio?: string;
