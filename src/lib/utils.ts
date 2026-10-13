@@ -1,10 +1,13 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { HackathonType } from "./firebase/types";
+import type { Applicant, HackathonType } from "./firebase/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const getApplicantEducationLevel = (applicant: Applicant): string =>
+  applicant.questionnaire?.educationLevel ?? applicant.basicInfo?.educationLevel ?? "";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const getNestedValue = (obj: any, path: string): string | undefined => {

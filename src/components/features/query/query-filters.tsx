@@ -42,12 +42,7 @@ export function QueryFilters({ availableColumns }: QueryFiltersProps) {
   const columns = availableColumns;
 
   const columnTypes = useMemo(() => {
-    return Object.fromEntries(
-      columns.map((col) => [
-        col,
-        col === "numHackathonsAttended" ? "number" : typeof applicants[0]?.[col],
-      ]),
-    );
+    return Object.fromEntries(columns.map((col) => [col, typeof applicants[0]?.[col]]));
   }, [columns, applicants]);
 
   /**
