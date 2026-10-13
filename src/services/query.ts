@@ -1,4 +1,5 @@
 import { db } from "@/lib/firebase/client";
+import { FORM_INPUT_FIELDS } from "@/lib/firebase/types";
 import type { Applicant, HackathonDayOf } from "@/lib/firebase/types";
 import { createStringFromSelection, returnTrueKey, splitHackathon } from "@/lib/utils";
 import { collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
@@ -35,6 +36,11 @@ export const flattenApplicantData = (
   const [, year] = hackathon ? splitHackathon(hackathon) : [undefined, undefined];
   const hackathonYear = year ? Number.parseInt(year) : 2025;
   const isLegacyFormat = hackathonYear < 2024 || hackathon === "nwHacks2024";
+  const reportedHackathons = String(applicant.skills?.numHackathonsAttended ?? "").trim();
+  const numHackathonsAttended =
+    reportedHackathons !== "" && Number.isFinite(Number(reportedHackathons))
+      ? Number(reportedHackathons)
+      : null;
 
   const computedIsOfLegalAge = (applicant: Applicant) => {
     const rawAge = applicant.basicInfo?.ageByHackathon;
@@ -99,7 +105,8 @@ export const flattenApplicantData = (
     portfolio: applicant.skills?.portfolio || "",
     resume: applicant.skills?.resume || "",
 
-    firstTimeHacker: applicant.skills?.numHackathonsAttended === "0" || false,
+    numHackathonsAttended,
+    firstTimeHacker: numHackathonsAttended === 0,
 
     // Engagement source
     engagementSource: createStringFromSelection(
@@ -137,7 +144,23 @@ export const flattenApplicantData = (
     points: 0,
   };
 
-  return flattened;
+  // Questions can move between sections; keep existing column names for saved queries.
+  const answers = new Map(
+    Object.entries({ ...applicant.skills, ...applicant.questionnaire, ...applicant.basicInfo }),
+  );
+  const missingFields = Object.fromEntries(
+    FORM_INPUT_FIELDS.filter((field) => !(field in flattened)).map((field) => {
+      const value = answers.get(field);
+      return [
+        field,
+        typeof value === "object" && value !== null
+          ? createStringFromSelection(value)
+          : (value ?? ""),
+      ];
+    }),
+  );
+
+  return { ...flattened, ...missingFields };
 };
 
 /**
@@ -296,6 +319,7 @@ export interface FlattenedApplicant {
   linkedin: string;
   portfolio: string;
   resume: string;
+  numHackathonsAttended: number | null;
   firstTimeHacker: boolean;
 
   // Questionnaire

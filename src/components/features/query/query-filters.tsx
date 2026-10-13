@@ -39,10 +39,15 @@ export function QueryFilters({ availableColumns }: QueryFiltersProps) {
     value: column,
   }));
 
-  const columns = applicants[0] ? Object.keys(applicants[0]) : [];
+  const columns = availableColumns;
 
   const columnTypes = useMemo(() => {
-    return Object.fromEntries(columns.map((col) => [col, typeof applicants[0]?.[col]]));
+    return Object.fromEntries(
+      columns.map((col) => [
+        col,
+        col === "numHackathonsAttended" ? "number" : typeof applicants[0]?.[col],
+      ]),
+    );
   }, [columns, applicants]);
 
   /**
