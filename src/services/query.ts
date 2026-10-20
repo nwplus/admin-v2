@@ -115,6 +115,11 @@ export const flattenApplicantData = (
     // Application Status
     applicationStatus: applicant.status?.applicationStatus || "",
 
+    // Submission
+    submitted: applicant.submission?.submitted ?? false,
+    submittedAt: applicant.submission?.submittedAt?.toDate().toISOString() ?? "",
+    lastUpdated: applicant.submission?.lastUpdated?.toDate().toISOString() ?? "",
+
     // Skills
     role: returnTrueKey(applicant.skills?.contributionRole),
     contributionRole: createStringFromSelection(applicant.skills?.contributionRole),
@@ -326,6 +331,11 @@ export interface FlattenedApplicant {
 
   // Application Status
   applicationStatus: string;
+
+  // Submission
+  submitted: boolean;
+  submittedAt: string;
+  lastUpdated: string;
 
   // Skills
   role: string;
