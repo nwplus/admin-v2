@@ -7,6 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import type { Stamp } from "@/lib/firebase/types";
 import { saveRaffleSettings } from "@/services/raffle";
 import { Loader2 } from "lucide-react";
@@ -19,6 +21,7 @@ interface RaffleStampsDialogProps {
   hackathon: string;
   stamps: Stamp[];
   eligibleStampIds: string[];
+  includeCtfPoints: boolean;
 }
 
 export function RaffleStampsDialog({
@@ -27,14 +30,18 @@ export function RaffleStampsDialog({
   hackathon,
   stamps,
   eligibleStampIds,
+  includeCtfPoints,
 }: RaffleStampsDialogProps) {
   const [draftStampIds, setDraftStampIds] = useState<string[] | null>(null);
+  const [draftIncludeCtf, setDraftIncludeCtf] = useState<boolean | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
   const selectedStampIds = draftStampIds ?? eligibleStampIds;
+  const selectedIncludeCtf = draftIncludeCtf ?? includeCtfPoints;
 
   const handleClose = () => {
     setDraftStampIds(null);
+    setDraftIncludeCtf(null);
     onClose();
   };
 
@@ -42,9 +49,9 @@ export function RaffleStampsDialog({
     if (loading) return;
     setLoading(true);
     try {
-      await saveRaffleSettings(hackathon, selectedStampIds);
+      await saveRaffleSettings(hackathon, selectedStampIds, selectedIncludeCtf);
       toast.success(
-        `${selectedStampIds.length} stamp${selectedStampIds.length === 1 ? "" : "s"} count as entries`,
+        `${selectedStampIds.length} stamp${selectedStampIds.length === 1 ? "" : "s"} count as entries${selectedIncludeCtf ? ", plus CTF points" : ""}`,
       );
       handleClose();
     } catch (error) {
@@ -75,6 +82,20 @@ export function RaffleStampsDialog({
             onChange={setDraftStampIds}
             label={`Stamps for ${hackathon}`}
           />
+
+          <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+            <div className="space-y-1">
+              <Label htmlFor="include-ctf-points">Include CTF points</Label>
+              <p className="text-muted-foreground text-xs">
+                Each CTF point a hacker earned counts as one more entry.
+              </p>
+            </div>
+            <Switch
+              id="include-ctf-points"
+              checked={selectedIncludeCtf}
+              onCheckedChange={setDraftIncludeCtf}
+            />
+          </div>
 
           <Button onClick={handleSave} disabled={loading} className="w-full">
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

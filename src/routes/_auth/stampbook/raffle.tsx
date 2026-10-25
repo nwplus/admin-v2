@@ -51,6 +51,7 @@ function RafflePage() {
   const [prizes, setPrizes] = useState<RafflePrize[]>([]);
   const [winners, setWinners] = useState<RaffleWinner[]>([]);
   const [eligibleStampIds, setEligibleStampIds] = useState<string[]>([]);
+  const [includeCtfPoints, setIncludeCtfPoints] = useState<boolean>(false);
   const [entrants, setEntrants] = useState<RaffleEntrant[]>([]);
   const [poolLoading, setPoolLoading] = useState<boolean>(false);
   const [poolFetchedAt, setPoolFetchedAt] = useState<Date | null>(null);
@@ -84,10 +85,12 @@ function RafflePage() {
     const unsubWinners = subscribeToRaffleWinners(selectedHackathon, setWinners, onError);
     const unsubSettings = subscribeToRaffleSettings(
       selectedHackathon,
-      (settings) =>
+      (settings) => {
         setEligibleStampIds((current) =>
           sameStampIds(current, settings.eligibleStampIds) ? current : settings.eligibleStampIds,
-        ),
+        );
+        setIncludeCtfPoints(settings.includeCtfPoints ?? false);
+      },
       onError,
     );
 
@@ -98,34 +101,37 @@ function RafflePage() {
     };
   }, [selectedHackathon]);
 
-  const loadPool = useCallback(async (hackathon: string, stampIds: string[], refresh = false) => {
-    if (!hackathon) {
-      setEntrants([]);
-      setPoolFetchedAt(null);
-      return;
-    }
+  const loadPool = useCallback(
+    async (hackathon: string, stampIds: string[], includeCtf: boolean, refresh = false) => {
+      if (!hackathon) {
+        setEntrants([]);
+        setPoolFetchedAt(null);
+        return;
+      }
 
-    const requestId = requestRef.current + 1;
-    requestRef.current = requestId;
-    setPoolLoading(true);
+      const requestId = requestRef.current + 1;
+      requestRef.current = requestId;
+      setPoolLoading(true);
 
-    try {
-      const pool = await fetchRaffleEntrants(hackathon, stampIds, refresh);
-      if (requestId !== requestRef.current) return;
-      setEntrants(pool);
-      setPoolFetchedAt(new Date());
-    } catch (error) {
-      if (requestId !== requestRef.current) return;
-      console.error("Error loading the raffle pool:", error);
-      toast.error("Failed to load raffle entries");
-    } finally {
-      if (requestId === requestRef.current) setPoolLoading(false);
-    }
-  }, []);
+      try {
+        const pool = await fetchRaffleEntrants(hackathon, stampIds, includeCtf, refresh);
+        if (requestId !== requestRef.current) return;
+        setEntrants(pool);
+        setPoolFetchedAt(new Date());
+      } catch (error) {
+        if (requestId !== requestRef.current) return;
+        console.error("Error loading the raffle pool:", error);
+        toast.error("Failed to load raffle entries");
+      } finally {
+        if (requestId === requestRef.current) setPoolLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    loadPool(selectedHackathon, eligibleStampIds);
-  }, [loadPool, selectedHackathon, eligibleStampIds]);
+    loadPool(selectedHackathon, eligibleStampIds, includeCtfPoints);
+  }, [loadPool, selectedHackathon, eligibleStampIds, includeCtfPoints]);
 
   return (
     <>
@@ -174,7 +180,9 @@ function RafflePage() {
             eligibleStampCount={eligibleStampIds.length}
             poolLoading={poolLoading}
             poolFetchedAt={poolFetchedAt}
-            onRefreshPool={() => loadPool(selectedHackathon, eligibleStampIds, true)}
+            onRefreshPool={() =>
+              loadPool(selectedHackathon, eligibleStampIds, includeCtfPoints, true)
+            }
             onManageStamps={() => setStampsOpen(true)}
             className="lg:w-[482px]"
           />
@@ -195,6 +203,7 @@ function RafflePage() {
           hackathon={selectedHackathon}
           stamps={stamps}
           eligibleStampIds={eligibleStampIds}
+          includeCtfPoints={includeCtfPoints}
         />
       )}
     </>
