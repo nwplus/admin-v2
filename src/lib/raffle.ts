@@ -1,4 +1,5 @@
 import type {
+  CtfSolve,
   HackerStampEntry,
   RaffleEntrant,
   RafflePrize,
@@ -14,29 +15,32 @@ export interface ApplicantName {
 }
 
 /**
- * Aggregates collected stamps into one entrant per hacker, where each stamp is one raffle entry
+ * Aggregates collected stamps and CTF points into one entrant per hacker, where each stamp and
+ * each CTF point is one raffle entry
  * @param stampEntries - one element per stamp collected, as returned by `fetchHackersWithStamps`
  * @param applicantNames - lowercased email to applicant name fields, used to recover last names
+ * @param ctfPoints - email to CTF points, from `sumCtfPointsByEmail`; empty when CTF points don't count
  * @returns the raffle pool, one entrant per hacker
  */
 export const buildRaffleEntrants = (
   stampEntries: StampEntry[],
   applicantNames: Map<string, ApplicantName>,
+  ctfPoints: Map<string, number> = new Map(),
 ): RaffleEntrant[] => {
   const entrants = new Map<string, RaffleEntrant>();
 
-  for (const entry of stampEntries) {
-    const email = entry.email.trim().toLowerCase();
-    if (!email) continue;
+  const addEntries = (rawEmail: string, displayName: string | undefined, count: number) => {
+    const email = rawEmail.trim().toLowerCase();
+    if (!email || count <= 0) return;
 
     const existing = entrants.get(email);
     if (existing) {
-      existing.entries += 1;
-      continue;
+      existing.entries += count;
+      return;
     }
 
     const applicant = applicantNames.get(email);
-    const socialsName = entry.displayName?.trim();
+    const socialsName = displayName?.trim();
     const preferredName =
       socialsName && socialsName !== SOCIALS_NAME_FALLBACK
         ? socialsName
@@ -46,11 +50,33 @@ export const buildRaffleEntrants = (
       email,
       preferredName,
       lastName: applicant?.lastName ?? "",
-      entries: 1,
+      entries: count,
     });
-  }
+  };
+
+  for (const entry of stampEntries) addEntries(entry.email, entry.displayName, 1);
+  for (const [email, points] of ctfPoints) addEntries(email, undefined, points);
 
   return [...entrants.values()];
+};
+
+/**
+ * Totals each hacker's CTF points across their solves, keyed the same way as raffle entrants
+ * @param solves - every CtfSolves doc for the hackathon
+ * @returns lowercased email to total CTF points
+ */
+export const sumCtfPointsByEmail = (
+  solves: Pick<CtfSolve, "email" | "points">[],
+): Map<string, number> => {
+  const points = new Map<string, number>();
+
+  for (const solve of solves) {
+    const email = solve.email?.trim().toLowerCase();
+    if (!email) continue;
+    points.set(email, (points.get(email) ?? 0) + solve.points);
+  }
+
+  return points;
 };
 
 /**

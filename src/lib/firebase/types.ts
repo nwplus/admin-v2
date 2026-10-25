@@ -772,8 +772,25 @@ export interface RaffleWinner {
  */
 export interface RaffleSettings {
   eligibleStampIds: string[];
+  /** when true, each CTF point a hacker earned is one more raffle entry */
+  includeCtfPoints?: boolean;
   lastModified?: Timestamp;
   lastModifiedBy?: string;
+}
+
+/**
+ * Sub-collection: /Hackathons/[hackathon]/CtfSolves, doc ID `{uid}_{challengeId}`
+ *
+ * One hacker's solve of one CTF challenge, written only by the portal's submitCtfFlag function
+ */
+export interface CtfSolve {
+  uid: string;
+  email: string;
+  challengeId: string;
+  rank: number;
+  points: number;
+  flagHash: string;
+  solvedAt?: Timestamp;
 }
 
 /**
