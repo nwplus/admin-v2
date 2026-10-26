@@ -1,22 +1,97 @@
 import type { FirebaseError } from "firebase/app";
-import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, getMetadata, ref, uploadBytes } from "firebase/storage";
 import JSZip from "jszip";
 import { storage } from "./client";
 import type { Applicant } from "./types";
 
-/**
- * Utility function to return a downloadable url of a user
- * @param userId - the ID of the applicant of the resume
- * @returns a url string
- */
-export const getApplicantResume = async (userId: string) => {
-  try {
-    const resumeRef = ref(storage, `applicantResumes/${userId}`);
-    const url = await getDownloadURL(resumeRef);
-    return url;
-  } catch (error) {
-    console.error("Error getting resume download URL: ", error);
+export interface ApplicantResumeFile {
+  url: string;
+  filename: string;
+  contentType?: string;
+}
+
+const resumeExtensions: Record<string, string> = {
+  "application/pdf": "pdf",
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "application/msword": "doc",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+};
+
+const safeFilename = (name: string) =>
+  Array.from(name, (character) =>
+    character.charCodeAt(0) < 32 || /[\\/<>:"|?*]/.test(character) ? "_" : character,
+  ).join("");
+
+const resumeFilename = (
+  fallback: string,
+  metadata: { contentType?: string; contentDisposition?: string; name?: string },
+) => {
+  const disposition = metadata.contentDisposition ?? "";
+  const encoded = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i)?.[1];
+  const plain = disposition.match(/filename\s*=\s*(?:"([^"]+)"|([^;]+))/i);
+  let original = plain?.[1] ?? plain?.[2]?.trim() ?? metadata.name ?? "";
+  if (encoded) {
+    try {
+      original = decodeURIComponent(encoded.trim());
+    } catch {
+      // A malformed legacy header must not prevent the resume from downloading.
+    }
   }
+  const extension =
+    resumeExtensions[metadata.contentType?.split(";")[0].trim().toLowerCase() ?? ""];
+  const safeOriginal = safeFilename(original);
+  if (/\.(pdf|docx?|png|jpe?g)$/i.test(safeOriginal)) return safeOriginal;
+  return `${safeFilename(fallback)}${extension ? `.${extension}` : ""}`;
+};
+
+/** Resolve extensionless legacy objects without depending on the application form field. */
+export const getApplicantResumeFile = async (
+  userId: string,
+): Promise<ApplicantResumeFile | null> => {
+  const resumeRef = ref(storage, `applicantResumes/${userId}`);
+  try {
+    const [url, metadata] = await Promise.all([getDownloadURL(resumeRef), getMetadata(resumeRef)]);
+    return {
+      url,
+      filename: resumeFilename(`resume_${userId}`, metadata),
+      contentType: metadata.contentType,
+    };
+  } catch (error) {
+    if ((error as FirebaseError)?.code === "storage/object-not-found") return null;
+    throw error;
+  }
+};
+
+/** Retained for callers that only need the download URL. */
+export const getApplicantResume = async (userId: string) =>
+  (await getApplicantResumeFile(userId))?.url;
+
+const saveBlob = (blob: Blob, filename: string) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  try {
+    link.click();
+  } finally {
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+};
+
+/** Blob URLs honor filenames even when Storage is on a different origin. */
+export const downloadApplicantResume = async (resume: ApplicantResumeFile): Promise<void> => {
+  const response = await fetch(resume.url);
+  if (!response.ok) throw new Error(`Failed to download resume: ${response.status}`);
+  const blob = await response.blob();
+  const filename = resumeFilename(resume.filename, {
+    contentType: resume.contentType || blob.type,
+    name: resume.filename,
+  });
+  saveBlob(blob, filename);
 };
 
 /**
@@ -164,9 +239,7 @@ export const deleteStampQR = async (stampId: string) => {
  */
 const filterShareableApplicants = (applicants: Applicant[]): Applicant[] => {
   return applicants.filter((applicant) => {
-    const hasResume = applicant.skills?.resume && applicant.skills.resume.trim() !== "";
-    const shareWithSponsors = applicant.termsAndConditions?.shareWithSponsors;
-    return hasResume && shareWithSponsors;
+    return applicant.termsAndConditions?.shareWithSponsors === true;
   });
 };
 
@@ -193,18 +266,13 @@ const extractApplicantNamesAndIds = (applicants: Applicant[]) => {
  * @returns Promise that resolves to array of objects with id, name, and url
  */
 const fetchResumeUrls = async (namesAndIds: { id: string; name: string }[]) => {
-  const urlPromises = namesAndIds.map(async (info) => {
-    try {
-      const url = await getApplicantResume(info.id);
-      return { ...info, url };
-    } catch (error) {
-      console.error(`Failed to get resume URL for ${info.id}:`, error);
-      return { ...info, url: null };
-    }
-  });
-
-  const appUrls = await Promise.all(urlPromises);
-  return appUrls.filter((app) => app.url !== null);
+  const resumes = await Promise.all(
+    namesAndIds.map(async (info) => {
+      const resume = await getApplicantResumeFile(info.id);
+      return resume ? { ...info, ...resume } : null;
+    }),
+  );
+  return resumes.filter((resume) => resume !== null);
 };
 
 /**
@@ -214,44 +282,31 @@ const fetchResumeUrls = async (namesAndIds: { id: string; name: string }[]) => {
  * @returns Promise that resolves when download is complete
  */
 const createAndDownloadResumeZip = async (
-  validUrls: { url: string | undefined; name: string; id: string }[],
+  validUrls: (ApplicantResumeFile & { name: string; id: string })[],
   hackathonName: string,
 ): Promise<void> => {
   const zip = new JSZip();
 
-  const zipPromises = validUrls.map(async ({ url, name, id }) => {
-    try {
-      if (!url) return;
-
+  await Promise.all(
+    validUrls.map(async ({ url, name, id, filename, contentType }) => {
       const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Failed to download resume: ${response.statusText}`);
-      }
-
+      if (!response.ok) throw new Error(`Failed to download resume: ${response.status}`);
       const resume = await response.blob();
-      const extension = "pdf"; // Default to PDF
-      zip.file(`${name}_${id}.${extension}`, resume, { binary: true });
-    } catch (error) {
-      console.error(`Failed to download resume for ${name} (${id}):`, error);
-    }
-  });
-
-  await Promise.all(zipPromises);
-  const finishedZip = await zip.generateAsync({ type: "blob" });
-
-  // Trigger download
-  const link = document.createElement("a");
-  const url = URL.createObjectURL(finishedZip);
-  link.setAttribute("href", url);
-  link.setAttribute(
-    "download",
-    `${hackathonName}_resumes_${new Date().toISOString().split("T")[0]}.zip`,
+      const resolvedName = resumeFilename(filename, {
+        name: filename,
+        contentType: contentType || resume.type,
+      });
+      const extension = resolvedName.match(/\.(pdf|docx?|png|jpe?g)$/i)?.[1];
+      zip.file(`${safeFilename(`${name}_${id}`)}${extension ? `.${extension}` : ""}`, resume, {
+        binary: true,
+      });
+    }),
   );
-  link.style.visibility = "hidden";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  const finishedZip = await zip.generateAsync({ type: "blob" });
+  saveBlob(
+    finishedZip,
+    `${safeFilename(hackathonName)}_resumes_${new Date().toISOString().split("T")[0]}.zip`,
+  );
 };
 
 /**

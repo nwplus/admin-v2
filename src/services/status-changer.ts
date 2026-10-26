@@ -1,7 +1,6 @@
 import { db } from "@/lib/firebase/client";
 import type { ApplicationStatus } from "@/lib/firebase/types";
-import { chunkArray } from "@/lib/utils";
-import { collection, doc, getDocs, query, updateDoc, where } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 
 export interface UpdateStatusResult {
   updatedCount: number;
@@ -10,8 +9,9 @@ export interface UpdateStatusResult {
 }
 
 /**
- * Updates applicants' status.applicationStatus by matching their basicInfo.email against the provided list.
- * Firestore supports `in` queries up to 10 values, so inputs are chunked accordingly.
+ * Updates submitted applicants using a case-insensitive email match.
+ * Legacy emails retain their original casing, so Firestore's case-sensitive queries
+ * cannot find every match. Read only the selected event and normalize both sides.
  */
 export const updateApplicantsStatusByEmails = async (
   hackathon: string,
@@ -27,29 +27,29 @@ export const updateApplicantsStatusByEmails = async (
   }
 
   let updatedCount = 0;
-  const matchedEmails: string[] = [];
+  const matchedEmails = new Set<string>();
+  const requestedEmails = new Set(normalized);
+  const snapshot = await getDocs(collection(db, "Hackathons", hackathon, "Applicants"));
 
-  const chunks = chunkArray(normalized, 10);
-  for (const emailChunk of chunks) {
-    const q = query(
-      collection(db, "Hackathons", hackathon, "Applicants"),
-      where("basicInfo.email", "in", emailChunk),
-      // where("status.applicationStatus", "!=", "inProgress"),
-    );
-    const snapshot = await getDocs(q);
-    const docs = snapshot.docs.map((d) => ({
-      id: d.id,
-      email: String(d.data()?.basicInfo?.email || "").toLowerCase(),
-    }));
-    for (const { id, email } of docs) {
-      matchedEmails.push(email);
-      const ref = doc(db, "Hackathons", hackathon, "Applicants", id);
-      await updateDoc(ref, { "status.applicationStatus": applicationStatus });
-      updatedCount += 1;
+  for (const applicant of snapshot.docs) {
+    const data = applicant.data();
+    const currentStatus = data.status?.applicationStatus;
+    if (!currentStatus || currentStatus === "inProgress" || data.submission?.submitted === false) {
+      continue;
     }
+
+    const storedEmail = data.basicInfo?.email;
+    if (typeof storedEmail !== "string") continue;
+    const email = storedEmail.trim().toLowerCase();
+    if (!requestedEmails.has(email)) continue;
+
+    const ref = doc(db, "Hackathons", hackathon, "Applicants", applicant.id);
+    await updateDoc(ref, { "status.applicationStatus": applicationStatus });
+    matchedEmails.add(email);
+    updatedCount += 1;
   }
 
-  const notFoundEmails = normalized.filter((e) => !matchedEmails.includes(e));
+  const notFoundEmails = normalized.filter((email) => !matchedEmails.has(email));
 
-  return { updatedCount, matchedEmails, notFoundEmails };
+  return { updatedCount, matchedEmails: Array.from(matchedEmails), notFoundEmails };
 };

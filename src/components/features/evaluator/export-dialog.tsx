@@ -42,7 +42,7 @@ export function ExportDialog() {
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button variant="outline" aria-label="Export">
           <FileDownIcon />
         </Button>
