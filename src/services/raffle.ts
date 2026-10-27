@@ -4,11 +4,15 @@ import type {
   CtfSolve,
   RaffleEntrant,
   RafflePrize,
-  RaffleSettings,
   RaffleWinner,
 } from "@/lib/firebase/types";
-import { type ApplicantName, buildRaffleEntrants, sumCtfPointsByEmail } from "@/lib/raffle";
-import { fetchHackersWithStamps } from "@/services/stamps";
+import {
+  type ApplicantName,
+  buildRaffleEntrants,
+  stampPointsById,
+  sumCtfPointsByEmail,
+} from "@/lib/raffle";
+import { fetchHackersWithStamps, fetchStamps } from "@/services/stamps";
 import {
   type DocumentReference,
   type FirestoreError,
@@ -197,64 +201,6 @@ export const deleteRaffleWinner = async (hackathon: string, id: string) => {
   }
 };
 
-/**
- * Utility function that returns a hackathon's raffle settings as realtime data
- * @param hackathon - hackathon ID
- * @param callback - the function used to ingest the data
- * @param onError - called when the subscription fails, so an unreadable settings document is
- *  not mistaken for a raffle with no eligible stamps chosen
- * @returns a function to be called on dismount
- */
-export const subscribeToRaffleSettings = (
-  hackathon: string,
-  callback: (settings: RaffleSettings) => void,
-  onError?: (error: FirestoreError) => void,
-) =>
-  onSnapshot(
-    doc(db, "Hackathons", hackathon, "Raffle", "settings"),
-    (docSnapshot) => {
-      const data = docSnapshot.data() as unknown as RaffleSettings | undefined;
-      callback({
-        ...data,
-        eligibleStampIds: data?.eligibleStampIds ?? [],
-        includeCtfPoints: data?.includeCtfPoints ?? false,
-      });
-    },
-    (error) => {
-      console.error("Error fetching raffle settings:", error);
-      callback({ eligibleStampIds: [], includeCtfPoints: false });
-      onError?.(error);
-    },
-  );
-
-/**
- * Saves which stamps count as raffle entries for a hackathon, and whether CTF points do too
- * @param hackathon - hackathon ID
- * @param eligibleStampIds - the IDs of the stamps that count as entries
- * @param includeCtfPoints - whether each CTF point counts as one more entry
- */
-export const saveRaffleSettings = async (
-  hackathon: string,
-  eligibleStampIds: string[],
-  includeCtfPoints: boolean,
-) => {
-  try {
-    await setDoc(
-      doc(db, "Hackathons", hackathon, "Raffle", "settings"),
-      {
-        eligibleStampIds,
-        includeCtfPoints,
-        lastModified: Timestamp.now(),
-        lastModifiedBy: auth.currentUser?.email ?? "",
-      },
-      { merge: true },
-    );
-  } catch (error) {
-    console.error("Error saving raffle settings:", error);
-    throw error;
-  }
-};
-
 // applicant names rarely change mid-event, so they are cached for the page lifetime
 const applicantNameCache = new Map<string, Map<string, ApplicantName>>();
 
@@ -300,34 +246,22 @@ export const fetchCtfPointsByEmail = async (hackathon: string): Promise<Map<stri
 };
 
 /**
- * Builds the raffle pool for a hackathon, where each eligible stamp a hacker collected is one
- * entry, plus one entry per CTF point when CTF points count
+ * Builds the raffle pool for a hackathon, where each point is one entry: the point value of
+ * every stamp a hacker collected plus their CTF points
  * @param hackathon - hackathon ID
- * @param eligibleStampIds - the IDs of the stamps that count as entries
- * @param includeCtfPoints - adds each hacker's CTF points as extra entries
  * @param refreshNames - re-reads applicant names as well as stamps, for an explicit refresh
- * @returns the raffle pool, one entrant per hacker
+ * @returns the raffle pool, one entrant per hacker with at least one point
  */
 export const fetchRaffleEntrants = async (
   hackathon: string,
-  eligibleStampIds: string[],
-  includeCtfPoints = false,
   refreshNames = false,
 ): Promise<RaffleEntrant[]> => {
-  if (eligibleStampIds.length === 0) return [];
-
-  const [stampEntries, applicantNames, ctfPoints] = await Promise.all([
+  const [stampEntries, stamps, applicantNames, ctfPoints] = await Promise.all([
     fetchHackersWithStamps(hackathon),
+    fetchStamps(),
     fetchApplicantNames(hackathon, refreshNames),
-    includeCtfPoints
-      ? fetchCtfPointsByEmail(hackathon)
-      : Promise.resolve(new Map<string, number>()),
+    fetchCtfPointsByEmail(hackathon),
   ]);
 
-  const eligible = new Set(eligibleStampIds);
-  return buildRaffleEntrants(
-    stampEntries.filter((entry) => eligible.has(entry.stampId)),
-    applicantNames,
-    ctfPoints,
-  );
+  return buildRaffleEntrants(stampEntries, stampPointsById(stamps), applicantNames, ctfPoints);
 };

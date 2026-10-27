@@ -4,10 +4,12 @@ import type {
   RaffleEntrant,
   RafflePrize,
   RaffleWinner,
+  Stamp,
 } from "@/lib/firebase/types";
+import { stampPointValue } from "@/lib/points";
 import { SOCIALS_NAME_FALLBACK } from "@/lib/stamps";
 
-export type StampEntry = Pick<HackerStampEntry, "displayName" | "email">;
+export type StampEntry = Pick<HackerStampEntry, "displayName" | "email" | "stampId">;
 
 export interface ApplicantName {
   preferredName?: string;
@@ -15,15 +17,30 @@ export interface ApplicantName {
 }
 
 /**
- * Aggregates collected stamps and CTF points into one entrant per hacker, where each stamp and
- * each CTF point is one raffle entry
+ * Looks up each stamp's point value by ID, whatever hackathon the stamp belongs to
+ * @param stamps - every stamp, unfiltered
+ * @returns stamp ID to point value; a stamp ID missing from the map (deleted) is worth 0
+ */
+export const stampPointsById = (stamps: Pick<Stamp, "_id" | "points">[]): Map<string, number> => {
+  const values = new Map<string, number>();
+  for (const stamp of stamps) {
+    if (stamp._id) values.set(stamp._id, stampPointValue(stamp));
+  }
+  return values;
+};
+
+/**
+ * Aggregates collected stamps and CTF points into one entrant per hacker, where each point is
+ * one raffle entry
  * @param stampEntries - one element per stamp collected, as returned by `fetchHackersWithStamps`
+ * @param stampPoints - stamp ID to point value, from `stampPointsById`; unknown stamps count 0
  * @param applicantNames - lowercased email to applicant name fields, used to recover last names
- * @param ctfPoints - email to CTF points, from `sumCtfPointsByEmail`; empty when CTF points don't count
- * @returns the raffle pool, one entrant per hacker
+ * @param ctfPoints - email to CTF points, from `sumCtfPointsByEmail`
+ * @returns the raffle pool, one entrant per hacker with at least one point
  */
 export const buildRaffleEntrants = (
   stampEntries: StampEntry[],
+  stampPoints: Map<string, number>,
   applicantNames: Map<string, ApplicantName>,
   ctfPoints: Map<string, number> = new Map(),
 ): RaffleEntrant[] => {
@@ -31,7 +48,7 @@ export const buildRaffleEntrants = (
 
   const addEntries = (rawEmail: string, displayName: string | undefined, count: number) => {
     const email = rawEmail.trim().toLowerCase();
-    if (!email || count <= 0) return;
+    if (!email || !Number.isFinite(count) || count <= 0) return;
 
     const existing = entrants.get(email);
     if (existing) {
@@ -54,7 +71,14 @@ export const buildRaffleEntrants = (
     });
   };
 
-  for (const entry of stampEntries) addEntries(entry.email, entry.displayName, 1);
+  // a stamp counts once per hacker, however many times it appears
+  const counted = new Set<string>();
+  for (const entry of stampEntries) {
+    const key = `${entry.email.trim().toLowerCase()}\u0000${entry.stampId}`;
+    if (counted.has(key)) continue;
+    counted.add(key);
+    addEntries(entry.email, entry.displayName, stampPoints.get(entry.stampId) ?? 0);
+  }
   for (const [email, points] of ctfPoints) addEntries(email, undefined, points);
 
   return [...entrants.values()];
@@ -73,6 +97,7 @@ export const sumCtfPointsByEmail = (
   for (const solve of solves) {
     const email = solve.email?.trim().toLowerCase();
     if (!email) continue;
+    if (typeof solve.points !== "number" || !Number.isFinite(solve.points)) continue;
     points.set(email, (points.get(email) ?? 0) + solve.points);
   }
 
@@ -86,7 +111,7 @@ export const totalEntries = (entrants: RaffleEntrant[]): number =>
   entrants.reduce((sum, entrant) => sum + entrant.entries, 0);
 
 /**
- * Draws one winner, weighted so that a hacker with N stamps is N times as likely to win
+ * Draws one winner, weighted so that a hacker with N points is N times as likely to win
  * @param entrants - the raffle pool
  * @returns the drawn entrant, or null when the pool has no entries
  */
