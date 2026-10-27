@@ -714,6 +714,8 @@ export interface Stamp {
   imgName?: string;
   lockedImgURL?: string;
   hackathon?: string; // for stamps unlockable in specific hackathons
+  /** raffle entries this stamp is worth; a stamp without it is worth 1 */
+  points?: number;
   criteria?: FilterRowsSelection[];
   isHidden: boolean;
   isTitle?: boolean;
