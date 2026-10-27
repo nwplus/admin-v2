@@ -676,6 +676,24 @@ export interface HackathonThemeMap {
   nwhacks: HackathonTheme;
 }
 
+export type WalletEmailSendStatus = "sending" | "sent" | "failed" | "uncertain";
+
+/** Collection: Hackathons/{collection}/emailSends/{uid}; written by Functions-new. */
+export interface WalletEmailSend {
+  uid: string;
+  email?: string;
+  status: WalletEmailSendStatus;
+  attempts?: number;
+  messageId?: string;
+  error?: string;
+  batchId?: string;
+  sentBy?: string;
+  leaseUntil?: Timestamp;
+  lastAttemptedAt?: Timestamp;
+  sentAt?: Timestamp;
+  updatedAt?: Timestamp;
+}
+
 /** Stored on Hackathons/{collection}.walletEmail; written by Functions-new. */
 export interface WalletEmailDelivery {
   runId: string;
