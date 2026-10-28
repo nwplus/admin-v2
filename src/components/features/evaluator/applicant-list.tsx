@@ -25,7 +25,8 @@ const APPLICATION_STATUS_OPTIONS = EVALUATOR_STATUSES.map((status) => ({
  * - Selecting an applicant sets the focused applicant in context.
  */
 export function ApplicantList() {
-  const { applicants, focusedApplicant, setFocusedApplicant, blacklistMatches } = useEvaluator();
+  const { applicants, focusedApplicant, setFocusedApplicant, blacklistMatches, gradingPeriod } =
+    useEvaluator();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
@@ -119,8 +120,8 @@ export function ApplicantList() {
       </CardContent>
 
       <CardFooter className="flex gap-3">
-        <CalculateDialog />
-        <AcceptDialog />
+        {gradingPeriod === false && <CalculateDialog />}
+        {gradingPeriod === false && <AcceptDialog />}
       </CardFooter>
     </Card>
   );

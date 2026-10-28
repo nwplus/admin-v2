@@ -69,7 +69,7 @@ function StatusChangerPage() {
 
     const tokens = separationType === "comma" ? text.split(",") : text.split(/\r?\n/);
 
-    return Array.from(new Set(tokens.map((t) => t.trim()).filter(Boolean)));
+    return Array.from(new Set(tokens.map((t) => t.trim().toLowerCase()).filter(Boolean)));
   }, [emailsText, separationType]);
 
   const firstInvalidEmail = useMemo(() => {

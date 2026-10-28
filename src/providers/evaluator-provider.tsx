@@ -1,4 +1,5 @@
 import { Loading } from "@/components/ui/loading";
+import { useGradingPeriod } from "@/hooks/use-grading-period";
 import type { Applicant, BlacklistMatch, ScoringCriteria } from "@/lib/firebase/types";
 import type { BlacklistEntry } from "@/lib/firebase/types";
 import { matchApplicantsToBlacklist, subscribeToBlacklist } from "@/services/blacklist";
@@ -11,6 +12,7 @@ import { type ReactNode, createContext, useContext, useEffect, useState } from "
 
 export interface EvaluatorContextType {
   hackathon: string;
+  gradingPeriod: boolean | null;
   applicants: Applicant[];
   focusedApplicant: Applicant | null;
   setHackathon: React.Dispatch<React.SetStateAction<string>>;
@@ -27,6 +29,7 @@ export const EvaluatorContext = createContext<EvaluatorContextType | null>(null)
 const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hackathon, setHackathon] = useState<string>("");
+  const { enabled: gradingPeriod } = useGradingPeriod(hackathon);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [focusedApplicant, setFocusedApplicant] = useState<Applicant | null>(null);
   const [scoringCriteria, setScoringCriteria] = useState<ScoringCriteria[]>([]);
@@ -89,6 +92,7 @@ const EvaluatorProvider = ({ children }: { children: ReactNode }) => {
 
   const value: EvaluatorContextType = {
     hackathon,
+    gradingPeriod,
     applicants,
     focusedApplicant,
     scoringCriteria,
