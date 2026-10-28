@@ -40,6 +40,40 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("score persistence", () => {
+  it("rolls a failed rubric write back to the last successful selection", async () => {
+    render(<ApplicantScoring />);
+    fireEvent.click(screen.getByRole("radio", { name: "Experienced" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Save" }).hasAttribute("disabled")).toBe(false),
+    );
+    mocks.updateApplicant.mockRejectedValueOnce(new Error("offline"));
+    fireEvent.click(screen.getByRole("radio", { name: "Beginner" }));
+    await waitFor(() =>
+      expect(mocks.error).toHaveBeenCalledWith("Failed to save rubric. Please try again."),
+    );
+    expect(screen.getByRole("radio", { name: "Experienced" }).getAttribute("aria-checked")).toBe(
+      "true",
+    );
+  });
+
+  it("saves a comment reverted to its original text after a successful edit", async () => {
+    render(<ApplicantScoring />);
+    fireEvent.change(screen.getByPlaceholderText("Comments..."), { target: { value: "Edited" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Save" }).hasAttribute("disabled")).toBe(false),
+    );
+    fireEvent.change(screen.getByPlaceholderText("Comments..."), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(mocks.updateApplicant).toHaveBeenCalledWith(
+        "hackcamp",
+        "applicant-a",
+        expect.objectContaining({ score: expect.objectContaining({ comment: "" }) }),
+      ),
+    );
+  });
+
   it("deletes a selected zero score without mutating the applicant or sibling", async () => {
     const original = fixture();
     mocks.context.focusedApplicant = original;

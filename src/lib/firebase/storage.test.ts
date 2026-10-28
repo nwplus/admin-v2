@@ -157,6 +157,31 @@ describe("resume storage", () => {
     expect(mocks.zipFile).toHaveBeenCalledOnce();
   });
 
+  it("exports successful resumes and reports both lookup and download failures", async () => {
+    mocks.url.mockImplementation(async ({ fullPath }: { fullPath: string }) => {
+      if (fullPath.endsWith("lookup-failure")) throw new Error("permission denied");
+      if (fullPath.endsWith("missing")) throw { code: "storage/object-not-found" };
+      return fullPath;
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (url.endsWith("download-failure")) throw new Error("offline");
+        return { ok: true, blob: async () => new Blob(["pdf"]) };
+      }),
+    );
+    const result = await getAllApplicantResumes(
+      ["lookup-failure", "download-failure", "success", "missing"].map(
+        (_id) => ({ _id, termsAndConditions: { shareWithSponsors: true } }) as Applicant,
+      ),
+      "test-event",
+    );
+    expect(result).toEqual({ downloaded: 1, failed: ["lookup-failure", "download-failure"] });
+    expect(mocks.zipFile).toHaveBeenCalledOnce();
+    expect(mocks.zipFile.mock.calls[0][0]).toContain("success.pdf");
+    expect(mocks.zipGenerate).toHaveBeenCalledOnce();
+  });
+
   it("rejects failed ZIP downloads rather than reporting partial success", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
     await expect(
@@ -164,7 +189,7 @@ describe("resume storage", () => {
         [{ _id: "broken", termsAndConditions: { shareWithSponsors: true } } as Applicant],
         "test-event",
       ),
-    ).rejects.toThrow("500");
+    ).rejects.toThrow("Could not download any resumes");
     expect(mocks.zipGenerate).not.toHaveBeenCalled();
   });
 

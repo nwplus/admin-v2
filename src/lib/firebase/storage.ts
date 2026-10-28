@@ -263,31 +263,37 @@ const extractApplicantNamesAndIds = (applicants: Applicant[]) => {
 /**
  * Fetches resume URLs for applicants
  * @param namesAndIds - Array of objects with id and name
- * @returns Promise that resolves to array of objects with id, name, and url
+ * @returns Available resumes and IDs whose lookup failed
  */
 const fetchResumeUrls = async (namesAndIds: { id: string; name: string }[]) => {
-  const resumes = await Promise.all(
+  const results = await Promise.allSettled(
     namesAndIds.map(async (info) => {
       const resume = await getApplicantResumeFile(info.id);
       return resume ? { ...info, ...resume } : null;
     }),
   );
-  return resumes.filter((resume) => resume !== null);
+  const resumes: (ApplicantResumeFile & { name: string; id: string })[] = [];
+  const failed: string[] = [];
+  results.forEach((result, index) => {
+    if (result.status === "rejected") failed.push(namesAndIds[index].id);
+    else if (result.value) resumes.push(result.value);
+  });
+  return { resumes, failed };
 };
 
 /**
  * Creates a ZIP file with all valid resume URLs and triggers download
  * @param validUrls - Array of objects with url, name, and id
  * @param hackathonName - Name of the hackathon for the filename
- * @returns Promise that resolves when download is complete
+ * @returns Downloaded count and IDs whose download failed
  */
 const createAndDownloadResumeZip = async (
   validUrls: (ApplicantResumeFile & { name: string; id: string })[],
   hackathonName: string,
-): Promise<void> => {
+) => {
   const zip = new JSZip();
 
-  await Promise.all(
+  const results = await Promise.allSettled(
     validUrls.map(async ({ url, name, id, filename, contentType }) => {
       const response = await fetch(url);
       if (!response.ok) throw new Error(`Failed to download resume: ${response.status}`);
@@ -302,23 +308,26 @@ const createAndDownloadResumeZip = async (
       });
     }),
   );
+  const failed = validUrls
+    .filter((_, index) => results[index].status === "rejected")
+    .map(({ id }) => id);
+  const downloaded = validUrls.length - failed.length;
+  if (!downloaded) throw new Error("Could not download any resumes");
   const finishedZip = await zip.generateAsync({ type: "blob" });
   saveBlob(
     finishedZip,
     `${safeFilename(hackathonName)}_resumes_${new Date().toISOString().split("T")[0]}.zip`,
   );
+  return { downloaded, failed };
 };
 
 /**
  * Downloads all applicant resumes and packages them in a ZIP file
  * @param applicants - Array of applicant objects
  * @param hackathonName - Name of the hackathon for the ZIP filename
- * @returns Promise that resolves when download is complete
+ * @returns Downloaded count and failed IDs; rejects if no resumes can be downloaded
  */
-export const getAllApplicantResumes = async (
-  applicants: Applicant[],
-  hackathonName: string,
-): Promise<void> => {
+export const getAllApplicantResumes = async (applicants: Applicant[], hackathonName: string) => {
   // Filter applicants who have agreed to share with sponsors and have resumes
   const sharableApps = filterShareableApplicants(applicants);
 
@@ -330,12 +339,13 @@ export const getAllApplicantResumes = async (
   const namesAndIds = extractApplicantNamesAndIds(sharableApps);
 
   // Get resume URLs for all applicants
-  const validUrls = await fetchResumeUrls(namesAndIds);
+  const { resumes: validUrls, failed } = await fetchResumeUrls(namesAndIds);
 
   if (validUrls.length === 0) {
     throw new Error("Could not retrieve any resume URLs");
   }
 
   // Create ZIP file with all resumes and trigger download
-  await createAndDownloadResumeZip(validUrls, hackathonName);
+  const result = await createAndDownloadResumeZip(validUrls, hackathonName);
+  return { downloaded: result.downloaded, failed: [...failed, ...result.failed] };
 };

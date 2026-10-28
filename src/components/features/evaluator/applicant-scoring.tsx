@@ -31,10 +31,12 @@ export function ApplicantScoring() {
   const savingRef = useRef(false);
   const focusedApplicantRef = useRef(focusedApplicant);
   focusedApplicantRef.current = focusedApplicant;
+  const savedCommentRef = useRef("");
 
   useEffect(() => {
     setScores(focusedApplicant?.score?.scores ?? {});
     setComment(focusedApplicant?.score?.comment ?? "");
+    savedCommentRef.current = focusedApplicant?.score?.comment ?? "";
     setMetadata({
       lastUpdated: focusedApplicant?.score?.lastUpdated,
       lastUpdatedBy: focusedApplicant?.score?.lastUpdatedBy,
@@ -62,7 +64,11 @@ export function ApplicantScoring() {
   }, [hackathon, focusedApplicant]);
 
   const handleRubricTypeChange = async (value: RubricType) => {
-    if (!focusedApplicant?._id) return;
+    if (!focusedApplicant?._id || savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    const previousRubricType = rubricType;
+    const previousMetadata = metadata;
 
     const newMetadata = {
       lastUpdated: Timestamp.now(),
@@ -78,13 +84,13 @@ export function ApplicantScoring() {
       });
     } catch {
       if (focusedApplicantRef.current === focusedApplicant) {
-        setRubricType(getExperienceGroup(focusedApplicant));
-        setMetadata({
-          lastUpdated: focusedApplicant.score?.lastUpdated,
-          lastUpdatedBy: focusedApplicant.score?.lastUpdatedBy,
-        });
+        setRubricType(previousRubricType);
+        setMetadata(previousMetadata);
       }
       toast.error("Failed to save rubric. Please try again.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
   };
 
@@ -155,7 +161,7 @@ export function ApplicantScoring() {
   const saveComment = useCallback(
     async (comment: string) => {
       if (!focusedApplicant?._id) return;
-      if (comment === focusedApplicant?.score?.comment) return; // else this gets triggered on load
+      if (comment === savedCommentRef.current) return;
 
       const newMetadata = {
         lastUpdated: Timestamp.now(),
@@ -168,6 +174,7 @@ export function ApplicantScoring() {
             ...newMetadata,
           },
         });
+        if (focusedApplicantRef.current === focusedApplicant) savedCommentRef.current = comment;
       } catch (error) {
         toast.error("Failed to save comment. Please try again.");
         throw error;
@@ -224,6 +231,7 @@ export function ApplicantScoring() {
         <div className="flex flex-col gap-1.5">
           <Label id="rubric-type">Beginner / Experienced</Label>
           <RadioGroup
+            disabled={saving}
             aria-labelledby="rubric-type"
             value={rubricType ?? ""}
             onValueChange={(value) => handleRubricTypeChange(value as RubricType)}
