@@ -48,8 +48,8 @@ export function subscribeToWalletEmailDelivery(
   onError: (error: Error) => void,
 ) {
   return onSnapshot(
-    doc(db, "Hackathons", hackathonId),
-    (snapshot) => onChange((snapshot.data()?.walletEmail as WalletEmailDelivery | undefined) ?? null),
+    doc(db, "Hackathons", hackathonId, "walletEmail", "state"),
+    (snapshot) => onChange((snapshot.data() as WalletEmailDelivery | undefined) ?? null),
     onError,
   );
 }
