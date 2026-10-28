@@ -1,3 +1,4 @@
+import { WalletEmailControl } from "@/components/features/settings/wallet-email-control";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -266,13 +267,20 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
                   placeholder="e.g., March 8-9"
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <Label htmlFor="portalLive">Portal Live</Label>
-                <Switch
-                  id="portalLive"
-                  checked={getBooleanValue("portalLive")}
-                  onCheckedChange={(checked) => handleFieldChange("portalLive", checked)}
-                  disabled={!isEditing}
+              <div className="flex flex-wrap items-start justify-between gap-6">
+                <div className="flex items-center gap-4 pt-2">
+                  <Label htmlFor="portalLive">Portal Live</Label>
+                  <Switch
+                    id="portalLive"
+                    checked={getBooleanValue("portalLive")}
+                    onCheckedChange={(checked) => handleFieldChange("portalLive", checked)}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <WalletEmailControl
+                  key={hackathonId}
+                  hackathonId={hackathonId}
+                  disabled={isEditing || isSaving}
                 />
               </div>
             </div>
