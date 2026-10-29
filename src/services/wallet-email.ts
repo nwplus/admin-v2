@@ -49,7 +49,8 @@ export function subscribeToWalletEmailDelivery(
 ) {
   return onSnapshot(
     doc(db, "Hackathons", hackathonId),
-    (snapshot) => onChange((snapshot.data()?.walletEmail as WalletEmailDelivery | undefined) ?? null),
+    (snapshot) =>
+      onChange((snapshot.data()?.walletEmail as WalletEmailDelivery | undefined) ?? null),
     onError,
   );
 }
