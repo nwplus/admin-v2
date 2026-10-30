@@ -76,6 +76,14 @@ export interface Hackathon {
     test?: boolean;
   };
   sponsorPrizes?: string[];
+  /** Hacker Wrapped release settings; read by portal-v2 and Functions-new. */
+  wrapped?: {
+    isReady?: boolean;
+    /** Download URL of the email banner uploaded to Storage at wrapped/{hackathon}/banner. */
+    bannerUrl?: string;
+    /** Overrides the default {portal}/{slug}/wrapped link in the email. */
+    url?: string;
+  };
 }
 
 /**
@@ -709,6 +717,22 @@ export interface WalletEmailDelivery {
   uncertain: number;
   error?: string;
   currentProgress?: { sent: number; failed: number; skipped: number; uncertain: number };
+}
+
+export type WrappedEmailRecipientStatus = "sent" | "failed" | "skipped" | "uncertain";
+
+/** Per-hacker entry in WrappedEmailLedger.recipients, keyed by uid. */
+export interface WrappedEmailRecipient {
+  s: WrappedEmailRecipientStatus;
+  /** Why a hacker was skipped. */
+  r?: "no-wrapped-doc" | "opted-out";
+  /** Last error message, if any. */
+  e?: string;
+}
+
+/** Stored on Hackathons/{collection}/wrappedEmail/ledger; written by Functions-new. */
+export interface WrappedEmailLedger extends WalletEmailDelivery {
+  recipients?: Record<string, WrappedEmailRecipient>;
 }
 
 export interface HackathonConfig {
