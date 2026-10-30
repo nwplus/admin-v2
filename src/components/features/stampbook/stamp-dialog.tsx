@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { FilterRowsSelection, Hackathon, Stamp } from "@/lib/firebase/types";
+import { needsStampQrRegeneration } from "@/lib/stamps";
 import { getHackathonType } from "@/lib/utils";
 import { deleteStampQR, deleteStampWithImage, upsertStampWithImage } from "@/services/stamps";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -232,11 +233,12 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
         stampData.criteria = criteria;
       }
 
-      // Generate QR blob if isQRUnlockable is being enabled for the first time
+      // Generate QR blob if isQRUnlockable is being enabled for the first time,
+      // the stamp is moving to a hackathon with a different portal slug,
       // else delete QR if isQRUnlockable is being disabled and a QR exists
       let qrBlob: Blob | null = null;
       const stampId = activeStamp?._id;
-      const needsNewQR = values.isQRUnlockable && (!activeStamp || !activeStamp.isQRUnlockable);
+      const needsNewQR = needsStampQrRegeneration(activeStamp, values);
       const needsQRDeletion =
         !values.isQRUnlockable && activeStamp?.isQRUnlockable && activeStamp?.qrURL;
 
