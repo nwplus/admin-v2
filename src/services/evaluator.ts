@@ -8,6 +8,7 @@ import type {
 import { getApplicantEducationLevel } from "@/lib/utils";
 import { flattenApplicantData } from "@/services/query";
 import {
+  type FieldValue,
   type Timestamp,
   collection,
   deleteField,
@@ -143,7 +144,7 @@ export const deleteApplicantScores = async (
  * @param update changes to patch
  * @returns void
  */
-type Object<T = string | number | Timestamp | undefined> = {
+type Object<T = string | number | Timestamp | FieldValue | undefined> = {
   [key: string]: T | Object<T>;
 };
 export const updateApplicant = async (hackathon: string, applicantId: string, update: Object) => {
@@ -152,6 +153,7 @@ export const updateApplicant = async (hackathon: string, applicantId: string, up
     await setDoc(applicantRef, update, { merge: true });
   } catch (err) {
     console.error("Error updating applicant: ", err);
+    throw err;
   }
 };
 

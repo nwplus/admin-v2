@@ -9,8 +9,10 @@ import type { ApplicantScoreItem, RubricType, ScoringCriteria } from "@/lib/fire
 import { useAuth } from "@/providers/auth-provider";
 import { useEvaluator } from "@/providers/evaluator-provider";
 import { saveDefaultRubricType, updateApplicant } from "@/services/evaluator";
-import { Timestamp } from "firebase/firestore";
-import { useCallback, useEffect, useState } from "react";
+import { Timestamp, deleteField } from "firebase/firestore";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+import { toast } from "sonner";
 
 export function ApplicantScoring() {
   const { user } = useAuth();
@@ -26,10 +28,15 @@ export function ApplicantScoring() {
   }>({});
 
   const [saving, setSaving] = useState<boolean>(false);
+  const savingRef = useRef(false);
+  const focusedApplicantRef = useRef(focusedApplicant);
+  focusedApplicantRef.current = focusedApplicant;
+  const savedCommentRef = useRef("");
 
   useEffect(() => {
     setScores(focusedApplicant?.score?.scores ?? {});
     setComment(focusedApplicant?.score?.comment ?? "");
+    savedCommentRef.current = focusedApplicant?.score?.comment ?? "";
     setMetadata({
       lastUpdated: focusedApplicant?.score?.lastUpdated,
       lastUpdatedBy: focusedApplicant?.score?.lastUpdatedBy,
@@ -57,7 +64,11 @@ export function ApplicantScoring() {
   }, [hackathon, focusedApplicant]);
 
   const handleRubricTypeChange = async (value: RubricType) => {
-    if (!focusedApplicant?._id) return;
+    if (!focusedApplicant?._id || savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    const previousRubricType = rubricType;
+    const previousMetadata = metadata;
 
     const newMetadata = {
       lastUpdated: Timestamp.now(),
@@ -67,17 +78,26 @@ export function ApplicantScoring() {
     setRubricType(value);
     setMetadata(newMetadata);
 
-    await updateApplicant(hackathon, focusedApplicant._id, {
-      score: {
-        rubricType: value,
-        ...newMetadata,
-      },
-    });
+    try {
+      await updateApplicant(hackathon, focusedApplicant._id, {
+        score: { rubricType: value, ...newMetadata },
+      });
+    } catch {
+      if (focusedApplicantRef.current === focusedApplicant) {
+        setRubricType(previousRubricType);
+        setMetadata(previousMetadata);
+      }
+      toast.error("Failed to save rubric. Please try again.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   const handleScoreChange = async (field: string, value: number) => {
-    if (saving) return;
+    if (savingRef.current) return;
     if (!focusedApplicant?._id) return;
+    savingRef.current = true;
     setSaving(true);
 
     const newMetadata = {
@@ -90,9 +110,10 @@ export function ApplicantScoring() {
       ...newMetadata,
     };
 
-    const updatedScores = scores;
+    const updatedScores = { ...scores };
+    const deselecting = scores[field]?.score === value;
 
-    if (scores[field]?.score === value) {
+    if (deselecting) {
       delete updatedScores[field];
     } else {
       updatedScores[field] = newScore;
@@ -101,20 +122,30 @@ export function ApplicantScoring() {
     setScores(updatedScores);
     setMetadata(newMetadata);
 
-    await updateApplicant(hackathon, focusedApplicant?._id, {
-      score: {
-        scores: {
-          [field]: newScore,
+    try {
+      await updateApplicant(hackathon, focusedApplicant._id, {
+        score: {
+          scores: {
+            [field]: deselecting ? deleteField() : newScore,
+          },
+          ...newMetadata,
+          totalScore: enabledScoringCriteria.reduce((sum, criteria) => {
+            const scoreItem = updatedScores[criteria.field];
+            const scoreValue = typeof scoreItem?.score === "number" ? scoreItem.score : 0;
+            return sum + scoreValue * criteria.weight;
+          }, 0),
         },
-        ...newMetadata,
-        totalScore: enabledScoringCriteria.reduce((sum, criteria) => {
-          const scoreItem = updatedScores[criteria.field];
-          const scoreValue = typeof scoreItem?.score === "number" ? scoreItem.score : 0;
-          return sum + scoreValue * criteria.weight;
-        }, 0),
-      },
-    });
-    setSaving(false);
+      });
+    } catch {
+      if (focusedApplicantRef.current === focusedApplicant) {
+        setScores(scores);
+        setMetadata(metadata);
+      }
+      toast.error("Failed to save score. Please try again.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   const areAllCategoriesScored = () => {
@@ -130,18 +161,24 @@ export function ApplicantScoring() {
   const saveComment = useCallback(
     async (comment: string) => {
       if (!focusedApplicant?._id) return;
-      if (comment === focusedApplicant?.score?.comment) return; // else this gets triggered on load
+      if (comment === savedCommentRef.current) return;
 
       const newMetadata = {
         lastUpdated: Timestamp.now(),
         lastUpdatedBy: user?.email ?? "err",
       };
-      await updateApplicant(hackathon, focusedApplicant?._id, {
-        score: {
-          comment,
-          ...newMetadata,
-        },
-      });
+      try {
+        await updateApplicant(hackathon, focusedApplicant._id, {
+          score: {
+            comment,
+            ...newMetadata,
+          },
+        });
+        if (focusedApplicantRef.current === focusedApplicant) savedCommentRef.current = comment;
+      } catch (error) {
+        toast.error("Failed to save comment. Please try again.");
+        throw error;
+      }
     },
     [hackathon, focusedApplicant, user?.email],
   );
@@ -149,30 +186,36 @@ export function ApplicantScoring() {
   const { loading: isCommentSaving } = useDebouncedSave(comment, saveComment, 500);
 
   const saveScoring = async () => {
-    if (saving) return;
+    if (savingRef.current) return;
     if (!focusedApplicant?._id) return;
+    savingRef.current = true;
     setSaving(true);
 
-    if (!isCommentSaving) {
-      await saveComment(comment);
+    try {
+      if (!isCommentSaving) {
+        await saveComment(comment);
+      }
+
+      const allCategoriesScored = areAllCategoriesScored();
+      const applicationStatus = allCategoriesScored ? "scored" : "gradinginprog";
+
+      const newScore = {
+        lastUpdated: Timestamp.now(),
+        lastUpdatedBy: user?.email ?? "err",
+      };
+
+      await updateApplicant(hackathon, focusedApplicant?._id, {
+        score: newScore,
+        status: {
+          applicationStatus,
+        },
+      });
+    } catch {
+      toast.error("Failed to save grading status. Please try again.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
-
-    const allCategoriesScored = areAllCategoriesScored();
-    const applicationStatus = allCategoriesScored ? "scored" : "gradinginprog";
-
-    const newScore = {
-      lastUpdated: Timestamp.now(),
-      lastUpdatedBy: user?.email ?? "err",
-    };
-
-    await updateApplicant(hackathon, focusedApplicant?._id, {
-      score: newScore,
-      status: {
-        applicationStatus,
-      },
-    });
-
-    setSaving(false);
   };
 
   if (!focusedApplicant) {
@@ -188,6 +231,7 @@ export function ApplicantScoring() {
         <div className="flex flex-col gap-1.5">
           <Label id="rubric-type">Beginner / Experienced</Label>
           <RadioGroup
+            disabled={saving}
             aria-labelledby="rubric-type"
             value={rubricType ?? ""}
             onValueChange={(value) => handleRubricTypeChange(value as RubricType)}
@@ -230,7 +274,9 @@ export function ApplicantScoring() {
           />
         </div>
         <div className="flex flex-col gap-2 pb-1">
-          <Button onClick={saveScoring}>Save</Button>
+          <Button onClick={saveScoring} disabled={saving}>
+            Save
+          </Button>
           {saving || isCommentSaving ? (
             <div className="text-neutral-500 text-xs">Saving...</div>
           ) : metadata?.lastUpdated || metadata?.lastUpdatedBy ? (

@@ -18,7 +18,7 @@ export function ExportDialog() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleExport = async (
-    operation: () => Promise<void> | void,
+    operation: () => Promise<string | undefined>,
     successMessage: string,
     errorMessage: string,
     startMessage?: string,
@@ -30,8 +30,8 @@ export function ExportDialog() {
       if (startMessage) {
         toast(startMessage);
       }
-      await operation();
-      toast(successMessage);
+      const message = await operation();
+      toast(message ?? successMessage);
     } catch (error) {
       console.error(error);
       toast(errorMessage);
@@ -42,7 +42,7 @@ export function ExportDialog() {
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button variant="outline" aria-label="Export">
           <FileDownIcon />
         </Button>
@@ -57,7 +57,10 @@ export function ExportDialog() {
             disabled={loading}
             onClick={() =>
               handleExport(
-                () => exportApplicantsAsCSV(applicants, hackathon),
+                async () => {
+                  exportApplicantsAsCSV(applicants, hackathon);
+                  return undefined;
+                },
                 "Successfully downloaded CSV",
                 "An error occured while downloading CSV",
               )
@@ -70,7 +73,15 @@ export function ExportDialog() {
             disabled={loading}
             onClick={() =>
               handleExport(
-                () => getAllApplicantResumes(applicants, hackathon),
+                async () => {
+                  const { downloaded, failed } = await getAllApplicantResumes(
+                    applicants,
+                    hackathon,
+                  );
+                  if (failed.length) {
+                    return `Downloaded ${downloaded} resumes. ${failed.length} failed; retry the export to retrieve them.`;
+                  }
+                },
                 "Successfully downloaded resumes ZIP file.",
                 "An error occurred while downloading resumes",
                 "Starting resume download. This may take a few moments...",

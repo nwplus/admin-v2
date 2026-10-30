@@ -73,6 +73,7 @@ export interface Hackathon {
   featureFlags?: {
     isOpen?: boolean;
     registrationOpen?: boolean;
+    gradingPeriod?: boolean;
     test?: boolean;
   };
   sponsorPrizes?: string[];
