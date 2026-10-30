@@ -1,3 +1,4 @@
+import { GradingPeriodSetting } from "@/components/features/settings/grading-period-setting";
 import { HackathonSettingsForm } from "@/components/features/settings/hackathon-settings-form";
 import { PageHeader } from "@/components/graphy/typo";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ function RouteComponent() {
           <Badge variant="secondary">{activeHackathon}</Badge>
         </PageHeader>
       </div>
+      <GradingPeriodSetting hackathonId={hackathonId} />
       <HackathonSettingsForm hackathonId={hackathonId} />
     </div>
   );

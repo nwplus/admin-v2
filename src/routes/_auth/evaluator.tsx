@@ -18,6 +18,15 @@ export const Route = createFileRoute("/_auth/evaluator")({
 });
 
 function Evaluator() {
+  return (
+    <EvaluatorProvider>
+      <EvaluatorContent />
+    </EvaluatorProvider>
+  );
+}
+
+export function EvaluatorContent() {
+  const { gradingPeriod } = useEvaluator();
   const [open, setOpen] = useState<boolean>(false);
   const [hackathonIds, setHackathonIds] = useState<string[]>([]);
 
@@ -29,7 +38,7 @@ function Evaluator() {
   }, []);
 
   return (
-    <EvaluatorProvider>
+    <>
       <div className="flex h-full w-full flex-col gap-3">
         <div className="flex items-center justify-between">
           <TooltipProvider>
@@ -37,12 +46,14 @@ function Evaluator() {
               Evaluator <ActiveHackathonBadge />
             </PageHeader>
           </TooltipProvider>
-          <div>
-            <Button variant="outline" onClick={() => setOpen(true)}>
-              <Settings />
-              Settings
-            </Button>
-          </div>
+          {gradingPeriod === false && (
+            <div>
+              <Button variant="outline" onClick={() => setOpen(true)}>
+                <Settings />
+                Settings
+              </Button>
+            </div>
+          )}
         </div>
         <div className="relative grid grid-cols-[1fr_2fr_1fr] gap-4">
           <ApplicantList />
@@ -50,8 +61,10 @@ function Evaluator() {
           <ApplicantScoring />
         </div>
       </div>
-      <SettingsDialog open={open} onClose={() => setOpen(false)} hackathonIds={hackathonIds} />
-    </EvaluatorProvider>
+      {gradingPeriod === false && (
+        <SettingsDialog open={open} onClose={() => setOpen(false)} hackathonIds={hackathonIds} />
+      )}
+    </>
   );
 }
 
