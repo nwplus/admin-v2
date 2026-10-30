@@ -5,6 +5,7 @@ import {
   updateWrappedSettings,
 } from "@/services/wrapped-email";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type { Timestamp } from "firebase/firestore";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { WrappedSettings } from "./wrapped-settings";
 
@@ -25,6 +26,7 @@ vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 let publish: (settings: WrappedSettingsData) => void;
 const saved = { isReady: false, bannerUrl: "https://example.invalid/old.png" };
 const released = () => screen.getByRole("switch", { name: "Released" });
+const timestamp = (local: string) => ({ toDate: () => new Date(local) }) as Timestamp;
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -126,6 +128,41 @@ describe("WrappedSettings", () => {
     const gif = new File(["gif"], "banner.gif", { type: "image/gif" });
     fireEvent.change(screen.getByLabelText("Email Banner"), { target: { files: [gif] } });
     expect(screen.getByText("The banner must be a PNG or JPEG image.")).toBeTruthy();
+  });
+
+  it("saves changed event times as Dates and clears a blanked check-in time", async () => {
+    renderLoaded({
+      ...saved,
+      hackathonStart: timestamp("2099-01-10T09:00"),
+      checkInOpensAt: timestamp("2099-01-10T08:00"),
+    });
+    expect((screen.getByLabelText("Hackathon Start") as HTMLInputElement).value).toBe(
+      "2099-01-10T09:00",
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.change(screen.getByLabelText("Hackathon End"), {
+      target: { value: "2099-01-11T17:30" },
+    });
+    fireEvent.change(screen.getByLabelText("Check-in Opens"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() =>
+      expect(updateWrappedSettings).toHaveBeenCalledExactlyOnceWith("HackCamp2099", {
+        hackathonEnd: new Date("2099-01-11T17:30"),
+        checkInOpensAt: null,
+      }),
+    );
+  });
+
+  it("rejects a hackathon end that is not after the start", async () => {
+    const { toast } = await import("sonner");
+    renderLoaded({ ...saved, hackathonStart: timestamp("2099-01-10T09:00") });
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.change(screen.getByLabelText("Hackathon End"), {
+      target: { value: "2099-01-10T09:00" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    expect(toast.error).toHaveBeenCalledWith("Hackathon End must be after Hackathon Start");
+    expect(updateWrappedSettings).not.toHaveBeenCalled();
   });
 
   it("disables sending while this section or the main form is being edited", () => {

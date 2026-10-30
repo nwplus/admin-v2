@@ -20,14 +20,45 @@ import {
   subscribeToWrappedSettings,
   updateWrappedSettings,
 } from "@/services/wrapped-email";
+import { format, parseISO } from "date-fns";
+import type { Timestamp } from "firebase/firestore";
 import { ImageIcon, Pencil, Save, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 const BANNER_TYPES = ["image/png", "image/jpeg"];
 
+const TIME_FIELDS = [
+  {
+    key: "hackathonStart",
+    label: "Hackathon Start",
+    description: "Required. The Wrapped script will not run without it.",
+  },
+  {
+    key: "hackathonEnd",
+    label: "Hackathon End",
+    description: "Required. The Wrapped script will not run without it.",
+  },
+  {
+    key: "checkInOpensAt",
+    label: "Check-in Opens",
+    description: "Optional. Early Bird measures from the earliest check-in when blank.",
+  },
+] as const;
+
+type TimeField = (typeof TIME_FIELDS)[number]["key"];
+
+/** Timestamp → datetime-local input value, in the browser's time zone. */
+const toDateTimeLocal = (timestamp?: Timestamp) =>
+  timestamp ? format(timestamp.toDate(), "yyyy-MM-dd'T'HH:mm") : "";
+
+const toTimeDraft = (settings: WrappedSettingsData | null) =>
+  Object.fromEntries(
+    TIME_FIELDS.map(({ key }) => [key, toDateTimeLocal(settings?.[key])]),
+  ) as Record<TimeField, string>;
+
 /**
- * Hacker Wrapped release, banner, and email settings stored on Hackathons/{id}.wrapped.
+ * Hacker Wrapped release, event window, banner, and email settings stored on Hackathons/{id}.wrapped.
  * Saved independently of the InternalWebsites/Portal settings form.
  */
 export function WrappedSettings({
@@ -44,6 +75,7 @@ export function WrappedSettings({
   const [isSaving, setIsSaving] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [url, setUrl] = useState("");
+  const [times, setTimes] = useState<Record<TimeField, string>>(() => toTimeDraft(null));
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const [bannerError, setBannerError] = useState<string | null>(null);
@@ -67,6 +99,7 @@ export function WrappedSettings({
   const resetDraft = () => {
     setIsReady(settings?.isReady === true);
     setUrl(settings?.url ?? "");
+    setTimes(toTimeDraft(settings));
     setBannerFile(null);
     setBannerPreview(null);
     setBannerError(null);
@@ -108,12 +141,21 @@ export function WrappedSettings({
       toast.error("The Wrapped link must start with https://");
       return;
     }
+    if (times.hackathonStart && times.hackathonEnd && times.hackathonEnd <= times.hackathonStart) {
+      toast.error("Hackathon End must be after Hackathon Start");
+      return;
+    }
 
     setIsSaving(true);
     try {
       const changes: Parameters<typeof updateWrappedSettings>[1] = {};
       if (isReady !== (settings.isReady === true)) changes.isReady = isReady;
       if (trimmedUrl !== (settings.url ?? "")) changes.url = trimmedUrl || null;
+      for (const { key } of TIME_FIELDS) {
+        if (times[key] !== toDateTimeLocal(settings[key])) {
+          changes[key] = times[key] ? parseISO(times[key]) : null;
+        }
+      }
       if (bannerFile) {
         const bannerUrl = await uploadWrappedBanner(hackathonId, bannerFile);
         if (!bannerUrl) {
@@ -204,6 +246,19 @@ export function WrappedSettings({
                 disabled={!isEditing || isSaving}
               />
             </div>
+            {TIME_FIELDS.map(({ key, label, description }) => (
+              <div key={key} className="space-y-2">
+                <Label htmlFor={`wrapped-${key}`}>{label}</Label>
+                <Input
+                  id={`wrapped-${key}`}
+                  type="datetime-local"
+                  value={isEditing ? times[key] : toDateTimeLocal(settings[key])}
+                  onChange={(e) => setTimes({ ...times, [key]: e.target.value })}
+                  disabled={!isEditing || isSaving}
+                />
+                <p className="text-muted-foreground text-sm">{description}</p>
+              </div>
+            ))}
             <div className="space-y-2">
               <Label htmlFor="wrappedBanner">Email Banner</Label>
               <div className="flex flex-wrap items-start gap-4">

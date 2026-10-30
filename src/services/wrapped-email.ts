@@ -1,6 +1,7 @@
 import { db } from "@/lib/firebase/client";
 import type { Hackathon, WrappedEmailLedger } from "@/lib/firebase/types";
 import {
+  Timestamp,
   collection,
   deleteField,
   doc,
@@ -81,18 +82,25 @@ export function subscribeToWrappedSettings(
   );
 }
 
+export interface WrappedSettingsChanges {
+  isReady?: boolean;
+  bannerUrl?: string;
+  url?: string | null;
+  hackathonStart?: Date | null;
+  hackathonEnd?: Date | null;
+  checkInOpensAt?: Date | null;
+}
+
 /**
  * Updates only the given wrapped.* fields on Hackathons/{id}, leaving siblings untouched
- * @param changes - fields to set; url: null removes the link override
+ * @param changes - fields to set; null removes the field, Dates are stored as Timestamps
  */
-export async function updateWrappedSettings(
-  hackathonId: string,
-  changes: { isReady?: boolean; bannerUrl?: string; url?: string | null },
-) {
+export async function updateWrappedSettings(hackathonId: string, changes: WrappedSettingsChanges) {
   const update: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(changes)) {
     if (value === undefined) continue;
-    update[`wrapped.${key}`] = value === null ? deleteField() : value;
+    update[`wrapped.${key}`] =
+      value === null ? deleteField() : value instanceof Date ? Timestamp.fromDate(value) : value;
   }
   if (Object.keys(update).length === 0) return;
   await updateDoc(doc(db, "Hackathons", hackathonId), update);

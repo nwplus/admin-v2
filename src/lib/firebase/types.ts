@@ -84,6 +84,11 @@ export interface Hackathon {
     bannerUrl?: string;
     /** Overrides the default {portal}/{slug}/wrapped link in the email. */
     url?: string;
+    /** Event window used by the Wrapped generation script; required for it to run. */
+    hackathonStart?: Timestamp;
+    hackathonEnd?: Timestamp;
+    /** When check-in opened; Early Bird measures from the earliest check-in without it. */
+    checkInOpensAt?: Timestamp;
   };
 }
 
