@@ -130,39 +130,33 @@ describe("WrappedSettings", () => {
     expect(screen.getByText("The banner must be a PNG or JPEG image.")).toBeTruthy();
   });
 
-  it("saves changed event times as Dates and clears a blanked check-in time", async () => {
-    renderLoaded({
-      ...saved,
-      hackathonStart: timestamp("2099-01-10T09:00"),
-      checkInOpensAt: timestamp("2099-01-10T08:00"),
-    });
-    expect((screen.getByLabelText("Hackathon Start") as HTMLInputElement).value).toBe(
-      "2099-01-10T09:00",
+  it("saves a changed check-in time as a Date and clears it when blanked", async () => {
+    renderLoaded({ ...saved, checkInOpensAt: timestamp("2099-01-10T08:00") });
+    expect((screen.getByLabelText("Check-in Opens") as HTMLInputElement).value).toBe(
+      "2099-01-10T08:00",
     );
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
-    fireEvent.change(screen.getByLabelText("Hackathon End"), {
-      target: { value: "2099-01-11T17:30" },
+    fireEvent.change(screen.getByLabelText("Check-in Opens"), {
+      target: { value: "2099-01-10T07:30" },
     });
-    fireEvent.change(screen.getByLabelText("Check-in Opens"), { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     await waitFor(() =>
       expect(updateWrappedSettings).toHaveBeenCalledExactlyOnceWith("HackCamp2099", {
-        hackathonEnd: new Date("2099-01-11T17:30"),
-        checkInOpensAt: null,
+        checkInOpensAt: new Date("2099-01-10T07:30"),
       }),
     );
   });
 
-  it("rejects a hackathon end that is not after the start", async () => {
-    const { toast } = await import("sonner");
-    renderLoaded({ ...saved, hackathonStart: timestamp("2099-01-10T09:00") });
+  it("clears a blanked check-in time", async () => {
+    renderLoaded({ ...saved, checkInOpensAt: timestamp("2099-01-10T08:00") });
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
-    fireEvent.change(screen.getByLabelText("Hackathon End"), {
-      target: { value: "2099-01-10T09:00" },
-    });
+    fireEvent.change(screen.getByLabelText("Check-in Opens"), { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
-    expect(toast.error).toHaveBeenCalledWith("Hackathon End must be after Hackathon Start");
-    expect(updateWrappedSettings).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(updateWrappedSettings).toHaveBeenCalledExactlyOnceWith("HackCamp2099", {
+        checkInOpensAt: null,
+      }),
+    );
   });
 
   it("disables sending while this section or the main form is being edited", () => {

@@ -86,8 +86,6 @@ export interface WrappedSettingsChanges {
   isReady?: boolean;
   bannerUrl?: string;
   url?: string | null;
-  hackathonStart?: Date | null;
-  hackathonEnd?: Date | null;
   checkInOpensAt?: Date | null;
 }
 

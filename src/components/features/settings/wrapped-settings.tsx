@@ -30,16 +30,6 @@ const BANNER_TYPES = ["image/png", "image/jpeg"];
 
 const TIME_FIELDS = [
   {
-    key: "hackathonStart",
-    label: "Hackathon Start",
-    description: "Required. The Wrapped script will not run without it.",
-  },
-  {
-    key: "hackathonEnd",
-    label: "Hackathon End",
-    description: "Required. The Wrapped script will not run without it.",
-  },
-  {
     key: "checkInOpensAt",
     label: "Check-in Opens",
     description: "Optional. Early Bird measures from the earliest check-in when blank.",
@@ -58,7 +48,7 @@ const toTimeDraft = (settings: WrappedSettingsData | null) =>
   ) as Record<TimeField, string>;
 
 /**
- * Hacker Wrapped release, event window, banner, and email settings stored on Hackathons/{id}.wrapped.
+ * Hacker Wrapped release, check-in time, banner, and email settings stored on Hackathons/{id}.wrapped.
  * Saved independently of the InternalWebsites/Portal settings form.
  */
 export function WrappedSettings({
@@ -139,10 +129,6 @@ export function WrappedSettings({
     const trimmedUrl = url.trim();
     if (trimmedUrl && !/^https:\/\/\S+$/.test(trimmedUrl)) {
       toast.error("The Wrapped link must start with https://");
-      return;
-    }
-    if (times.hackathonStart && times.hackathonEnd && times.hackathonEnd <= times.hackathonStart) {
-      toast.error("Hackathon End must be after Hackathon Start");
       return;
     }
 
