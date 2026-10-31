@@ -72,12 +72,12 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
       }
 
       const csvContent = generateRaffleCSV(raffleEntries);
-      const filename = `raffle-${selectedHackathon}-${new Date().toISOString().split("T")[0]}.csv`;
+      const filename = `stamp-holders-${selectedHackathon}-${new Date().toISOString().split("T")[0]}.csv`;
       downloadCSV(csvContent, filename);
-      toast.success(`Exported ${raffleEntries.length} raffle entries`);
+      toast.success(`Exported ${raffleEntries.length} stamp holder rows`);
     } catch (error) {
-      console.error("Error exporting raffle:", error);
-      toast.error("Failed to export raffle data");
+      console.error("Error exporting stamp holders:", error);
+      toast.error("Failed to export stamp holders");
     } finally {
       setLoading(false);
     }
@@ -96,10 +96,11 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
         aria-describedby="raffle-export-description"
       >
         <DialogHeader>
-          <DialogTitle>Export Raffle</DialogTitle>
+          <DialogTitle>Export stamp holders</DialogTitle>
           <DialogDescription id="raffle-export-description" className="text-xs">
-            Export a CSV of obfuscated emails for raffles. Outputs a list of name + emails, where
-            duplicate entries correlate to number of stamps collected by a hacker.
+            Export a CSV of obfuscated emails with one row per collected stamp, so a hacker appears
+            once for each selected stamp they hold. This is not the raffle pool, which is based on
+            points.
           </DialogDescription>
         </DialogHeader>
 
@@ -140,7 +141,7 @@ export function ExportRaffleDialog({ open, onClose, stamps }: ExportRaffleDialog
             ) : (
               <Download className="mr-2 h-4 w-4" />
             )}
-            Export Raffle CSV
+            Export stamp holders CSV
           </Button>
         </div>
       </DialogContent>
