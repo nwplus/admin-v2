@@ -23,7 +23,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { FilterRowsSelection, Hackathon, Stamp } from "@/lib/firebase/types";
-import { needsStampQrRegeneration } from "@/lib/stamps";
+import { stampPointValue } from "@/lib/points";
+import { STAMP_CATEGORIES, needsStampQrRegeneration } from "@/lib/stamps";
 import { getHackathonType } from "@/lib/utils";
 import { deleteStampQR, deleteStampWithImage, upsertStampWithImage } from "@/services/stamps";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,10 +39,12 @@ import { CriteriaBuilder } from "./criteria-builder";
 const MAX_FILE_SIZE = 5000000;
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
-const EMPTY_FORM = {
+const EMPTY_FORM: z.infer<typeof formSchema> = {
   name: "",
   description: "",
   hackathon: "",
+  category: "other",
+  points: 1,
   isHidden: false,
   isTitle: false,
   isQRUnlockable: false,
@@ -52,6 +55,12 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
   description: z.string().min(2, "Description must be at least 2 characters").max(500),
   hackathon: z.string().min(1, "Please select a hackathon"),
+  category: z.enum(["preHackathonWorkshop", "dayOfWorkshop", "dayOfActivity", "other"]),
+  points: z
+    .number({ invalid_type_error: "Enter a whole number of points" })
+    .int("Points must be a whole number")
+    .min(0, "Points can't be negative")
+    .max(1000, "Points can't be more than 1000"),
   isHidden: z.boolean(),
   isTitle: z.boolean(),
   isQRUnlockable: z.boolean(),
@@ -136,6 +145,8 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       name: activeStamp?.name ?? "",
       description: activeStamp?.description ?? "",
       hackathon: activeStamp?.hackathon ?? "",
+      category: activeStamp?.category ?? "other",
+      points: activeStamp ? stampPointValue(activeStamp) : 1,
       isHidden: activeStamp?.isHidden ?? false,
       isTitle: activeStamp?.isTitle ?? false,
       isQRUnlockable: activeStamp?.isQRUnlockable ?? false,
@@ -221,6 +232,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       const stampData: Stamp = {
         name: values.name,
         description: values.description,
+        points: values.points,
         isHidden: values.isHidden,
         isTitle: values.isTitle,
         isQRUnlockable: values.isQRUnlockable,
@@ -228,6 +240,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
         imgName: imageFile?.name || activeStamp?.imgName || "",
       };
 
+      stampData.category = values.category;
       stampData.hackathon = values.hackathon;
       if (criteria.length > 0) {
         stampData.criteria = criteria;
@@ -383,6 +396,61 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Category <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {STAMP_CATEGORIES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="points"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Points</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={1000}
+                      step={1}
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={Number.isNaN(field.value) ? "" : field.value}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                  </FormControl>
+                  <FormDescription className="text-xs">
+                    Each point is one raffle entry for hackers who unlock this stamp. 0 gives no
+                    entries.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
