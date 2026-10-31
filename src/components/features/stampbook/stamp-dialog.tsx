@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { FilterRowsSelection, Hackathon, Stamp } from "@/lib/firebase/types";
+import { stampPointValue } from "@/lib/points";
 import { getHackathonType } from "@/lib/utils";
 import { deleteStampQR, deleteStampWithImage, upsertStampWithImage } from "@/services/stamps";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,6 +42,7 @@ const EMPTY_FORM = {
   name: "",
   description: "",
   hackathon: "",
+  points: 1,
   isHidden: false,
   isTitle: false,
   isQRUnlockable: false,
@@ -51,6 +53,11 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").max(100),
   description: z.string().min(2, "Description must be at least 2 characters").max(500),
   hackathon: z.string().min(1, "Please select a hackathon"),
+  points: z
+    .number({ invalid_type_error: "Enter a whole number of points" })
+    .int("Points must be a whole number")
+    .min(0, "Points can't be negative")
+    .max(1000, "Points can't be more than 1000"),
   isHidden: z.boolean(),
   isTitle: z.boolean(),
   isQRUnlockable: z.boolean(),
@@ -135,6 +142,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       name: activeStamp?.name ?? "",
       description: activeStamp?.description ?? "",
       hackathon: activeStamp?.hackathon ?? "",
+      points: activeStamp ? stampPointValue(activeStamp) : 1,
       isHidden: activeStamp?.isHidden ?? false,
       isTitle: activeStamp?.isTitle ?? false,
       isQRUnlockable: activeStamp?.isQRUnlockable ?? false,
@@ -220,6 +228,7 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
       const stampData: Stamp = {
         name: values.name,
         description: values.description,
+        points: values.points,
         isHidden: values.isHidden,
         isTitle: values.isTitle,
         isQRUnlockable: values.isQRUnlockable,
@@ -381,6 +390,34 @@ export function StampDialog({ open, activeStamp, onClose }: StampDialogProps) {
                       ))}
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="points"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Points</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={1000}
+                      step={1}
+                      name={field.name}
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      value={Number.isNaN(field.value) ? "" : field.value}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                  </FormControl>
+                  <FormDescription className="text-xs">
+                    Each point is one raffle entry for hackers who unlock this stamp. 0 gives no
+                    entries.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

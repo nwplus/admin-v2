@@ -716,6 +716,7 @@ export interface HackathonConfig {
   _id?: string;
   applicationDeadline: HackathonConfigMap;
   applicationsOpen: HackathonBooleanMap;
+  ctfOpen?: HackathonBooleanMap;
   hackathonEnd: HackathonConfigMap;
   hackathonStart: HackathonConfigMap;
   hackathonWeekend: HackathonConfigMap;
@@ -750,6 +751,8 @@ export interface Stamp {
   imgName?: string;
   lockedImgURL?: string;
   hackathon?: string; // for stamps unlockable in specific hackathons
+  /** raffle entries this stamp is worth; a stamp without it is worth 1 */
+  points?: number;
   criteria?: FilterRowsSelection[];
   isHidden: boolean;
   isTitle?: boolean;
@@ -802,14 +805,18 @@ export interface RaffleWinner {
 }
 
 /**
- * Document: /Hackathons/[hackathon]/Raffle/settings
+ * Sub-collection: /Hackathons/[hackathon]/CtfSolves, doc ID `{uid}_{challengeId}`
  *
- * Which stamps count as raffle entries for this hackathon
+ * One hacker's solve of one CTF challenge, written only by the portal's submitCtfFlag function
  */
-export interface RaffleSettings {
-  eligibleStampIds: string[];
-  lastModified?: Timestamp;
-  lastModifiedBy?: string;
+export interface CtfSolve {
+  uid: string;
+  email: string;
+  challengeId: string;
+  rank: number;
+  points: number;
+  flagHash: string;
+  solvedAt?: Timestamp;
 }
 
 /**

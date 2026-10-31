@@ -1,6 +1,5 @@
 import { RaffleDrawPanel } from "@/components/features/raffle/raffle-draw-panel";
 import { RafflePrizesCard } from "@/components/features/raffle/raffle-prizes-card";
-import { RaffleStampsDialog } from "@/components/features/raffle/raffle-stamps-dialog";
 import { RaffleWinnersLog } from "@/components/features/raffle/raffle-winners-log";
 import { PageHeader } from "@/components/graphy/typo";
 import { Button } from "@/components/ui/button";
@@ -12,21 +11,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
-import type {
-  Hackathon,
-  RaffleEntrant,
-  RafflePrize,
-  RaffleWinner,
-  Stamp,
-} from "@/lib/firebase/types";
+import type { Hackathon, RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
 import { splitHackathon } from "@/lib/utils";
 import {
   fetchRaffleEntrants,
   subscribeToRafflePrizes,
-  subscribeToRaffleSettings,
   subscribeToRaffleWinners,
 } from "@/services/raffle";
-import { subscribeToStamps } from "@/services/stamps";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -41,21 +32,16 @@ const hackathonYear = (id: string) => Number(splitHackathon(id)[1] ?? 0);
 const newestHackathonId = (hackathons: Hackathon[]) =>
   [...hackathons].sort((a, b) => hackathonYear(b._id) - hackathonYear(a._id))[0]?._id ?? "";
 
-const sameStampIds = (current: string[], next: string[]) =>
-  current.length === next.length && current.every((id, index) => id === next[index]);
-
 function RafflePage() {
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [selectedHackathon, setSelectedHackathon] = useState<string>("");
-  const [stamps, setStamps] = useState<Stamp[]>([]);
   const [prizes, setPrizes] = useState<RafflePrize[]>([]);
   const [winners, setWinners] = useState<RaffleWinner[]>([]);
-  const [eligibleStampIds, setEligibleStampIds] = useState<string[]>([]);
   const [entrants, setEntrants] = useState<RaffleEntrant[]>([]);
   const [poolLoading, setPoolLoading] = useState<boolean>(false);
+  const [poolError, setPoolError] = useState<boolean>(false);
   const [poolFetchedAt, setPoolFetchedAt] = useState<Date | null>(null);
   const [showEmails, setShowEmails] = useState<boolean>(false);
-  const [stampsOpen, setStampsOpen] = useState<boolean>(false);
   const requestRef = useRef<number>(0);
 
   useEffect(() => {
@@ -63,18 +49,14 @@ function RafflePage() {
       setHackathons(docs);
       setSelectedHackathon((current) => current || newestHackathonId(docs));
     });
-    const unsubStamps = subscribeToStamps(setStamps);
 
-    return () => {
-      unsubHackathons();
-      unsubStamps();
-    };
+    return unsubHackathons;
   }, []);
 
   useEffect(() => {
     if (!selectedHackathon) return;
 
-    // share one toast id so three failing subscriptions don't stack three toasts
+    // share one toast id so two failing subscriptions don't stack two toasts
     const onError = () =>
       toast.error("Couldn't load the raffle, you may not have access to this hackathon", {
         id: "raffle-subscription-error",
@@ -82,25 +64,17 @@ function RafflePage() {
 
     const unsubPrizes = subscribeToRafflePrizes(selectedHackathon, setPrizes, onError);
     const unsubWinners = subscribeToRaffleWinners(selectedHackathon, setWinners, onError);
-    const unsubSettings = subscribeToRaffleSettings(
-      selectedHackathon,
-      (settings) =>
-        setEligibleStampIds((current) =>
-          sameStampIds(current, settings.eligibleStampIds) ? current : settings.eligibleStampIds,
-        ),
-      onError,
-    );
 
     return () => {
       unsubPrizes();
       unsubWinners();
-      unsubSettings();
     };
   }, [selectedHackathon]);
 
-  const loadPool = useCallback(async (hackathon: string, stampIds: string[], refresh = false) => {
+  const loadPool = useCallback(async (hackathon: string, refresh = false) => {
     if (!hackathon) {
       setEntrants([]);
+      setPoolError(false);
       setPoolFetchedAt(null);
       return;
     }
@@ -108,15 +82,20 @@ function RafflePage() {
     const requestId = requestRef.current + 1;
     requestRef.current = requestId;
     setPoolLoading(true);
+    setPoolError(false);
 
     try {
-      const pool = await fetchRaffleEntrants(hackathon, stampIds, refresh);
+      const pool = await fetchRaffleEntrants(hackathon, refresh);
       if (requestId !== requestRef.current) return;
       setEntrants(pool);
       setPoolFetchedAt(new Date());
     } catch (error) {
       if (requestId !== requestRef.current) return;
       console.error("Error loading the raffle pool:", error);
+      // a stale pool must never be drawn from after a failed load
+      setEntrants([]);
+      setPoolFetchedAt(null);
+      setPoolError(true);
       toast.error("Failed to load raffle entries");
     } finally {
       if (requestId === requestRef.current) setPoolLoading(false);
@@ -124,8 +103,8 @@ function RafflePage() {
   }, []);
 
   useEffect(() => {
-    loadPool(selectedHackathon, eligibleStampIds);
-  }, [loadPool, selectedHackathon, eligibleStampIds]);
+    loadPool(selectedHackathon);
+  }, [loadPool, selectedHackathon]);
 
   return (
     <>
@@ -171,11 +150,10 @@ function RafflePage() {
             prizes={prizes}
             winners={winners}
             entrants={entrants}
-            eligibleStampCount={eligibleStampIds.length}
             poolLoading={poolLoading}
+            poolError={poolError}
             poolFetchedAt={poolFetchedAt}
-            onRefreshPool={() => loadPool(selectedHackathon, eligibleStampIds, true)}
-            onManageStamps={() => setStampsOpen(true)}
+            onRefreshPool={() => loadPool(selectedHackathon, true)}
             className="lg:w-[482px]"
           />
         </div>
@@ -187,16 +165,6 @@ function RafflePage() {
           onToggleEmails={setShowEmails}
         />
       </div>
-
-      {selectedHackathon && (
-        <RaffleStampsDialog
-          open={stampsOpen}
-          onClose={() => setStampsOpen(false)}
-          hackathon={selectedHackathon}
-          stamps={stamps}
-          eligibleStampIds={eligibleStampIds}
-        />
-      )}
     </>
   );
 }

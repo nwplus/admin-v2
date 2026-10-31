@@ -3,6 +3,7 @@ import { DataTable, createTableColumnHelper } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Stamp } from "@/lib/firebase/types";
+import { stampPointValue } from "@/lib/points";
 import type { ColumnFiltersState } from "@tanstack/react-table";
 import { Check, Eye, EyeOff, HelpCircle } from "lucide-react";
 import { useState } from "react";
@@ -58,6 +59,11 @@ export function StampsTable({
     columnHelper.accessor("hackathon", {
       header: "Hackathon",
       cell: (info) => info.getValue() || <span className="text-gray-400">Global</span>,
+    }),
+    columnHelper.accessor((stamp) => stampPointValue(stamp), {
+      id: "points",
+      header: "Points",
+      size: 50,
     }),
     columnHelper.accessor("isHidden", {
       header: "Visibility",
