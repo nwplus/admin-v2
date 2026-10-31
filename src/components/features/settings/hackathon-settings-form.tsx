@@ -1,4 +1,5 @@
 import { WalletEmailControl } from "@/components/features/settings/wallet-email-control";
+import { WrappedSettings } from "@/components/features/settings/wrapped-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -285,6 +286,12 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
               </div>
             </div>
           </div>
+
+          <WrappedSettings
+            key={hackathonId}
+            hackathonId={hackathonId}
+            formBusy={isEditing || isSaving}
+          />
 
           <div className="flex gap-8 border-b py-8">
             <div className="w-48 flex-shrink-0">

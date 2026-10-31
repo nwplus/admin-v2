@@ -112,6 +112,27 @@ export const uploadSponsorImage = async (hackathon: string, sponsorId: string, f
   }
 };
 
+/**
+ * Uploads the Hacker Wrapped email banner, replacing any previous one
+ * @param hackathonId - The hackathon the banner belongs to
+ * @param file - A PNG or JPEG image
+ * @returns a downloadable url of the banner just uploaded, or null on failure
+ */
+export const uploadWrappedBanner = async (hackathonId: string, file: File) => {
+  if (file.type !== "image/png" && file.type !== "image/jpeg") {
+    console.error("Wrapped banner must be a PNG or JPEG", hackathonId, file.type);
+    return null;
+  }
+  try {
+    const imageRef = ref(storage, `wrapped/${hackathonId}/banner`); // we LIKE overwrites
+    await uploadBytes(imageRef, file, { contentType: file.type });
+    return await getDownloadURL(imageRef);
+  } catch (error) {
+    console.error("Error uploading Wrapped banner", hackathonId, error);
+    return null;
+  }
+};
+
 export const deleteSponsorImage = async (hackathon: string, sponsorId: string) => {
   try {
     const imageRef = ref(storage, `sponsor/${hackathon}/${sponsorId}`);
