@@ -695,7 +695,7 @@ export interface WalletEmailSend {
   updatedAt?: Timestamp;
 }
 
-/** Stored on Hackathons/{collection}/walletEmail/state; written by Functions-new. */
+/** Stored on Hackathons/{collection}.walletEmail; written by Functions-new. */
 export interface WalletEmailDelivery {
   runId: string;
   status: "preparing" | "queued" | "sending" | "completed" | "completed-with-errors" | "failed";
@@ -742,10 +742,13 @@ export interface HackathonConfig {
  *
  * Record of valid, hackathon-agnostic stamps.
  */
+export type StampCategory = "preHackathonWorkshop" | "dayOfWorkshop" | "dayOfActivity" | "other";
+
 export interface Stamp {
   _id?: string;
   name: string;
   description: string;
+  category?: StampCategory;
   imgURL?: string;
   imgName?: string;
   lockedImgURL?: string;
