@@ -16,6 +16,10 @@ vi.mock("@/services/hackathon-settings", () => ({
   updateHackathonConfig: settings.updateHackathonConfig,
 }));
 
+vi.mock("@/components/features/settings/wallet-email-control", () => ({
+  WalletEmailControl: () => null,
+}));
+
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const timeline = {
