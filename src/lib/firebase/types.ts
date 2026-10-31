@@ -680,6 +680,7 @@ export interface HackathonConfig {
   _id?: string;
   applicationDeadline: HackathonConfigMap;
   applicationsOpen: HackathonBooleanMap;
+  ctfOpen?: HackathonBooleanMap;
   hackathonEnd: HackathonConfigMap;
   hackathonStart: HackathonConfigMap;
   hackathonWeekend: HackathonConfigMap;
