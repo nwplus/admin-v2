@@ -1,6 +1,18 @@
+import type { StampCategory } from "@/lib/firebase/types";
 import { getHackathonType } from "@/lib/utils";
 
 export const SOCIALS_NAME_FALLBACK = "User";
+
+export const STAMP_CATEGORIES: { value: StampCategory; label: string }[] = [
+  { value: "preHackathonWorkshop", label: "Pre-Hackathon Workshop" },
+  { value: "dayOfWorkshop", label: "Day-Of Workshop" },
+  { value: "dayOfActivity", label: "Day-Of Activity" },
+  { value: "other", label: "Other" },
+];
+
+export const STAMP_CATEGORY_LABELS = Object.fromEntries(
+  STAMP_CATEGORIES.map(({ value, label }) => [value, label]),
+) as Record<StampCategory, string>;
 
 /**
  * Reads the stamp IDs one Socials document has unlocked for a hackathon

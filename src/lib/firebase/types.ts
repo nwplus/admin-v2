@@ -742,10 +742,13 @@ export interface HackathonConfig {
  *
  * Record of valid, hackathon-agnostic stamps.
  */
+export type StampCategory = "preHackathonWorkshop" | "dayOfWorkshop" | "dayOfActivity" | "other";
+
 export interface Stamp {
   _id?: string;
   name: string;
   description: string;
+  category?: StampCategory;
   imgURL?: string;
   imgName?: string;
   lockedImgURL?: string;
