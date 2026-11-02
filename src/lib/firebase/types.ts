@@ -762,6 +762,7 @@ export interface HackathonConfig {
   waiversAndForms: WaiversAndFormsMap;
   hackathonTheme: HackathonThemeMap;
   waitlistSignupDeadline: HackathonConfigMap;
+  walletAvailable?: HackathonBooleanMap;
 }
 
 /**

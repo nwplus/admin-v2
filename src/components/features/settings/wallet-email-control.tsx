@@ -3,15 +3,9 @@ import {
   EmailDeliveryControl,
   type EmailDeliveryCopy,
 } from "@/components/features/settings/email-delivery-control";
-import type { WalletEmailDelivery, WalletEmailSend } from "@/lib/firebase/types";
-import {
-  countWalletEmailRecipients,
-  startWalletEmailDelivery,
-  subscribeToWalletEmailDelivery,
-  subscribeToWalletEmailRecipients,
-  subscribeToWalletEmailSends,
-} from "@/services/wallet-email";
-import { useEffect, useState } from "react";
+import { type WalletEmailData, useWalletEmailData } from "@/hooks/use-wallet-email-data";
+import type { WalletEmailSend } from "@/lib/firebase/types";
+import { countWalletEmailRecipients, startWalletEmailDelivery } from "@/services/wallet-email";
 
 const copyFor = (hackathonId: string): EmailDeliveryCopy => ({
   idleLabel: "Send wallet emails",
@@ -36,61 +30,49 @@ const copyFor = (hackathonId: string): EmailDeliveryCopy => ({
   startErrorFallback: "Could not start wallet emails",
 });
 
+type WalletEmailControlProps = {
+  hackathonId: string;
+  disabled?: boolean;
+  data?: WalletEmailData;
+};
+
 export function WalletEmailControl({
   hackathonId,
   disabled = false,
+  data,
+}: WalletEmailControlProps) {
+  if (data) {
+    return <WalletEmailControlView hackathonId={hackathonId} disabled={disabled} data={data} />;
+  }
+  return <WalletEmailControlSubscribed hackathonId={hackathonId} disabled={disabled} />;
+}
+
+function WalletEmailControlSubscribed({
+  hackathonId,
+  disabled = false,
 }: { hackathonId: string; disabled?: boolean }) {
-  const [state, setState] = useState<WalletEmailDelivery | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [sends, setSends] = useState<WalletEmailSend[] | null>(null);
-  const [recipientUids, setRecipientUids] = useState<string[] | null>(null);
-  const [sendsError, setSendsError] = useState<string | null>(null);
-  const [recipientsError, setRecipientsError] = useState<string | null>(null);
+  const data = useWalletEmailData(hackathonId);
+  return <WalletEmailControlView hackathonId={hackathonId} disabled={disabled} data={data} />;
+}
 
-  useEffect(() => {
-    setState(null);
-    setLoading(true);
-    setError(null);
-    const unsubscribe = subscribeToWalletEmailDelivery(
-      hackathonId,
-      (next) => {
-        setState(next);
-        setLoading(false);
-        setError(null);
-      },
-      (failure) => {
-        setError(`Could not load wallet email status: ${failure.message}`);
-        setLoading(false);
-      },
-    );
-    setSends(null);
-    setRecipientUids(null);
-    setSendsError(null);
-    setRecipientsError(null);
-    const unsubscribeSends = subscribeToWalletEmailSends(
-      hackathonId,
-      (next) => {
-        setSends(next);
-        setSendsError(null);
-      },
-      (failure) => setSendsError(`Could not load email send records: ${failure.message}`),
-    );
-    const unsubscribeRecipients = subscribeToWalletEmailRecipients(
-      hackathonId,
-      (uids) => {
-        setRecipientUids(uids);
-        setRecipientsError(null);
-      },
-      (failure) => setRecipientsError(`Could not load accepted applicants: ${failure.message}`),
-    );
-    return () => {
-      unsubscribe();
-      unsubscribeSends();
-      unsubscribeRecipients();
-    };
-  }, [hackathonId]);
-
+function WalletEmailControlView({
+  hackathonId,
+  disabled = false,
+  data,
+}: {
+  hackathonId: string;
+  disabled?: boolean;
+  data: WalletEmailData;
+}) {
+  const {
+    delivery: state,
+    loading,
+    error,
+    sends,
+    recipientUids,
+    sendsError,
+    recipientsError,
+  } = data;
   const sendDocs = sends ?? [];
   const uidsForStatus = (status: WalletEmailSend["status"]) =>
     sendDocs

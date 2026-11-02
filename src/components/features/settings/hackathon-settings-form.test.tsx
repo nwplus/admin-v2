@@ -16,8 +16,26 @@ vi.mock("@/services/hackathon-settings", () => ({
   updateHackathonConfig: settings.updateHackathonConfig,
 }));
 
-vi.mock("@/components/features/settings/wallet-email-control", () => ({
-  WalletEmailControl: () => null,
+vi.mock("@/components/features/settings/wallet-settings-section", () => ({
+  WalletSettingsSection: ({
+    walletAvailable,
+    onWalletAvailableChange,
+  }: {
+    walletAvailable: boolean;
+    onWalletAvailableChange: (checked: boolean) => void;
+  }) => (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={walletAvailable}
+      aria-label="Wallet Available"
+      onClick={() => onWalletAvailableChange(!walletAvailable)}
+    />
+  ),
+}));
+
+vi.mock("@/components/features/settings/wrapped-settings", () => ({
+  WrappedSettings: () => null,
 }));
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -29,14 +47,17 @@ const timeline = {
   hackingEnd: { hackcamp: "2026-11-08T19:00:00.000Z" },
 };
 
-const toggleCtfAndSave = async () => {
+const toggleAndSave = async (toggleName: string) => {
   render(<HackathonSettingsForm hackathonId="HackCamp2026" />);
   fireEvent.click(screen.getByRole("button", { name: "Edit" }));
-  fireEvent.click(screen.getByRole("switch", { name: "CTF Open" }));
+  fireEvent.click(screen.getByRole("switch", { name: toggleName }));
   fireEvent.click(screen.getByRole("button", { name: "Save" }));
   await waitFor(() => expect(settings.updateHackathonConfig).toHaveBeenCalledOnce());
   return settings.updateHackathonConfig.mock.calls[0][0] as HackathonConfig;
 };
+
+const toggleCtfAndSave = () => toggleAndSave("CTF Open");
+const toggleWalletAndSave = () => toggleAndSave("Wallet Available");
 
 describe("HackathonSettingsForm CTF Open", () => {
   beforeEach(() => {
@@ -64,5 +85,34 @@ describe("HackathonSettingsForm CTF Open", () => {
     const saved = await toggleCtfAndSave();
 
     expect(saved.ctfOpen).toEqual({ hackcamp: true, nwhacks: true });
+  });
+});
+
+describe("HackathonSettingsForm Wallet Available", () => {
+  beforeEach(() => {
+    settings.updateHackathonConfig.mockReset();
+  });
+
+  it("creates the walletAvailable map when the doc doesn't have one yet", async () => {
+    settings.config = {
+      ...timeline,
+      portalLive: { hackcamp: false },
+    } as unknown as HackathonConfig;
+
+    const saved = await toggleWalletAndSave();
+
+    expect(saved.walletAvailable).toEqual({ hackcamp: true });
+    expect(saved.portalLive).toEqual({ hackcamp: false });
+  });
+
+  it("only changes this hackathon's wallet flag", async () => {
+    settings.config = {
+      ...timeline,
+      walletAvailable: { hackcamp: false, nwhacks: true },
+    } as unknown as HackathonConfig;
+
+    const saved = await toggleWalletAndSave();
+
+    expect(saved.walletAvailable).toEqual({ hackcamp: true, nwhacks: true });
   });
 });

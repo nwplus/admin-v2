@@ -1,4 +1,4 @@
-import { WalletEmailControl } from "@/components/features/settings/wallet-email-control";
+import { WalletSettingsSection } from "@/components/features/settings/wallet-settings-section";
 import { WrappedSettings } from "@/components/features/settings/wrapped-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -270,20 +270,13 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
                   placeholder="e.g., March 8-9"
                 />
               </div>
-              <div className="flex flex-wrap items-start justify-between gap-6">
-                <div className="flex items-center gap-4 pt-2">
-                  <Label htmlFor="portalLive">Portal Live</Label>
-                  <Switch
-                    id="portalLive"
-                    checked={getBooleanValue("portalLive")}
-                    onCheckedChange={(checked) => handleFieldChange("portalLive", checked)}
-                    disabled={!isEditing}
-                  />
-                </div>
-                <WalletEmailControl
-                  key={hackathonId}
-                  hackathonId={hackathonId}
-                  disabled={isEditing || isSaving}
+              <div className="flex items-center gap-4 pt-2">
+                <Label htmlFor="portalLive">Portal Live</Label>
+                <Switch
+                  id="portalLive"
+                  checked={getBooleanValue("portalLive")}
+                  onCheckedChange={(checked) => handleFieldChange("portalLive", checked)}
+                  disabled={!isEditing}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -302,6 +295,14 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
               </div>
             </div>
           </div>
+
+          <WalletSettingsSection
+            hackathonId={hackathonId}
+            walletAvailable={getBooleanValue("walletAvailable")}
+            isEditing={isEditing}
+            isSaving={isSaving}
+            onWalletAvailableChange={(checked) => handleFieldChange("walletAvailable", checked)}
+          />
 
           <WrappedSettings
             key={hackathonId}
