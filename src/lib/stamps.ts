@@ -1,4 +1,4 @@
-import type { StampCategory } from "@/lib/firebase/types";
+import type { Stamp, StampCategory } from "@/lib/firebase/types";
 import { getHackathonType } from "@/lib/utils";
 
 export const SOCIALS_NAME_FALLBACK = "User";
@@ -13,6 +13,27 @@ export const STAMP_CATEGORIES: { value: StampCategory; label: string }[] = [
 export const STAMP_CATEGORY_LABELS = Object.fromEntries(
   STAMP_CATEGORIES.map(({ value, label }) => [value, label]),
 ) as Record<StampCategory, string>;
+
+/**
+ * Whether a stamp's QR image has to be regenerated
+ *
+ * The QR encodes `.../{hackathonSlug}/stampbook?unlockStamp={stampId}`, so moving a
+ * stamp to a hackathon with a different portal slug (for example reusing an nwHacks
+ * stamp for HackCamp) invalidates the QR already in storage.
+ *
+ * @param activeStamp - the stamp being edited, if any
+ * @param values - the submitted form values
+ * @returns true when a new QR image should be generated
+ */
+export const needsStampQrRegeneration = (
+  activeStamp: Pick<Stamp, "hackathon" | "isQRUnlockable"> | null | undefined,
+  values: Pick<Stamp, "hackathon" | "isQRUnlockable">,
+): boolean => {
+  if (!values.isQRUnlockable) return false;
+  if (!activeStamp?.isQRUnlockable) return true;
+
+  return getHackathonType(activeStamp.hackathon ?? "") !== getHackathonType(values.hackathon ?? "");
+};
 
 /**
  * Reads the stamp IDs one Socials document has unlocked for a hackathon

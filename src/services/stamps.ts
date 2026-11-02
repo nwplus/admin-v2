@@ -41,6 +41,15 @@ export const subscribeToStamps = (callback: (docs: Stamp[]) => void) =>
   });
 
 /**
+ * Reads every stamp once, unfiltered, for point values
+ * @returns every stamp with its document ID
+ */
+export const fetchStamps = async (): Promise<Stamp[]> => {
+  const snapshot = await getDocs(collection(db, "Stamps"));
+  return snapshot.docs.map((stampDoc) => ({ ...(stampDoc.data() as Stamp), _id: stampDoc.id }));
+};
+
+/**
  * Utility function that updates or adds a stamp document, depending on if an id argument is passed
  * @param stamp - the stamp to upsert
  * @param imageFile - optional stamp image
@@ -133,7 +142,7 @@ export const deleteStampQR = async (stampId: string) => {
 
 /**
  * Fetches all hackers with unlocked stamps from the Socials collection
- * Each stamp a user has unlocked creates one entry
+ * Each stamp a user has unlocked creates one entry, which the raffle weights by point value
  *
  * @param hackathonId - hackathon ID whose stamps should be counted
  * @returns Array of entries where each entry represents one stamp collected by a hacker

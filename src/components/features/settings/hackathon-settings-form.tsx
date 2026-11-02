@@ -134,8 +134,10 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
     }
 
     const currentValue = editedConfig[field];
+    // toggles are per-hackathon maps; one missing from older docs (like ctfOpen) starts as a new map
     const isMapField =
-      typeof currentValue === "object" && currentValue !== null && !Array.isArray(currentValue);
+      (typeof currentValue === "object" && currentValue !== null && !Array.isArray(currentValue)) ||
+      (currentValue === undefined && typeof value === "boolean");
 
     if (nestedField) {
       const hackathonValue =
@@ -281,6 +283,20 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
                   key={hackathonId}
                   hackathonId={hackathonId}
                   disabled={isEditing || isSaving}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="ctfOpen">CTF Open</Label>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    Shows the CTF page to RSVP'd hackers, even before the portal is live
+                  </p>
+                </div>
+                <Switch
+                  id="ctfOpen"
+                  checked={getBooleanValue("ctfOpen")}
+                  onCheckedChange={(checked) => handleFieldChange("ctfOpen", checked)}
+                  disabled={!isEditing}
                 />
               </div>
             </div>

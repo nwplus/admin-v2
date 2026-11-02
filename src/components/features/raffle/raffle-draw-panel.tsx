@@ -15,7 +15,7 @@ import {
   totalEntries,
 } from "@/lib/raffle";
 import { cn } from "@/lib/utils";
-import { Gift, Loader2, RefreshCw, Stamp } from "lucide-react";
+import { Gift, Loader2, RefreshCw } from "lucide-react";
 import { useState } from "react";
 
 interface RaffleDrawPanelProps {
@@ -23,11 +23,11 @@ interface RaffleDrawPanelProps {
   prizes: RafflePrize[];
   winners: RaffleWinner[];
   entrants: RaffleEntrant[];
-  eligibleStampCount: number;
   poolLoading: boolean;
+  /** the last pool load failed, so `entrants` is empty and drawing is blocked */
+  poolError: boolean;
   poolFetchedAt: Date | null;
   onRefreshPool: () => void;
-  onManageStamps: () => void;
   className?: string;
 }
 
@@ -36,11 +36,10 @@ export function RaffleDrawPanel({
   prizes,
   winners,
   entrants,
-  eligibleStampCount,
   poolLoading,
+  poolError,
   poolFetchedAt,
   onRefreshPool,
-  onManageStamps,
   className,
 }: RaffleDrawPanelProps) {
   const [selectedPrizeId, setSelectedPrizeId] = useState<string>("");
@@ -60,12 +59,12 @@ export function RaffleDrawPanel({
   const disabledReason =
     prizes.length === 0
       ? "Add prizes before drawing"
-      : eligibleStampCount === 0
-        ? "Choose which stamps count as entries"
-        : poolLoading
-          ? "Loading the entry pool..."
+      : poolLoading
+        ? "Loading the entry pool..."
+        : poolError
+          ? "Couldn't load the entry pool, refresh to try again"
           : poolEntries === 0
-            ? "No entries yet, nobody has collected an eligible stamp"
+            ? "No entries yet, nobody has earned any points"
             : !selectedPrize
               ? "Every prize has been fully drawn"
               : remaining <= 0
@@ -125,11 +124,13 @@ export function RaffleDrawPanel({
             <Loader2 className="size-3 animate-spin" />
             Loading entries...
           </span>
+        ) : poolError ? (
+          <span className="text-destructive">Couldn't load entries</span>
         ) : (
           <span>
             <span className="font-medium text-foreground">{poolEntries}</span> entries from{" "}
-            <span className="font-medium text-foreground">{entrants.length}</span> hackers across{" "}
-            {eligibleStampCount} eligible stamp{eligibleStampCount === 1 ? "" : "s"}
+            <span className="font-medium text-foreground">{entrants.length}</span> hackers, 1 entry
+            per point
           </span>
         )}
         {poolFetchedAt && !poolLoading && (
@@ -144,15 +145,6 @@ export function RaffleDrawPanel({
         >
           <RefreshCw className="size-3" />
           Refresh
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onManageStamps}
-          className="h-auto px-2 py-1 text-xs"
-        >
-          <Stamp className="size-3" />
-          Eligible stamps
         </Button>
       </div>
 
