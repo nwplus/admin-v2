@@ -1,4 +1,5 @@
 import { WalletSettingsSection } from "@/components/features/settings/wallet-settings-section";
+import { WrappedSettings } from "@/components/features/settings/wrapped-settings";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -301,6 +302,12 @@ export function HackathonSettingsForm({ hackathonId }: { hackathonId: string }) 
             isEditing={isEditing}
             isSaving={isSaving}
             onWalletAvailableChange={(checked) => handleFieldChange("walletAvailable", checked)}
+          />
+
+          <WrappedSettings
+            key={hackathonId}
+            hackathonId={hackathonId}
+            formBusy={isEditing || isSaving}
           />
 
           <div className="flex gap-8 border-b py-8">

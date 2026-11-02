@@ -34,6 +34,10 @@ vi.mock("@/components/features/settings/wallet-settings-section", () => ({
   ),
 }));
 
+vi.mock("@/components/features/settings/wrapped-settings", () => ({
+  WrappedSettings: () => null,
+}));
+
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 const timeline = {
