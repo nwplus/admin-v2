@@ -17,14 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { WalletEmailDelivery, WalletEmailSend } from "@/lib/firebase/types";
-import {
-  countWalletEmailRecipients,
-  startWalletEmailDelivery,
-  subscribeToWalletEmailDelivery,
-  subscribeToWalletEmailRecipients,
-  subscribeToWalletEmailSends,
-} from "@/services/wallet-email";
+import { type WalletEmailData, useWalletEmailData } from "@/hooks/use-wallet-email-data";
+import type { WalletEmailSend } from "@/lib/firebase/types";
+import { countWalletEmailRecipients, startWalletEmailDelivery } from "@/services/wallet-email";
 import { LoaderCircle, Mail } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -39,70 +34,62 @@ const BUCKET_LABELS: Record<EmailBucket, string> = {
   notSent: "Not sent",
 };
 
+type WalletEmailControlProps = {
+  hackathonId: string;
+  disabled?: boolean;
+  data?: WalletEmailData;
+};
+
 export function WalletEmailControl({
   hackathonId,
   disabled = false,
+  data,
+}: WalletEmailControlProps) {
+  if (data) {
+    return <WalletEmailControlView hackathonId={hackathonId} disabled={disabled} data={data} />;
+  }
+  return <WalletEmailControlSubscribed hackathonId={hackathonId} disabled={disabled} />;
+}
+
+function WalletEmailControlSubscribed({
+  hackathonId,
+  disabled = false,
 }: { hackathonId: string; disabled?: boolean }) {
-  const [state, setState] = useState<WalletEmailDelivery | null>(null);
-  const [loading, setLoading] = useState(true);
+  const data = useWalletEmailData(hackathonId);
+  return <WalletEmailControlView hackathonId={hackathonId} disabled={disabled} data={data} />;
+}
+
+function WalletEmailControlView({
+  hackathonId,
+  disabled = false,
+  data,
+}: {
+  hackathonId: string;
+  disabled?: boolean;
+  data: WalletEmailData;
+}) {
+  const {
+    delivery: state,
+    loading,
+    error,
+    sends,
+    recipientUids,
+    sendsError,
+    recipientsError,
+  } = data;
   const [starting, setStarting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [now, setNow] = useState(Date.now());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [recipientCount, setRecipientCount] = useState<number | null>(null);
   const [countError, setCountError] = useState<string | null>(null);
-  const [sends, setSends] = useState<WalletEmailSend[] | null>(null);
-  const [recipientUids, setRecipientUids] = useState<string[] | null>(null);
-  const [sendsError, setSendsError] = useState<string | null>(null);
-  const [recipientsError, setRecipientsError] = useState<string | null>(null);
   const [selectedBucket, setSelectedBucket] = useState<EmailBucket | null>(null);
   const submitting = useRef(false);
   const countRequest = useRef(0);
 
   useEffect(() => {
-    setState(null);
-    setLoading(true);
-    setError(null);
-    const unsubscribe = subscribeToWalletEmailDelivery(
-      hackathonId,
-      (next) => {
-        setState(next);
-        setLoading(false);
-        setError(null);
-      },
-      (failure) => {
-        setError(`Could not load wallet email status: ${failure.message}`);
-        setLoading(false);
-      },
-    );
-    setSends(null);
-    setRecipientUids(null);
-    setSendsError(null);
-    setRecipientsError(null);
-    const unsubscribeSends = subscribeToWalletEmailSends(
-      hackathonId,
-      (next) => {
-        setSends(next);
-        setSendsError(null);
-      },
-      (failure) => setSendsError(`Could not load email send records: ${failure.message}`),
-    );
-    const unsubscribeRecipients = subscribeToWalletEmailRecipients(
-      hackathonId,
-      (uids) => {
-        setRecipientUids(uids);
-        setRecipientsError(null);
-      },
-      (failure) => setRecipientsError(`Could not load accepted applicants: ${failure.message}`),
-    );
     const timer = window.setInterval(() => setNow(Date.now()), 30000);
-    return () => {
-      unsubscribe();
-      unsubscribeSends();
-      unsubscribeRecipients();
-      window.clearInterval(timer);
-    };
-  }, [hackathonId]);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const inProgress = !!state && ["preparing", "queued", "sending"].includes(state.status);
   const interrupted = inProgress && now - state.updatedAt.toMillis() >= 60 * 60 * 1000;

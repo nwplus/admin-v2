@@ -1,6 +1,14 @@
 import { db } from "@/lib/firebase/client";
 import type { WalletEmailDelivery, WalletEmailSend } from "@/lib/firebase/types";
-import { collection, doc, getCountFromServer, onSnapshot, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getCountFromServer,
+  getDocs,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import { getFunctions, httpsCallable } from "firebase/functions";
 
 const recipientsQuery = (hackathonId: string) =>
@@ -53,6 +61,24 @@ export function subscribeToWalletEmailDelivery(
       onChange((snapshot.data()?.walletEmail as WalletEmailDelivery | undefined) ?? null),
     onError,
   );
+}
+
+export interface WalletEmailRecipient {
+  uid: string;
+  email?: string;
+}
+
+export async function getWalletEmailRecipients(
+  hackathonId: string,
+): Promise<WalletEmailRecipient[]> {
+  const snapshot = await getDocs(recipientsQuery(hackathonId));
+  return snapshot.docs.map((applicant) => {
+    const email = applicant.data().basicInfo?.email;
+    return {
+      uid: applicant.id,
+      email: typeof email === "string" ? email : undefined,
+    };
+  });
 }
 
 export async function countWalletEmailRecipients(hackathonId: string) {
