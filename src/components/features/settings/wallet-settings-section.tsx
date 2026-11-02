@@ -16,7 +16,7 @@ import { useWalletEmailData } from "@/hooks/use-wallet-email-data";
 import { chunkArray, downloadCSV } from "@/lib/utils";
 import { buildWalletEmailCsv } from "@/lib/wallet-email-csv";
 import { getWalletEmailRecipients } from "@/services/wallet-email";
-import { generateAppleWalletPasses } from "@/services/wallet-passes";
+import { generateAppleWalletPasses, getWalletPassesErrorMessage } from "@/services/wallet-passes";
 import { format } from "date-fns/format";
 import { AlertTriangle, Download, LoaderCircle, WalletCards } from "lucide-react";
 import { useState } from "react";
@@ -52,6 +52,7 @@ export function WalletSettingsSection({
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState<GenerationProgress | null>(null);
   const [failures, setFailures] = useState<{ uid: string; error: string }[]>([]);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   const settingsBusy = isEditing || isSaving;
   const dataLoaded =
@@ -63,6 +64,7 @@ export function WalletSettingsSection({
     setGenerating(true);
     setProgress({ processed: 0, total: 0, generated: 0 });
     setFailures([]);
+    setGenerationError(null);
 
     try {
       const recipients = await getWalletEmailRecipients(hackathonId);
@@ -88,7 +90,10 @@ export function WalletSettingsSection({
         toast.success(`Generated ${generated} Apple ${noun}`);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Could not generate Apple passes");
+      console.error("Error generating Apple passes:", error);
+      const message = getWalletPassesErrorMessage(error);
+      setGenerationError(message);
+      toast.error(message);
     } finally {
       setGenerating(false);
     }
@@ -185,11 +190,14 @@ export function WalletSettingsSection({
           </div>
           {progress && (
             <output aria-live="polite" className="block text-muted-foreground text-xs">
-              {generating ? "Generating" : "Finished"} {progress.processed} of {progress.total}{" "}
-              processed · {progress.generated} generated
+              {generationError
+                ? `Stopped after ${progress.processed} of ${progress.total} processed`
+                : `${generating ? "Generating" : "Finished"} ${progress.processed} of ${progress.total} processed`}{" "}
+              · {progress.generated} generated
               {failures.length > 0 ? ` · ${failures.length} failed` : ""}
             </output>
           )}
+          {generationError && <p className="text-destructive text-xs">{generationError}</p>}
           {failures.length > 0 && (
             <div className="max-h-40 overflow-y-auto rounded-md border p-2">
               <ul className="space-y-1 font-mono text-xs">

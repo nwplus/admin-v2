@@ -10,6 +10,8 @@ const mocks = vi.hoisted(() => ({
   subscribeToWalletEmailRecipients: vi.fn(),
   countWalletEmailRecipients: vi.fn(),
   startWalletEmailDelivery: vi.fn(),
+  toastError: vi.fn(),
+  toastSuccess: vi.fn(),
 }));
 
 vi.mock("@/services/wallet-email", () => ({
@@ -20,10 +22,13 @@ vi.mock("@/services/wallet-email", () => ({
   countWalletEmailRecipients: mocks.countWalletEmailRecipients,
   startWalletEmailDelivery: mocks.startWalletEmailDelivery,
 }));
-vi.mock("@/services/wallet-passes", () => ({
+vi.mock("@/services/wallet-passes", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/services/wallet-passes")>()),
   generateAppleWalletPasses: mocks.generateAppleWalletPasses,
 }));
-vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock("sonner", () => ({
+  toast: { success: mocks.toastSuccess, error: mocks.toastError },
+}));
 
 const renderSection = (walletAvailable: boolean) =>
   render(
@@ -91,5 +96,24 @@ describe("WalletSettingsSection", () => {
       recipients.slice(25).map((recipient) => recipient.uid),
     ]);
     expect(await screen.findByText(/30 of 30 processed · 30 generated/)).toBeTruthy();
+  });
+
+  it("explains a generic internal callable error instead of only showing the raw code", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.getWalletEmailRecipients.mockResolvedValue([{ uid: "uid-0" }]);
+    mocks.generateAppleWalletPasses.mockRejectedValue(
+      Object.assign(new Error("internal"), { code: "internal" }),
+    );
+
+    renderSection(true);
+    fireEvent.click(screen.getByRole("button", { name: "Generate / regenerate Apple passes" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Generate passes" }));
+
+    expect(await screen.findByText(/confirm generateAppleWalletPasses is deployed/i)).toBeTruthy();
+    expect(mocks.toastError).toHaveBeenCalledWith(
+      expect.stringContaining("generateAppleWalletPasses is deployed"),
+    );
+    expect(await screen.findByText(/Stopped after 0 of 1 processed/)).toBeTruthy();
+    consoleError.mockRestore();
   });
 });
