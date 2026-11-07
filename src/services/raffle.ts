@@ -9,6 +9,7 @@ import type {
 import {
   type ApplicantName,
   buildRaffleEntrants,
+  splitOrganizers,
   stampPointsById,
   sumCtfPointsByEmail,
 } from "@/lib/raffle";
@@ -173,6 +174,8 @@ export const addRaffleWinner = async (
         lastName: winner.lastName,
         email: winner.email,
         entryCount: winner.entryCount,
+        ...(winner.poolSize !== undefined && { poolSize: winner.poolSize }),
+        ...(winner.poolEntries !== undefined && { poolEntries: winner.poolEntries }),
         slot,
         drawnAt: Timestamp.now(),
         drawnBy: auth.currentUser?.email ?? "",
@@ -246,22 +249,35 @@ export const fetchCtfPointsByEmail = async (hackathon: string): Promise<Map<stri
 };
 
 /**
+ * The raffle pool for a hackathon, with organizer accounts already taken out of it
+ */
+export interface RafflePool {
+  /** one entrant per hacker with at least one point, organizers excluded */
+  entrants: RaffleEntrant[];
+  /** how many organizer accounts had points and were left out */
+  excludedOrganizers: number;
+}
+
+/**
  * Builds the raffle pool for a hackathon, where each point is one entry: the point value of
- * every stamp a hacker collected plus their CTF points
+ * every stamp a hacker collected plus their CTF points. Organizer accounts are removed
  * @param hackathon - hackathon ID
  * @param refreshNames - re-reads applicant names as well as stamps, for an explicit refresh
- * @returns the raffle pool, one entrant per hacker with at least one point
+ * @returns the raffle pool and how many organizers were excluded from it
  */
 export const fetchRaffleEntrants = async (
   hackathon: string,
   refreshNames = false,
-): Promise<RaffleEntrant[]> => {
-  const [stampEntries, stamps, applicantNames, ctfPoints] = await Promise.all([
-    fetchHackersWithStamps(hackathon),
-    fetchStamps(),
+): Promise<RafflePool> => {
+  const stamps = await fetchStamps();
+  const [stampEntries, applicantNames, ctfPoints] = await Promise.all([
+    fetchHackersWithStamps(hackathon, stamps),
     fetchApplicantNames(hackathon, refreshNames),
     fetchCtfPointsByEmail(hackathon),
   ]);
 
-  return buildRaffleEntrants(stampEntries, stampPointsById(stamps), applicantNames, ctfPoints);
+  const { hackers, organizers } = splitOrganizers(
+    buildRaffleEntrants(stampEntries, stampPointsById(stamps), applicantNames, ctfPoints),
+  );
+  return { entrants: hackers, excludedOrganizers: organizers.length };
 };

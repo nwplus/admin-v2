@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { needsStampQrRegeneration } from "./stamps";
+import { needsStampQrRegeneration, readUnlockedStamps, stampBelongsToHackathon } from "./stamps";
 
 describe("needsStampQrRegeneration", () => {
   it("generates a QR when enabling QR unlocking for the first time", () => {
@@ -51,5 +51,54 @@ describe("needsStampQrRegeneration", () => {
         { hackathon: "HackCamp2026", isQRUnlockable: false },
       ),
     ).toBe(false);
+  });
+});
+
+describe("stampBelongsToHackathon", () => {
+  it("matches the stamp's hackathon ignoring case, and counts hackathon-less stamps everywhere", () => {
+    expect(stampBelongsToHackathon({ hackathon: "HackCamp2026" }, "HackCamp2026")).toBe(true);
+    expect(stampBelongsToHackathon({ hackathon: "hackcamp2026" }, "HackCamp2026")).toBe(true);
+    expect(stampBelongsToHackathon({ hackathon: "cmd-f2026" }, "HackCamp2026")).toBe(false);
+    expect(stampBelongsToHackathon({}, "HackCamp2026")).toBe(true);
+  });
+});
+
+describe("readUnlockedStamps", () => {
+  const stamps = new Map([
+    ["hc", { hackathon: "HackCamp2026" }],
+    ["cf", { hackathon: "cmd-f2026" }],
+    ["global", {}],
+  ]);
+
+  it("reads the map entry for the exact hackathon ID, as an array or a truthy map", () => {
+    expect(readUnlockedStamps({ HackCamp2026: ["hc", "global"] }, "HackCamp2026", stamps)).toEqual([
+      "hc",
+      "global",
+    ]);
+    expect(
+      readUnlockedStamps({ HackCamp2026: { hc: true, global: false } }, "HackCamp2026", stamps),
+    ).toEqual(["hc"]);
+  });
+
+  it("no longer falls back to the hackathon slug, so one year's stamps stay out of the next", () => {
+    expect(readUnlockedStamps({ nwhacks: ["hc"] }, "nwHacks2026", stamps)).toEqual([]);
+    expect(readUnlockedStamps({ HackCamp2025: ["hc"] }, "HackCamp2026", stamps)).toEqual([]);
+  });
+
+  it("scopes a flat array by each stamp's own hackathon instead of counting it everywhere", () => {
+    const flat = ["hc", "cf", "global", "deleted"];
+    expect(readUnlockedStamps(flat, "HackCamp2026", stamps)).toEqual(["hc", "global"]);
+    expect(readUnlockedStamps(flat, "cmd-f2026", stamps)).toEqual(["cf", "global"]);
+    expect(readUnlockedStamps(flat, "nwHacks2026", stamps)).toEqual(["global"]);
+  });
+
+  it("drops a stamp filed under one hackathon that has since moved to another", () => {
+    expect(readUnlockedStamps({ HackCamp2026: ["cf"] }, "HackCamp2026", stamps)).toEqual([]);
+  });
+
+  it("reads nothing from a missing or malformed field", () => {
+    expect(readUnlockedStamps(undefined, "HackCamp2026", stamps)).toEqual([]);
+    expect(readUnlockedStamps("hc", "HackCamp2026", stamps)).toEqual([]);
+    expect(readUnlockedStamps({ HackCamp2026: 3 }, "HackCamp2026", stamps)).toEqual([]);
   });
 });

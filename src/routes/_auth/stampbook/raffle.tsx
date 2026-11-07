@@ -12,7 +12,8 @@ import {
 } from "@/components/ui/select";
 import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { Hackathon, RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
-import { splitHackathon } from "@/lib/utils";
+import { defaultRaffleHackathon } from "@/lib/raffle";
+import { isHackathonEvent } from "@/lib/utils";
 import {
   fetchRaffleEntrants,
   subscribeToRafflePrizes,
@@ -23,35 +24,43 @@ import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+interface RaffleSearch {
+  /** the hackathon the raffle is open on, kept in the URL so organizers can share one link */
+  hackathon?: string;
+}
+
 export const Route = createFileRoute("/_auth/stampbook/raffle")({
   component: RafflePage,
+  validateSearch: (search: Record<string, unknown>): RaffleSearch => ({
+    hackathon:
+      typeof search.hackathon === "string" && search.hackathon ? search.hackathon : undefined,
+  }),
 });
 
-const hackathonYear = (id: string) => Number(splitHackathon(id)[1] ?? 0);
-
-const newestHackathonId = (hackathons: Hackathon[]) =>
-  [...hackathons].sort((a, b) => hackathonYear(b._id) - hackathonYear(a._id))[0]?._id ?? "";
-
 function RafflePage() {
+  const { hackathon: searchHackathon } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
-  const [selectedHackathon, setSelectedHackathon] = useState<string>("");
   const [prizes, setPrizes] = useState<RafflePrize[]>([]);
   const [winners, setWinners] = useState<RaffleWinner[]>([]);
   const [entrants, setEntrants] = useState<RaffleEntrant[]>([]);
+  const [excludedOrganizers, setExcludedOrganizers] = useState<number>(0);
   const [poolLoading, setPoolLoading] = useState<boolean>(false);
   const [poolError, setPoolError] = useState<boolean>(false);
   const [poolFetchedAt, setPoolFetchedAt] = useState<Date | null>(null);
   const [showEmails, setShowEmails] = useState<boolean>(false);
   const requestRef = useRef<number>(0);
 
-  useEffect(() => {
-    const unsubHackathons = subscribeToHackathons((docs) => {
-      setHackathons(docs);
-      setSelectedHackathon((current) => current || newestHackathonId(docs));
-    });
+  // only real events are offered, so `blacklist`, `www` and test documents can't be drawn from
+  const events = hackathons.filter((hackathon) => isHackathonEvent(hackathon._id));
+  const selectedHackathon =
+    searchHackathon && events.some((hackathon) => hackathon._id === searchHackathon)
+      ? searchHackathon
+      : defaultRaffleHackathon(events.map((hackathon) => hackathon._id));
 
-    return unsubHackathons;
-  }, []);
+  const selectHackathon = (hackathon: string) => navigate({ search: { hackathon }, replace: true });
+
+  useEffect(() => subscribeToHackathons(setHackathons), []);
 
   useEffect(() => {
     if (!selectedHackathon) return;
@@ -74,6 +83,7 @@ function RafflePage() {
   const loadPool = useCallback(async (hackathon: string, refresh = false) => {
     if (!hackathon) {
       setEntrants([]);
+      setExcludedOrganizers(0);
       setPoolError(false);
       setPoolFetchedAt(null);
       return;
@@ -87,13 +97,15 @@ function RafflePage() {
     try {
       const pool = await fetchRaffleEntrants(hackathon, refresh);
       if (requestId !== requestRef.current) return;
-      setEntrants(pool);
+      setEntrants(pool.entrants);
+      setExcludedOrganizers(pool.excludedOrganizers);
       setPoolFetchedAt(new Date());
     } catch (error) {
       if (requestId !== requestRef.current) return;
       console.error("Error loading the raffle pool:", error);
       // a stale pool must never be drawn from after a failed load
       setEntrants([]);
+      setExcludedOrganizers(0);
       setPoolFetchedAt(null);
       setPoolError(true);
       toast.error("Failed to load raffle entries");
@@ -112,12 +124,12 @@ function RafflePage() {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <PageHeader className="font-medium">Raffle</PageHeader>
           <div className="flex items-center gap-2">
-            <Select value={selectedHackathon} onValueChange={setSelectedHackathon}>
+            <Select value={selectedHackathon} onValueChange={selectHackathon}>
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Select a hackathon..." />
               </SelectTrigger>
               <SelectContent>
-                {hackathons.map((hackathon) => (
+                {events.map((hackathon) => (
                   <SelectItem key={hackathon._id} value={hackathon._id}>
                     {hackathon._id}
                   </SelectItem>
@@ -150,6 +162,7 @@ function RafflePage() {
             prizes={prizes}
             winners={winners}
             entrants={entrants}
+            excludedOrganizers={excludedOrganizers}
             poolLoading={poolLoading}
             poolError={poolError}
             poolFetchedAt={poolFetchedAt}

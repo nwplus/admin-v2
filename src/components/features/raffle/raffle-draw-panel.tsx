@@ -23,6 +23,8 @@ interface RaffleDrawPanelProps {
   prizes: RafflePrize[];
   winners: RaffleWinner[];
   entrants: RaffleEntrant[];
+  /** organizer accounts that had points and were left out of `entrants` */
+  excludedOrganizers: number;
   poolLoading: boolean;
   /** the last pool load failed, so `entrants` is empty and drawing is blocked */
   poolError: boolean;
@@ -36,6 +38,7 @@ export function RaffleDrawPanel({
   prizes,
   winners,
   entrants,
+  excludedOrganizers,
   poolLoading,
   poolError,
   poolFetchedAt,
@@ -131,6 +134,11 @@ export function RaffleDrawPanel({
             <span className="font-medium text-foreground">{poolEntries}</span> entries from{" "}
             <span className="font-medium text-foreground">{entrants.length}</span> hackers, 1 entry
             per point
+          </span>
+        )}
+        {excludedOrganizers > 0 && !poolLoading && !poolError && (
+          <span className="text-xs">
+            · {excludedOrganizers} organizer account{excludedOrganizers === 1 ? "" : "s"} excluded
           </span>
         )}
         {poolFetchedAt && !poolLoading && (

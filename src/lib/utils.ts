@@ -31,6 +31,14 @@ export const splitHackathon = (hackathonId: string): [string, string | undefined
 };
 
 /**
+ * Whether a Hackathons document is an actual event, as opposed to `blacklist`, `www` or a test
+ * document: every event ID is a name followed by its four-digit year
+ * @param hackathonId - hackathon document ID
+ */
+export const isHackathonEvent = (hackathonId: string): boolean =>
+  splitHackathon(hackathonId)[1] !== undefined;
+
+/**
  * Formats a Firebase timestamp object for display
  */
 export const formatTimestamp = (timestamp?: { seconds?: number } | null): string => {

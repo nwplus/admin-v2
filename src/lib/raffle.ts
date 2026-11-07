@@ -8,6 +8,7 @@ import type {
 } from "@/lib/firebase/types";
 import { stampPointValue } from "@/lib/points";
 import { SOCIALS_NAME_FALLBACK } from "@/lib/stamps";
+import { getHackathonType, isHackathonEvent, splitHackathon } from "@/lib/utils";
 
 export type StampEntry = Pick<HackerStampEntry, "displayName" | "email" | "stampId">;
 
@@ -104,6 +105,75 @@ export const sumCtfPointsByEmail = (
   return points;
 };
 
+/** Email domains that belong to organizers rather than hackers */
+export const ORGANIZER_EMAIL_DOMAINS = ["nwplus.io"];
+
+/**
+ * Whether an email belongs to an organizer account, which must never win a hacker prize
+ * @param email - any casing, with or without surrounding whitespace
+ */
+export const isOrganizerEmail = (email: string): boolean => {
+  const domain = email.trim().toLowerCase().split("@")[1];
+  return domain !== undefined && ORGANIZER_EMAIL_DOMAINS.includes(domain);
+};
+
+/**
+ * Separates organizer accounts out of the raffle pool so the draw can skip them and the page
+ * can say how many were skipped
+ * @param entrants - the raffle pool, organizers included
+ * @returns the hackers to draw from and the organizers removed
+ */
+export const splitOrganizers = (
+  entrants: RaffleEntrant[],
+): { hackers: RaffleEntrant[]; organizers: RaffleEntrant[] } => {
+  const hackers: RaffleEntrant[] = [];
+  const organizers: RaffleEntrant[] = [];
+  for (const entrant of entrants) {
+    (isOrganizerEmail(entrant.email) ? organizers : hackers).push(entrant);
+  }
+  return { hackers, organizers };
+};
+
+/** The month each hackathon usually runs in, 1-12, for guessing which event is current */
+const SEASON_MONTH: Record<string, number> = { hackcamp: 11, nwhacks: 1, "cmd-f": 3 };
+
+/**
+ * Picks the hackathon an organizer most likely wants the raffle open on: the event whose usual
+ * month is closest to now, so HackCamp wins in November even once next year's nwHacks exists.
+ * Events whose season is unknown only win when nothing else is there, newest first
+ * @param hackathonIds - every hackathon document ID, events or not
+ * @param now - the current date, injectable for tests
+ * @returns the chosen hackathon ID, or "" when there are no events
+ */
+export const defaultRaffleHackathon = (hackathonIds: string[], now: Date = new Date()): string => {
+  const nowMonths = now.getFullYear() * 12 + now.getMonth() + 1;
+
+  const ranked = hackathonIds
+    .filter(isHackathonEvent)
+    .map((id) => {
+      const year = Number(splitHackathon(id)[1]);
+      const month = SEASON_MONTH[getHackathonType(id)];
+      const eventMonths = month === undefined ? undefined : year * 12 + month;
+      return {
+        id,
+        year,
+        distance:
+          eventMonths === undefined ? Number.POSITIVE_INFINITY : Math.abs(eventMonths - nowMonths),
+        // on a tie between a just-finished and an upcoming event, prefer the upcoming one
+        eventMonths: eventMonths ?? 0,
+      };
+    })
+    .sort(
+      (a, b) =>
+        a.distance - b.distance ||
+        b.eventMonths - a.eventMonths ||
+        b.year - a.year ||
+        a.id.localeCompare(b.id),
+    );
+
+  return ranked[0]?.id ?? "";
+};
+
 /**
  * Sums every entrant's entries across the pool
  */
@@ -111,15 +181,29 @@ export const totalEntries = (entrants: RaffleEntrant[]): number =>
   entrants.reduce((sum, entrant) => sum + entrant.entries, 0);
 
 /**
+ * A uniform random number in [0, 1) from the platform's cryptographic generator, so a draw can't
+ * be predicted or steered the way a seeded `Math.random` could; falls back to `Math.random`
+ * only where `crypto` is unavailable
+ */
+export const secureRandom = (): number => {
+  if (typeof crypto === "undefined" || !crypto.getRandomValues) return Math.random();
+  return crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32;
+};
+
+/**
  * Draws one winner, weighted so that a hacker with N points is N times as likely to win
  * @param entrants - the raffle pool
+ * @param random - a source of uniform numbers in [0, 1), injectable for tests
  * @returns the drawn entrant, or null when the pool has no entries
  */
-export const pickWeightedWinner = (entrants: RaffleEntrant[]): RaffleEntrant | null => {
+export const pickWeightedWinner = (
+  entrants: RaffleEntrant[],
+  random: () => number = secureRandom,
+): RaffleEntrant | null => {
   const total = totalEntries(entrants);
   if (total <= 0) return null;
 
-  let threshold = Math.random() * total;
+  let threshold = random() * total;
   for (const entrant of entrants) {
     threshold -= entrant.entries;
     if (threshold < 0) return entrant;
@@ -188,7 +272,16 @@ const csvField = (value: string | number): string => `"${String(value).replace(/
  * @returns CSV content ready for `downloadCSV`
  */
 export const generateWinnersCSV = (winners: RaffleWinner[]): string => {
-  const header = ["Prize", "Preferred Name", "Last Name", "Email", "Entries", "Drawn At"];
+  const header = [
+    "Prize",
+    "Preferred Name",
+    "Last Name",
+    "Email",
+    "Entries",
+    "Pool Entries",
+    "Pool Size",
+    "Drawn At",
+  ];
   const rows = winners.map((winner) =>
     [
       winner.prizeName,
@@ -196,6 +289,8 @@ export const generateWinnersCSV = (winners: RaffleWinner[]): string => {
       winner.lastName,
       winner.email,
       winner.entryCount,
+      winner.poolEntries ?? "",
+      winner.poolSize ?? "",
       winner.drawnAt?.toDate().toLocaleString() ?? "",
     ]
       .map(csvField)

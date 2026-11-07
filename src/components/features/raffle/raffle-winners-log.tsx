@@ -87,6 +87,9 @@ export function RaffleWinnersLog({
                     Email
                   </TableHead>
                 )}
+                <TableHead className="h-10 px-2 font-medium text-muted-foreground text-sm">
+                  Odds
+                </TableHead>
                 <TableHead className="h-10 w-8 px-2" />
               </TableRow>
             </TableHeader>
@@ -94,7 +97,7 @@ export function RaffleWinnersLog({
               {winners.length === 0 ? (
                 <TableRow className="hover:bg-transparent">
                   <TableCell
-                    colSpan={showEmails ? 5 : 4}
+                    colSpan={showEmails ? 6 : 5}
                     className="py-8 text-center text-muted-foreground text-sm"
                   >
                     No winners drawn yet. They'll show up here as you confirm each draw.
@@ -117,6 +120,18 @@ export function RaffleWinnersLog({
                         {winner.email}
                       </TableCell>
                     )}
+                    <TableCell
+                      className="px-2 py-2 text-muted-foreground text-sm"
+                      title={
+                        winner.poolSize
+                          ? `${winner.entryCount} of ${winner.poolEntries} entries across ${winner.poolSize} eligible hackers`
+                          : undefined
+                      }
+                    >
+                      {winner.poolEntries
+                        ? `${winner.entryCount} of ${winner.poolEntries}`
+                        : `${winner.entryCount} entries`}
+                    </TableCell>
                     <TableCell className="px-2 py-2">
                       <Confirm
                         variant="ghost"

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import type { RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
-import { nextPrizeSlot, pickWeightedWinner, remainingForPrize } from "@/lib/raffle";
+import { nextPrizeSlot, pickWeightedWinner, remainingForPrize, totalEntries } from "@/lib/raffle";
 import { RaffleSlotTakenError, addRaffleWinner } from "@/services/raffle";
 import { Check, Loader2, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -34,6 +34,10 @@ export function RaffleWinnerDialog({
   const [phase, setPhase] = useState<DrawPhase>("drawing");
   const [shown, setShown] = useState<RaffleEntrant | null>(null);
   const [winner, setWinner] = useState<RaffleEntrant | null>(null);
+  // the pool the winner was drawn from, logged with them so the odds can be checked later
+  const [drawnFrom, setDrawnFrom] = useState<{ poolSize: number; poolEntries: number } | null>(
+    null,
+  );
   const [confirming, setConfirming] = useState<boolean>(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -55,6 +59,7 @@ export function RaffleWinnerDialog({
 
     setWinner(null);
     setShown(null);
+    setDrawnFrom({ poolSize: pool.length, poolEntries: totalEntries(pool) });
     setPhase("drawing");
 
     const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
@@ -116,6 +121,8 @@ export function RaffleWinnerDialog({
           lastName: winner.lastName,
           email: winner.email,
           entryCount: winner.entries,
+          poolSize: drawnFrom?.poolSize,
+          poolEntries: drawnFrom?.poolEntries,
         },
         nextPrizeSlot(winners, prize._id),
       );
