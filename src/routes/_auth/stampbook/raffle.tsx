@@ -14,6 +14,7 @@ import { subscribeToHackathons } from "@/lib/firebase/firestore";
 import type { Hackathon, RaffleEntrant, RafflePrize, RaffleWinner } from "@/lib/firebase/types";
 import { defaultRaffleHackathon } from "@/lib/raffle";
 import { isHackathonEvent } from "@/lib/utils";
+import { getAdminFlags } from "@/services/evaluator";
 import {
   fetchRaffleEntrants,
   subscribeToRafflePrizes,
@@ -21,7 +22,7 @@ import {
 } from "@/services/raffle";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 interface RaffleSearch {
@@ -41,6 +42,8 @@ function RafflePage() {
   const { hackathon: searchHackathon } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
+  // null until the CMS has been read, so the default isn't chosen without it
+  const [activeHackathon, setActiveHackathon] = useState<string | null>(null);
   const [prizes, setPrizes] = useState<RafflePrize[]>([]);
   const [winners, setWinners] = useState<RaffleWinner[]>([]);
   const [entrants, setEntrants] = useState<RaffleEntrant[]>([]);
@@ -52,15 +55,44 @@ function RafflePage() {
   const requestRef = useRef<number>(0);
 
   // only real events are offered, so `blacklist`, `www` and test documents can't be drawn from
-  const events = hackathons.filter((hackathon) => isHackathonEvent(hackathon._id));
+  const events = useMemo(
+    () =>
+      hackathons.filter(
+        (hackathon) => isHackathonEvent(hackathon._id) && !hackathon.featureFlags?.test,
+      ),
+    [hackathons],
+  );
+
+  // the URL is the only source of the selection, so a Hackathons snapshot arriving mid-draw
+  // can't switch the page to another event the way a re-derived default would
   const selectedHackathon =
     searchHackathon && events.some((hackathon) => hackathon._id === searchHackathon)
       ? searchHackathon
-      : defaultRaffleHackathon(events.map((hackathon) => hackathon._id));
+      : "";
 
   const selectHackathon = (hackathon: string) => navigate({ search: { hackathon }, replace: true });
 
   useEffect(() => subscribeToHackathons(setHackathons), []);
+
+  useEffect(() => {
+    let cancelled = false;
+    getAdminFlags().then((flags) => {
+      if (!cancelled) setActiveHackathon(flags?.activeHackathon ?? "");
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // without a usable hackathon in the URL, pick one once and write it there
+  useEffect(() => {
+    if (selectedHackathon || activeHackathon === null || events.length === 0) return;
+    const fallback = defaultRaffleHackathon(
+      events.map((hackathon) => hackathon._id),
+      activeHackathon,
+    );
+    if (fallback) navigate({ search: { hackathon: fallback }, replace: true });
+  }, [selectedHackathon, activeHackathon, events, navigate]);
 
   useEffect(() => {
     if (!selectedHackathon) return;

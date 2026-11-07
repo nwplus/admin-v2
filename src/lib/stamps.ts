@@ -49,10 +49,11 @@ export const stampBelongsToHackathon = (
 /**
  * Reads the stamp IDs one Socials document has unlocked for a hackathon
  *
- * The portal writes `unlockedStamps` as a map keyed by hackathon document ID, but a few older
- * documents hold a flat array with no hackathon at all. Every stamp ID is therefore checked
- * against the stamp's own `hackathon`, so a flat array only counts toward the event its stamps
- * belong to instead of every event, and a stamp moved to another hackathon stops counting here
+ * The portal has written `unlockedStamps` three ways over the years: a map keyed by hackathon
+ * document ID, a map keyed by hackathon slug, and a flat array with no hackathon at all. All
+ * three are read, and every stamp ID is then checked against the stamp's own `hackathon`, so
+ * a flat array or slug bucket only counts toward the event its stamps belong to instead of
+ * every event sharing that slug, and a stamp moved to another hackathon stops counting here
  * @param unlockedStamps - the raw `unlockedStamps` field off a Socials document
  * @param hackathonId - hackathon ID
  * @param stampsById - every stamp by document ID; an ID missing from it (deleted) is left out
@@ -63,11 +64,13 @@ export const readUnlockedStamps = (
   hackathonId: string,
   stampsById: Map<string, Pick<Stamp, "hackathon">>,
 ): string[] => {
-  const collected = Array.isArray(unlockedStamps)
-    ? unlockedStamps
-    : unlockedStamps && typeof unlockedStamps === "object"
-      ? (unlockedStamps as Record<string, unknown>)[hackathonId]
-      : undefined;
+  let collected: unknown;
+  if (Array.isArray(unlockedStamps)) {
+    collected = unlockedStamps;
+  } else if (unlockedStamps && typeof unlockedStamps === "object") {
+    const byHackathon = unlockedStamps as Record<string, unknown>;
+    collected = byHackathon[hackathonId] ?? byHackathon[getHackathonType(hackathonId)];
+  }
 
   const ids = Array.isArray(collected)
     ? collected.map(String)

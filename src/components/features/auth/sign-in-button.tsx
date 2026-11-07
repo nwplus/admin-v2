@@ -1,5 +1,5 @@
 import { auth } from "@/lib/firebase/client";
-import { cn } from "@/lib/utils";
+import { ORGANIZER_EMAIL_DOMAIN, cn } from "@/lib/utils";
 import { useRouter } from "@tanstack/react-router";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useState } from "react";
@@ -21,7 +21,7 @@ export function SignInButton({
     try {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({
-        hd: "nwplus.io",
+        hd: ORGANIZER_EMAIL_DOMAIN,
       });
       await signInWithPopup(auth, provider);
     } catch (error) {

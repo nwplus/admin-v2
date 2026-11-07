@@ -2,6 +2,9 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Applicant, HackathonType } from "./firebase/types";
 
+/** The Google Workspace domain organizers sign in with; hackers never have one of these */
+export const ORGANIZER_EMAIL_DOMAIN = "nwplus.io";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }

@@ -269,9 +269,11 @@ export const fetchRaffleEntrants = async (
   hackathon: string,
   refreshNames = false,
 ): Promise<RafflePool> => {
-  const stamps = await fetchStamps();
-  const [stampEntries, applicantNames, ctfPoints] = await Promise.all([
-    fetchHackersWithStamps(hackathon, stamps),
+  // the stamps fetch is shared with fetchHackersWithStamps without waiting on it first
+  const pendingStamps = fetchStamps();
+  const [stampEntries, stamps, applicantNames, ctfPoints] = await Promise.all([
+    fetchHackersWithStamps(hackathon, pendingStamps),
+    pendingStamps,
     fetchApplicantNames(hackathon, refreshNames),
     fetchCtfPointsByEmail(hackathon),
   ]);

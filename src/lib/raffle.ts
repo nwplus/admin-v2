@@ -8,7 +8,7 @@ import type {
 } from "@/lib/firebase/types";
 import { stampPointValue } from "@/lib/points";
 import { SOCIALS_NAME_FALLBACK } from "@/lib/stamps";
-import { getHackathonType, isHackathonEvent, splitHackathon } from "@/lib/utils";
+import { ORGANIZER_EMAIL_DOMAIN, isHackathonEvent, splitHackathon } from "@/lib/utils";
 
 export type StampEntry = Pick<HackerStampEntry, "displayName" | "email" | "stampId">;
 
@@ -105,16 +105,18 @@ export const sumCtfPointsByEmail = (
   return points;
 };
 
-/** Email domains that belong to organizers rather than hackers */
-export const ORGANIZER_EMAIL_DOMAINS = ["nwplus.io"];
-
 /**
  * Whether an email belongs to an organizer account, which must never win a hacker prize
  * @param email - any casing, with or without surrounding whitespace
+ * @returns true for the organizer domain or any subdomain of it
  */
 export const isOrganizerEmail = (email: string): boolean => {
-  const domain = email.trim().toLowerCase().split("@")[1];
-  return domain !== undefined && ORGANIZER_EMAIL_DOMAINS.includes(domain);
+  const trimmed = email.trim().toLowerCase();
+  const at = trimmed.lastIndexOf("@");
+  if (at < 0) return false;
+
+  const domain = trimmed.slice(at + 1);
+  return domain === ORGANIZER_EMAIL_DOMAIN || domain.endsWith(`.${ORGANIZER_EMAIL_DOMAIN}`);
 };
 
 /**
@@ -134,29 +136,36 @@ export const splitOrganizers = (
   return { hackers, organizers };
 };
 
-/** The month each hackathon usually runs in, 1-12, for guessing which event is current */
+/** The month each hackathon usually runs in, 1-12, by lowercased name, for guessing the current event */
 const SEASON_MONTH: Record<string, number> = { hackcamp: 11, nwhacks: 1, "cmd-f": 3 };
 
 /**
- * Picks the hackathon an organizer most likely wants the raffle open on: the event whose usual
- * month is closest to now, so HackCamp wins in November even once next year's nwHacks exists.
- * Events whose season is unknown only win when nothing else is there, newest first
+ * Picks the hackathon the raffle should open on: the CMS's `activeHackathon` when it is one of
+ * the listed events, otherwise the event whose usual month is closest to now, so HackCamp wins
+ * in November even once next year's nwHacks exists. Events whose season is unknown only win
+ * when nothing else is there, newest first
  * @param hackathonIds - every hackathon document ID, events or not
+ * @param activeHackathon - the CMS's `activeHackathon` flag, if it could be read
  * @param now - the current date, injectable for tests
  * @returns the chosen hackathon ID, or "" when there are no events
  */
-export const defaultRaffleHackathon = (hackathonIds: string[], now: Date = new Date()): string => {
-  const nowMonths = now.getFullYear() * 12 + now.getMonth() + 1;
+export const defaultRaffleHackathon = (
+  hackathonIds: string[],
+  activeHackathon?: string,
+  now: Date = new Date(),
+): string => {
+  const events = hackathonIds.filter(isHackathonEvent);
+  if (activeHackathon && events.includes(activeHackathon)) return activeHackathon;
 
-  const ranked = hackathonIds
-    .filter(isHackathonEvent)
+  const nowMonths = now.getFullYear() * 12 + now.getMonth() + 1;
+  const ranked = events
     .map((id) => {
-      const year = Number(splitHackathon(id)[1]);
-      const month = SEASON_MONTH[getHackathonType(id)];
-      const eventMonths = month === undefined ? undefined : year * 12 + month;
+      const [name, year] = splitHackathon(id);
+      const month = SEASON_MONTH[name.toLowerCase()];
+      const eventMonths = month === undefined ? undefined : Number(year) * 12 + month;
       return {
         id,
-        year,
+        year: Number(year),
         distance:
           eventMonths === undefined ? Number.POSITIVE_INFINITY : Math.abs(eventMonths - nowMonths),
         // on a tie between a just-finished and an upcoming event, prefer the upcoming one

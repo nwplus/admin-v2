@@ -145,12 +145,13 @@ export const deleteStampQR = async (stampId: string) => {
  * Each stamp a user has unlocked creates one entry, which the raffle weights by point value
  *
  * @param hackathonId - hackathon ID whose stamps should be counted
- * @param stamps - every stamp, when the caller has already loaded them; fetched otherwise
+ * @param stamps - every stamp, or a pending fetch of them, when the caller is loading them
+ *  anyway; fetched here otherwise
  * @returns Array of entries where each entry represents one stamp collected by a hacker
  */
 export const fetchHackersWithStamps = async (
   hackathonId: string,
-  stamps?: Stamp[],
+  stamps?: Stamp[] | Promise<Stamp[]>,
 ): Promise<HackerStampEntry[]> => {
   const [socialsSnapshot, everyStamp] = await Promise.all([
     getDocs(collection(db, "Socials")),

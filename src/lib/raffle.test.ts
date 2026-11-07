@@ -148,7 +148,10 @@ describe("splitOrganizers", () => {
   it("recognizes organizer emails by domain, whatever the casing", () => {
     expect(isOrganizerEmail("someone@nwplus.io")).toBe(true);
     expect(isOrganizerEmail("  Someone@NWPLUS.IO ")).toBe(true);
+    expect(isOrganizerEmail("someone@sub.nwplus.io")).toBe(true);
+    expect(isOrganizerEmail("a@b@nwplus.io")).toBe(true);
     expect(isOrganizerEmail("someone@gmail.com")).toBe(false);
+    expect(isOrganizerEmail("someone@notnwplus.io")).toBe(false);
     expect(isOrganizerEmail("nwplus.io")).toBe(false);
   });
 
@@ -185,14 +188,33 @@ describe("pickWeightedWinner", () => {
 describe("defaultRaffleHackathon", () => {
   const ids = ["HackCamp2026", "nwHacks2026", "nwHacks2027", "cmd-f2026", "blacklist", "www"];
 
-  it("picks the event whose season is nearest, not the highest year", () => {
-    expect(defaultRaffleHackathon(ids, new Date(2026, 10, 7))).toBe("HackCamp2026");
-    expect(defaultRaffleHackathon(ids, new Date(2027, 0, 20))).toBe("nwHacks2027");
-    expect(defaultRaffleHackathon(ids, new Date(2026, 2, 1))).toBe("cmd-f2026");
+  it("uses the CMS's active hackathon when it is a listed event", () => {
+    expect(defaultRaffleHackathon(ids, "cmd-f2026", new Date(2026, 10, 7))).toBe("cmd-f2026");
+    expect(defaultRaffleHackathon(ids, "www", new Date(2026, 10, 7))).toBe("HackCamp2026");
+    expect(defaultRaffleHackathon(ids, "nwHacks2028", new Date(2026, 10, 7))).toBe("HackCamp2026");
+  });
+
+  it("otherwise picks the event whose season is nearest, not the highest year", () => {
+    expect(defaultRaffleHackathon(ids, undefined, new Date(2026, 10, 7))).toBe("HackCamp2026");
+    expect(defaultRaffleHackathon(ids, "", new Date(2027, 0, 20))).toBe("nwHacks2027");
+    expect(defaultRaffleHackathon(ids, undefined, new Date(2026, 2, 1))).toBe("cmd-f2026");
   });
 
   it("prefers the upcoming event when two are equally near", () => {
-    expect(defaultRaffleHackathon(ids, new Date(2026, 11, 15))).toBe("nwHacks2027");
+    expect(defaultRaffleHackathon(ids, undefined, new Date(2026, 11, 15))).toBe("nwHacks2027");
+  });
+
+  it("ranks events with an unknown season below every known one", () => {
+    expect(
+      defaultRaffleHackathon(
+        ["LHD2027", "nwHacks2027", "HackCamp2026"],
+        undefined,
+        new Date(2026, 11, 15),
+      ),
+    ).toBe("nwHacks2027");
+    expect(
+      defaultRaffleHackathon(["LHD2026", "HackCamp2021"], undefined, new Date(2026, 10, 7)),
+    ).toBe("HackCamp2021");
   });
 
   it("never picks a non-event document, and falls back to the newest unknown-season event", () => {

@@ -80,8 +80,14 @@ describe("readUnlockedStamps", () => {
     ).toEqual(["hc"]);
   });
 
-  it("no longer falls back to the hackathon slug, so one year's stamps stay out of the next", () => {
+  it("reads a slug-keyed bucket but only keeps the stamps belonging to this hackathon", () => {
+    const slugKeyed = { hackcamp: ["hc", "cf", "global"] };
+    expect(readUnlockedStamps(slugKeyed, "HackCamp2026", stamps)).toEqual(["hc", "global"]);
+    expect(readUnlockedStamps(slugKeyed, "HackCamp2025", stamps)).toEqual(["global"]);
     expect(readUnlockedStamps({ nwhacks: ["hc"] }, "nwHacks2026", stamps)).toEqual([]);
+  });
+
+  it("does not read another year's bucket", () => {
     expect(readUnlockedStamps({ HackCamp2025: ["hc"] }, "HackCamp2026", stamps)).toEqual([]);
   });
 
