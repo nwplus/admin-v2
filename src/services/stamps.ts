@@ -145,18 +145,30 @@ export const deleteStampQR = async (stampId: string) => {
  * Each stamp a user has unlocked creates one entry, which the raffle weights by point value
  *
  * @param hackathonId - hackathon ID whose stamps should be counted
+ * @param stamps - every stamp, or a pending fetch of them, when the caller is loading them
+ *  anyway; fetched here otherwise
  * @returns Array of entries where each entry represents one stamp collected by a hacker
  */
-export const fetchHackersWithStamps = async (hackathonId: string): Promise<HackerStampEntry[]> => {
-  const socialsSnapshot = await getDocs(collection(db, "Socials"));
-  const entries: HackerStampEntry[] = [];
+export const fetchHackersWithStamps = async (
+  hackathonId: string,
+  stamps?: Stamp[] | Promise<Stamp[]>,
+): Promise<HackerStampEntry[]> => {
+  const [socialsSnapshot, everyStamp] = await Promise.all([
+    getDocs(collection(db, "Socials")),
+    stamps ?? fetchStamps(),
+  ]);
+  const stampsById = new Map<string, Stamp>();
+  for (const stamp of everyStamp) {
+    if (stamp._id) stampsById.set(stamp._id, stamp);
+  }
 
+  const entries: HackerStampEntry[] = [];
   for (const socialDoc of socialsSnapshot.docs) {
     const socialData = socialDoc.data();
     const displayName = socialData.preferredName || SOCIALS_NAME_FALLBACK;
     const email = socialData.email || "";
 
-    for (const stampId of readUnlockedStamps(socialData.unlockedStamps, hackathonId)) {
+    for (const stampId of readUnlockedStamps(socialData.unlockedStamps, hackathonId, stampsById)) {
       entries.push({ displayName, email, stampId });
     }
   }

@@ -2,6 +2,9 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Applicant, HackathonType } from "./firebase/types";
 
+/** The Google Workspace domain organizers sign in with; hackers never have one of these */
+export const ORGANIZER_EMAIL_DOMAIN = "nwplus.io";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -29,6 +32,14 @@ export const splitHackathon = (hackathonId: string): [string, string | undefined
   }
   return [hackathonId, undefined];
 };
+
+/**
+ * Whether a Hackathons document is an actual event, as opposed to `blacklist`, `www` or a test
+ * document: every event ID is a name followed by its four-digit year
+ * @param hackathonId - hackathon document ID
+ */
+export const isHackathonEvent = (hackathonId: string): boolean =>
+  splitHackathon(hackathonId)[1] !== undefined;
 
 /**
  * Formats a Firebase timestamp object for display

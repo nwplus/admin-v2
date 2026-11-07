@@ -1,5 +1,16 @@
+import type { Timestamp } from "firebase/firestore";
 import { describe, expect, it } from "vitest";
-import { buildRaffleEntrants, stampPointsById, sumCtfPointsByEmail, totalEntries } from "./raffle";
+import {
+  buildRaffleEntrants,
+  defaultRaffleHackathon,
+  generateWinnersCSV,
+  isOrganizerEmail,
+  pickWeightedWinner,
+  splitOrganizers,
+  stampPointsById,
+  sumCtfPointsByEmail,
+  totalEntries,
+} from "./raffle";
 
 const names = new Map([
   ["alice@example.com", { preferredName: "Alice", lastName: "Applicant" }],
@@ -130,5 +141,119 @@ describe("sumCtfPointsByEmail", () => {
       ["alice@example.com", 11],
       ["bob@example.com", 2],
     ]);
+  });
+});
+
+describe("splitOrganizers", () => {
+  it("recognizes organizer emails by domain, whatever the casing", () => {
+    expect(isOrganizerEmail("someone@nwplus.io")).toBe(true);
+    expect(isOrganizerEmail("  Someone@NWPLUS.IO ")).toBe(true);
+    expect(isOrganizerEmail("someone@sub.nwplus.io")).toBe(true);
+    expect(isOrganizerEmail("a@b@nwplus.io")).toBe(true);
+    expect(isOrganizerEmail("someone@gmail.com")).toBe(false);
+    expect(isOrganizerEmail("someone@notnwplus.io")).toBe(false);
+    expect(isOrganizerEmail("nwplus.io")).toBe(false);
+  });
+
+  it("takes organizers out of the pool and keeps everyone else in order", () => {
+    const alice = { email: "alice@example.com", preferredName: "Al", lastName: "", entries: 2 };
+    const org = { email: "org@nwplus.io", preferredName: "Org", lastName: "", entries: 9 };
+    const bob = { email: "bob@example.com", preferredName: "Bo", lastName: "", entries: 1 };
+
+    expect(splitOrganizers([alice, org, bob])).toEqual({
+      hackers: [alice, bob],
+      organizers: [org],
+    });
+  });
+});
+
+describe("pickWeightedWinner", () => {
+  const pool = [
+    { email: "a@example.com", preferredName: "A", lastName: "", entries: 1 },
+    { email: "b@example.com", preferredName: "B", lastName: "", entries: 3 },
+  ];
+
+  it("lands on each entrant in proportion to their entries", () => {
+    expect(pickWeightedWinner(pool, () => 0)?.email).toBe("a@example.com");
+    expect(pickWeightedWinner(pool, () => 0.249)?.email).toBe("a@example.com");
+    expect(pickWeightedWinner(pool, () => 0.25)?.email).toBe("b@example.com");
+    expect(pickWeightedWinner(pool, () => 0.999)?.email).toBe("b@example.com");
+  });
+
+  it("draws nobody from an empty pool", () => {
+    expect(pickWeightedWinner([])).toBeNull();
+  });
+});
+
+describe("defaultRaffleHackathon", () => {
+  const ids = ["HackCamp2026", "nwHacks2026", "nwHacks2027", "cmd-f2026", "blacklist", "www"];
+
+  it("uses the CMS's active hackathon when it is a listed event", () => {
+    expect(defaultRaffleHackathon(ids, "cmd-f2026", new Date(2026, 10, 7))).toBe("cmd-f2026");
+    expect(defaultRaffleHackathon(ids, "www", new Date(2026, 10, 7))).toBe("HackCamp2026");
+    expect(defaultRaffleHackathon(ids, "nwHacks2028", new Date(2026, 10, 7))).toBe("HackCamp2026");
+  });
+
+  it("otherwise picks the event whose season is nearest, not the highest year", () => {
+    expect(defaultRaffleHackathon(ids, undefined, new Date(2026, 10, 7))).toBe("HackCamp2026");
+    expect(defaultRaffleHackathon(ids, "", new Date(2027, 0, 20))).toBe("nwHacks2027");
+    expect(defaultRaffleHackathon(ids, undefined, new Date(2026, 2, 1))).toBe("cmd-f2026");
+  });
+
+  it("prefers the upcoming event when two are equally near", () => {
+    expect(defaultRaffleHackathon(ids, undefined, new Date(2026, 11, 15))).toBe("nwHacks2027");
+  });
+
+  it("ranks events with an unknown season below every known one", () => {
+    expect(
+      defaultRaffleHackathon(
+        ["LHD2027", "nwHacks2027", "HackCamp2026"],
+        undefined,
+        new Date(2026, 11, 15),
+      ),
+    ).toBe("nwHacks2027");
+    expect(
+      defaultRaffleHackathon(["LHD2026", "HackCamp2021"], undefined, new Date(2026, 10, 7)),
+    ).toBe("HackCamp2021");
+  });
+
+  it("never picks a non-event document, and falls back to the newest unknown-season event", () => {
+    expect(defaultRaffleHackathon(["blacklist", "www"])).toBe("");
+    expect(defaultRaffleHackathon(["LHD2021", "HealthX2020", "www"])).toBe("LHD2021");
+  });
+});
+
+describe("generateWinnersCSV", () => {
+  it("escapes fields and leaves pool columns blank for winners logged before they existed", () => {
+    const csv = generateWinnersCSV([
+      {
+        prizeId: "p",
+        prizeName: 'Air "Fryer"',
+        preferredName: "Al",
+        lastName: "A",
+        email: "al@example.com",
+        entryCount: 4,
+        poolEntries: 222,
+        poolSize: 49,
+        drawnAt: { toDate: () => new Date(2026, 10, 7, 12, 0) } as unknown as Timestamp,
+      },
+      {
+        prizeId: "p",
+        prizeName: "Mug",
+        preferredName: "Bo",
+        lastName: "",
+        email: "bo@example.com",
+        entryCount: 1,
+      },
+    ]);
+
+    const [header, first, second] = csv.split("\n");
+    expect(header).toBe(
+      '"Prize","Preferred Name","Last Name","Email","Entries","Pool Entries","Pool Size","Drawn At"',
+    );
+    expect(first.startsWith('"Air ""Fryer""","Al","A","al@example.com","4","222","49","')).toBe(
+      true,
+    );
+    expect(second).toBe('"Mug","Bo","","bo@example.com","1","","",""');
   });
 });

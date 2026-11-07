@@ -829,6 +829,10 @@ export interface RaffleWinner {
   lastName: string;
   email: string;
   entryCount: number;
+  /** hackers eligible for this prize when the draw happened */
+  poolSize?: number;
+  /** entries they held between them, so the winner's odds were `entryCount / poolEntries` */
+  poolEntries?: number;
   slot?: number;
   drawnAt?: Timestamp;
   drawnBy?: string;

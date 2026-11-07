@@ -36,27 +36,52 @@ export const needsStampQrRegeneration = (
 };
 
 /**
+ * Whether a stamp counts toward a hackathon, matching the portal's stampbook: a stamp without a
+ * hackathon is global and counts everywhere, otherwise the hackathon IDs must match ignoring case
+ * @param stamp - the stamp, or just its `hackathon`
+ * @param hackathonId - hackathon ID
+ */
+export const stampBelongsToHackathon = (
+  stamp: Pick<Stamp, "hackathon">,
+  hackathonId: string,
+): boolean => !stamp.hackathon || stamp.hackathon.toLowerCase() === hackathonId.toLowerCase();
+
+/**
  * Reads the stamp IDs one Socials document has unlocked for a hackathon
  *
- * The portal has written this field three different ways over the years, so all are read:
- * a flat array, a map keyed by hackathon document ID, and a map keyed by hackathon slug
+ * The portal has written `unlockedStamps` three ways over the years: a map keyed by hackathon
+ * document ID, a map keyed by hackathon slug, and a flat array with no hackathon at all. All
+ * three are read, and every stamp ID is then checked against the stamp's own `hackathon`, so
+ * a flat array or slug bucket only counts toward the event its stamps belong to instead of
+ * every event sharing that slug, and a stamp moved to another hackathon stops counting here
  * @param unlockedStamps - the raw `unlockedStamps` field off a Socials document
  * @param hackathonId - hackathon ID
+ * @param stampsById - every stamp by document ID; an ID missing from it (deleted) is left out
  * @returns the stamp IDs this hacker has collected for the hackathon
  */
-export const readUnlockedStamps = (unlockedStamps: unknown, hackathonId: string): string[] => {
-  if (Array.isArray(unlockedStamps)) return unlockedStamps.map(String);
-  if (!unlockedStamps || typeof unlockedStamps !== "object") return [];
-
-  const byHackathon = unlockedStamps as Record<string, unknown>;
-  const collected = byHackathon[hackathonId] ?? byHackathon[getHackathonType(hackathonId)];
-
-  if (Array.isArray(collected)) return collected.map(String);
-  if (collected && typeof collected === "object") {
-    return Object.entries(collected)
-      .filter(([, unlocked]) => Boolean(unlocked))
-      .map(([stampId]) => stampId);
+export const readUnlockedStamps = (
+  unlockedStamps: unknown,
+  hackathonId: string,
+  stampsById: Map<string, Pick<Stamp, "hackathon">>,
+): string[] => {
+  let collected: unknown;
+  if (Array.isArray(unlockedStamps)) {
+    collected = unlockedStamps;
+  } else if (unlockedStamps && typeof unlockedStamps === "object") {
+    const byHackathon = unlockedStamps as Record<string, unknown>;
+    collected = byHackathon[hackathonId] ?? byHackathon[getHackathonType(hackathonId)];
   }
 
-  return [];
+  const ids = Array.isArray(collected)
+    ? collected.map(String)
+    : collected && typeof collected === "object"
+      ? Object.entries(collected)
+          .filter(([, unlocked]) => Boolean(unlocked))
+          .map(([stampId]) => stampId)
+      : [];
+
+  return ids.filter((stampId) => {
+    const stamp = stampsById.get(stampId);
+    return stamp !== undefined && stampBelongsToHackathon(stamp, hackathonId);
+  });
 };
