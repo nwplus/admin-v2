@@ -3,11 +3,20 @@ import { NwHacksIcon } from "@/components/graphy/icono";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { createFileRoute } from "@tanstack/react-router";
 
+type SigninSearch = {
+  redirect?: string;
+};
+
 export const Route = createFileRoute("/signin")({
+  validateSearch: (search: Record<string, unknown>): SigninSearch => ({
+    redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+  }),
   component: Signin,
 });
 
 function Signin() {
+  const { redirect } = Route.useSearch();
+
   return (
     <div className="relative h-full w-full bg-background-theme">
       <img
@@ -37,7 +46,10 @@ function Signin() {
               <CardDescription className="text-white/80">Welcome back!</CardDescription>
             </CardHeader>
             <CardContent>
-              <SignInButton className="border-none bg-gradient-to-br from-theme-green-gradient-light/80 to-theme-green-gradient-dark text-theme" />
+              <SignInButton
+                redirectTo={redirect}
+                className="border-none bg-gradient-to-br from-theme-green-gradient-light/80 to-theme-green-gradient-dark text-theme"
+              />
             </CardContent>
           </Card>
         </div>
