@@ -7,9 +7,11 @@ import { Button } from "../../ui/button";
 
 export function SignInButton({
   className,
+  redirectTo = "/",
   ...props
 }: React.ComponentProps<"button"> & {
   className?: string;
+  redirectTo?: string;
 }) {
   const router = useRouter();
 
@@ -24,13 +26,13 @@ export function SignInButton({
         hd: ORGANIZER_EMAIL_DOMAIN,
       });
       await signInWithPopup(auth, provider);
+      await router.navigate({
+        to: getSafeRedirectPath(redirectTo),
+      });
     } catch (error) {
       console.error("Error signing in with Google:", error);
     } finally {
       setLoading(false);
-      router.navigate({
-        to: "/",
-      });
     }
   };
 
@@ -65,3 +67,11 @@ export function SignInButton({
     </Button>
   );
 }
+
+const getSafeRedirectPath = (redirectTo: string) => {
+  if (!redirectTo.startsWith("/") || redirectTo.startsWith("//")) {
+    return "/";
+  }
+
+  return redirectTo;
+};
